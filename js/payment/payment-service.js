@@ -28,7 +28,6 @@ import {
 import { validatePaymentRequest } from './payment-validator.js';
 import { DemoPaymentProvider, SlimkyDemoPaymentProvider } from './demo-payment-provider.js';
 import { OrderStore } from './order-store.js';
-import { webhookService } from './webhook-service.js';
 import { inventoryService } from '../inventory/inventory-service.js';
 import { emailService } from '../email/email-service.js';
 import { customerService } from '../auth/customer-service.js';
