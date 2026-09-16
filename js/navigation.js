@@ -43,6 +43,19 @@ export function initNavigation() {
     console.warn('[Navigation] Wishlist auto-sync notice:', err);
   }
 
+  // Synchronize Account nav links automatically (Sign In vs My Account)
+  try {
+    syncAccountNavLinks(document);
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'slimky_active_session') syncAccountNavLinks(document);
+    });
+    window.addEventListener('slimky:auth:changed', () => {
+      syncAccountNavLinks(document);
+    });
+  } catch (err) {
+    console.warn('[Navigation] Account auto-sync notice:', err);
+  }
+
   // Sticky header scroll detection
   if (header) {
     const handleScroll = () => {
@@ -200,5 +213,54 @@ export function initFooterAccordions(scope = document) {
   applyMode();
   if (typeof mobileQuery.addEventListener === 'function') {
     mobileQuery.addEventListener('change', applyMode);
+  }
+}
+
+/**
+ * Synchronize header and mobile navigation account links based on authentication state.
+ */
+export function syncAccountNavLinks(scope = document) {
+  try {
+    let customer = null;
+    if (typeof localStorage !== 'undefined') {
+      const rawSession = localStorage.getItem('slimky_active_session');
+      if (rawSession) {
+        try {
+          const session = JSON.parse(rawSession);
+          if (session && session.expiresAt && new Date(session.expiresAt) > new Date()) {
+            const rawCustomers = localStorage.getItem('slimky_customers');
+            const customers = rawCustomers ? JSON.parse(rawCustomers) : [];
+            customer = customers.find(c => c.id === session.customerId) || null;
+          }
+        } catch (e) {}
+      }
+    }
+
+    const path = typeof window !== 'undefined' && window.location ? window.location.pathname : '';
+    let rootPrefix = '';
+    if (path.includes('/product/') || path.includes('/account/') || path.includes('/category/')) {
+      rootPrefix = '../../';
+    } else if (path.includes('/track-order/') || path.includes('/cart/') || path.includes('/shop/') || path.includes('/wishlist/')) {
+      rootPrefix = '../';
+    }
+
+    const accountLinks = scope.querySelectorAll('.nav-account-link, a[aria-label="My Account"], a[href*="#account"]');
+    accountLinks.forEach(link => {
+      if (customer) {
+        link.href = `${rootPrefix}account/`;
+        link.setAttribute('aria-label', `My Account (${customer.fullName})`);
+        link.setAttribute('title', `My Account (${customer.fullName})`);
+        const textSpan = link.querySelector('.nav-account-text');
+        if (textSpan) textSpan.textContent = 'My Account';
+      } else {
+        link.href = `${rootPrefix}account/login/`;
+        link.setAttribute('aria-label', 'Sign In');
+        link.setAttribute('title', 'Sign In');
+        const textSpan = link.querySelector('.nav-account-text');
+        if (textSpan) textSpan.textContent = 'Account Sign In';
+      }
+    });
+  } catch (err) {
+    console.warn('[Navigation] Account nav sync notice:', err);
   }
 }

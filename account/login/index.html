@@ -79,6 +79,25 @@
             <!-- General / Technical Error Alert -->
             <div id="login-general-error" class="auth-error-banner" role="alert"></div>
 
+            <!-- Demo Mode Quick-Fill Assistant -->
+            <div class="auth-demo-card" id="login-demo-helper" role="region" aria-label="Demo Testing Helper">
+              <div class="auth-demo-header">
+                <span class="auth-demo-badge">Demo Mode</span>
+                <span class="auth-demo-info">QA Account: <strong>chioma.demo@slimkyhair.com</strong></span>
+              </div>
+              <p class="auth-demo-subtext">Click below to prefill credentials and sign in directly to test the customer portal.</p>
+              <div class="auth-demo-actions">
+                <button type="button" id="login-fill-demo-btn" class="auth-demo-btn">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="8.5" cy="7" r="4"></circle>
+                    <polyline points="17 11 19 13 23 9"></polyline>
+                  </svg>
+                  Fill Demo Credentials
+                </button>
+              </div>
+            </div>
+
             <!-- Login Form -->
             <form id="login-form" novalidate>
               

@@ -163,10 +163,10 @@ export class CustomerService {
   initDemoCustomer() {
     const customers = readStorage(CUSTOMERS_STORAGE_KEY, []);
     const addresses = readStorage(ADDRESSES_STORAGE_KEY, []);
+    const demoCustId = 'cust_demo_chioma_01';
+    const now = new Date().toISOString();
 
-    if (customers.length === 0) {
-      const demoCustId = 'cust_demo_chioma_01';
-      const now = new Date().toISOString();
+    if (!customers.some(c => c.email && c.email.toLowerCase() === 'chioma.demo@slimkyhair.com')) {
       const demoCust = {
         id: demoCustId,
         authUserId: null, // Connected to Supabase auth.users(id) when Supabase Auth is active
@@ -190,27 +190,77 @@ export class CustomerService {
       };
       customers.push(demoCust);
       writeStorage(CUSTOMERS_STORAGE_KEY, customers);
+    }
 
-      if (addresses.length === 0) {
-        const demoAddr = {
-          id: 'addr_demo_chioma_01',
-          customerId: demoCustId,
-          label: 'Home',
-          recipientName: 'Chioma E. Okonkwo',
-          phone: '+234 803 123 4567',
+    if (!addresses.some(a => a.customerId === demoCustId)) {
+      const demoAddr = {
+        id: 'addr_demo_chioma_01',
+        customerId: demoCustId,
+        label: 'Home',
+        recipientName: 'Chioma E. Okonkwo',
+        phone: '+234 803 123 4567',
+        streetAddress: '14 Admiralty Way',
+        city: 'Ikeja',
+        state: 'Lagos',
+        postalCode: '100001',
+        country: 'Nigeria',
+        deliveryInstructions: 'Call on arrival at the gate',
+        isDefault: true,
+        createdAt: now,
+        updatedAt: now
+      };
+      addresses.push(demoAddr);
+      writeStorage(ADDRESSES_STORAGE_KEY, addresses);
+    }
+
+    // Seed sample order for Chioma so QA testing immediately shows populated orders & tracking
+    const orders = readStorage('slimky_orders', []);
+    if (!orders.some(o => o.customerId === demoCustId)) {
+      const demoOrder = {
+        id: 'ORD-DEMO-CHIOMA-01',
+        orderNumber: 'SLM-20260910-CH01',
+        customerId: demoCustId,
+        orderStatus: 'delivered',
+        paymentStatus: 'successful',
+        currency: 'NGN',
+        subtotal: 76000,
+        shippingFee: 3500,
+        total: 79500,
+        customer: {
+          fullName: 'Chioma E. Okonkwo',
+          email: 'chioma.demo@slimkyhair.com',
+          phone: '+234 803 123 4567'
+        },
+        shippingAddress: {
           streetAddress: '14 Admiralty Way',
           city: 'Ikeja',
           state: 'Lagos',
-          postalCode: '100001',
           country: 'Nigeria',
-          deliveryInstructions: 'Call on arrival at the gate',
-          isDefault: true,
-          createdAt: now,
-          updatedAt: now
-        };
-        addresses.push(demoAddr);
-        writeStorage(ADDRESSES_STORAGE_KEY, addresses);
-      }
+          postalCode: '100001'
+        },
+        items: [
+          {
+            id: 'item-01',
+            productId: 'prod-01',
+            variantId: 'var-01-50',
+            productName: 'Botanical Hydrating Shampoo',
+            variantName: '50ml',
+            unitPrice: 38000,
+            quantity: 2,
+            subtotal: 76000,
+            sku: 'SLM-BHS-50'
+          }
+        ],
+        tracking: {
+          carrier: 'GIG Logistics',
+          trackingNumber: 'GIG-LAG-982341',
+          status: 'Delivered'
+        },
+        createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+        updatedAt: now
+      };
+      orders.push(demoOrder);
+      writeStorage('slimky_orders', orders);
     }
   }
 
