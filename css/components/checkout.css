@@ -492,6 +492,31 @@
   line-height: 1.5;
 }
 
+.checkout-empty-actions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.checkout-empty-btn {
+  min-height: 48px;
+  padding: 0 28px;
+  font-family: var(--font-sans, 'DM Sans', sans-serif);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-xs, 2px);
+  box-sizing: border-box;
+}
+
 /* 2-Column Desktop Grid Layout */
 .checkout-layout {
   display: grid;
@@ -1792,6 +1817,16 @@
   .checkout-submit-cta {
     min-height: 52px;
     font-size: 0.875rem;
+    width: 100%;
+  }
+
+  .checkout-empty-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 12px;
+  }
+
+  .checkout-empty-actions .checkout-empty-btn {
     width: 100%;
   }
 }

@@ -57,6 +57,27 @@
   .btn-mobile-full {
     width: 100% !important;
   }
+/* Primary, Secondary & Outline Base Resilience */
+.btn-primary,
+.btn-secondary,
+.btn-outline {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: var(--radius-xs, 2px);
+  padding: 0 var(--space-xl, 24px);
+  font-family: var(--font-sans, 'DM Sans', sans-serif);
+  font-size: var(--text-body-sm, 0.875rem);
+  font-weight: var(--font-weight-medium, 500);
+  letter-spacing: var(--tracking-wider, 0.04em);
+  text-transform: uppercase;
+  transition: background-color var(--transition-fast), 
+              color var(--transition-fast), 
+              border-color var(--transition-fast);
+  cursor: pointer;
+  box-sizing: border-box;
 }
 
 /* Primary Button: Solid Deep Brown / Navy */
@@ -64,6 +85,7 @@
   background-color: var(--color-brown-deep);
   color: var(--color-text-inverse);
   border-color: var(--color-brown-deep);
+  min-height: 48px;
 }
 
 .btn-primary:hover {
