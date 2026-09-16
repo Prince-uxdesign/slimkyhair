@@ -1,0 +1,195 @@
+/**
+ * Section 8: Dark Promotional / Campaign Section Component
+ * Slimky Hair
+ * 
+ * Strict Solid Color System (Zero Gradients)
+ * Background: Dark Navy / Deep Botanical Slate (--bg-dark #1B242A)
+ */
+
+.campaign-section {
+  background-color: var(--bg-dark); /* Solid dark navy #1B242A */
+  color: var(--color-text-inverse);
+  padding-block: clamp(4.5rem, 8vw, 7.5rem);
+  border-top: 1px solid rgba(250, 248, 245, 0.08);
+  border-bottom: 1px solid rgba(250, 248, 245, 0.08);
+  position: relative;
+}
+
+.campaign-layout {
+  display: grid;
+  grid-template-columns: 1.08fr 0.92fr;
+  gap: clamp(2.5rem, 5vw, 5.5rem);
+  align-items: center;
+}
+
+/* Content Column (Left) */
+.campaign-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.campaign-eyebrow {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: var(--text-eyebrow);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: #B5C9AF; /* Subtle sage accent for dark background */
+  margin-bottom: var(--space-md);
+}
+
+.campaign-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2.25rem, 4.2vw, 3.85rem);
+  line-height: 1.12;
+  font-weight: var(--font-weight-regular);
+  letter-spacing: -0.01em;
+  color: #FAF8F5;
+  margin-bottom: var(--space-lg);
+}
+
+.campaign-description {
+  font-family: var(--font-sans);
+  font-size: clamp(0.9375rem, 1.2vw, 1.0625rem);
+  line-height: 1.7;
+  color: #D5CEC4;
+  max-width: 520px;
+  margin-bottom: var(--space-lg);
+}
+
+/* Subtle campaign incentive indicator */
+.campaign-offer-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  background-color: rgba(250, 248, 245, 0.06);
+  border: 1px solid rgba(250, 248, 245, 0.12);
+  border-radius: var(--radius-xs);
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  letter-spacing: var(--tracking-wide);
+  color: #FAF8F5;
+  margin-bottom: var(--space-xl);
+}
+
+.campaign-offer-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #B5C9AF;
+  flex-shrink: 0;
+}
+
+.campaign-cta-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+/* High-contrast solid button for dark background */
+.btn-campaign {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 12px 32px;
+  background-color: #FAF8F5;
+  color: #1B242A;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: var(--radius-xs);
+  border: 1px solid #FAF8F5;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+}
+
+.btn-campaign:hover {
+  background-color: #EBEFE9;
+  border-color: #EBEFE9;
+  color: #1B242A;
+  transform: translateY(-1px);
+}
+
+/* Media Column (Right) */
+.campaign-media {
+  position: relative;
+  width: 100%;
+}
+
+.media-frame-campaign {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  background-color: rgba(250, 248, 245, 0.04);
+  border: 1px solid rgba(250, 248, 245, 0.12);
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  box-shadow: var(--shadow-subtle);
+}
+
+.media-frame-campaign img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  transition: transform var(--transition-smooth);
+}
+
+.campaign-media:hover .media-frame-campaign img {
+  transform: scale(1.02);
+}
+
+/* Responsive Adaptations */
+@media (max-width: 960px) {
+  .campaign-layout {
+    grid-template-columns: 1fr;
+    gap: var(--space-2xl);
+  }
+
+  .campaign-content {
+    align-items: flex-start;
+  }
+
+  .campaign-description {
+    max-width: 100%;
+  }
+
+  .campaign-media {
+    max-width: 520px;
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .campaign-section {
+    padding-block: clamp(3.5rem, 9vw, 5rem);
+  }
+
+  .campaign-title {
+    font-size: clamp(2rem, 7vw, 2.75rem);
+  }
+
+  .campaign-description {
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+
+  .campaign-offer-pill {
+    font-size: 0.75rem;
+    padding: 6px 12px;
+    width: 100%;
+  }
+
+  .btn-campaign {
+    width: 100%;
+    min-height: 46px;
+  }
+}

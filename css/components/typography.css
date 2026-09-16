@@ -1,0 +1,142 @@
+/**
+ * Typography System
+ * Cormorant Garamond (Headings & Major Titles) + DM Sans (Body, UI & Technical)
+ * Slimky Hair
+ */
+
+/* Headlines */
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+.font-sans {
+  font-family: var(--font-sans);
+}
+
+.text-display {
+  font-family: var(--font-serif);
+  font-size: var(--text-display);
+  line-height: 1.08;
+  letter-spacing: var(--tracking-tight);
+  font-weight: var(--font-weight-light);
+  color: var(--color-text-primary);
+  overflow-wrap: break-word;
+}
+
+.text-h1 {
+  font-family: var(--font-serif);
+  font-size: var(--text-h1);
+  line-height: var(--leading-tight);
+  letter-spacing: -0.015em;
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+  overflow-wrap: break-word;
+}
+
+.text-h2 {
+  font-family: var(--font-serif);
+  font-size: var(--text-h2);
+  line-height: var(--leading-snug);
+  letter-spacing: -0.01em;
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+  overflow-wrap: break-word;
+}
+
+.text-h3 {
+  font-family: var(--font-serif);
+  font-size: var(--text-h3);
+  line-height: var(--leading-snug);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+  overflow-wrap: break-word;
+}
+
+.text-h4 {
+  font-family: var(--font-serif);
+  font-size: var(--text-h4);
+  line-height: var(--leading-snug);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  overflow-wrap: break-word;
+}
+
+/* Eyebrow & Subtitle Metadata */
+.text-eyebrow {
+  font-family: var(--font-sans);
+  font-size: var(--text-eyebrow);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-sage-muted);
+  display: inline-block;
+  margin-bottom: var(--space-xs);
+}
+
+.text-eyebrow-dark {
+  color: var(--color-text-muted);
+}
+
+.text-eyebrow-inverse {
+  color: var(--bg-sage-subtle);
+}
+
+/* Body Scales */
+.text-lead {
+  font-size: var(--text-body-lg);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-regular);
+}
+
+.text-body {
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: var(--color-text-secondary);
+}
+
+.text-body-sm {
+  font-size: var(--text-body-sm);
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+.text-caption {
+  font-size: var(--text-caption);
+  line-height: 1.4;
+  color: var(--color-text-muted);
+  letter-spacing: var(--tracking-wide);
+}
+
+/* Section Header Component */
+.section-header {
+  margin-bottom: var(--space-2xl);
+}
+
+.section-header.text-center {
+  text-align: center;
+  max-width: var(--container-text);
+  margin-inline: auto;
+}
+
+.section-header.text-left {
+  text-align: left;
+  max-width: var(--container-text);
+}
+
+.section-header .section-title {
+  margin-top: var(--space-xs);
+  margin-bottom: var(--space-sm);
+}
+
+.section-header .section-description {
+  margin-top: var(--space-sm);
+  font-size: var(--text-body-lg);
+  color: var(--color-text-secondary);
+}
+
+/* Editorial Serif Emphasis */
+.italic-editorial {
+  font-style: italic;
+  font-weight: 300;
+}

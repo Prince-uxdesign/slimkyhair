@@ -1,0 +1,654 @@
+/**
+ * Slimky DemoPay - Payment Gateway Styles (C10 / C11)
+ * African Botanical Luxury Aesthetic - Solid Palette - Zero External Branding
+ */
+
+/* Container & Backdrop */
+.demopay-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay-backdrop, rgba(27, 36, 42, 0.65));
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: var(--z-modal, 1000);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md, 16px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--transition-base, 250ms), visibility var(--transition-base, 250ms);
+}
+
+.demopay-modal-backdrop.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Modal Card */
+.demopay-modal {
+  width: 100%;
+  max-width: 520px;
+  background: var(--bg-surface, #FFFFFF);
+  border: 1px solid var(--color-border, #E8E2D9);
+  border-radius: var(--radius-sm, 2px);
+  box-shadow: 0 16px 40px rgba(27, 36, 42, 0.16);
+  overflow: hidden;
+  transform: translateY(12px) scale(0.98);
+  transition: transform var(--transition-smooth, 300ms);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.demopay-modal-backdrop.is-open .demopay-modal {
+  transform: translateY(0) scale(1);
+}
+
+/* Modal Header */
+.demopay-header {
+  padding: 20px 24px;
+  background: var(--bg-secondary, #F7F5F0);
+  border-bottom: 1px solid var(--color-border-subtle, #E8E2D9);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.demopay-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.demopay-logo-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-brown-deep, #2C1E18);
+  color: #FAF8F5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.demopay-title {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #2C1E18);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.demopay-close-btn {
+  background: none;
+  border: none;
+  color: var(--color-text-secondary, #5C554E);
+  cursor: pointer;
+  padding: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-xs, 1px);
+  transition: color var(--transition-fast);
+}
+
+.demopay-close-btn:hover {
+  color: var(--color-text-primary, #2C1E18);
+}
+
+/* Test Mode Banner */
+.demopay-test-banner {
+  background: #FEF3C7;
+  color: #92400E;
+  border-bottom: 1px solid #FCD34D;
+  padding: 10px 20px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1.4;
+}
+
+.demopay-test-badge {
+  background: #D97706;
+  color: #FFFFFF;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 2px 6px;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+
+/* Modal Body */
+.demopay-body {
+  padding: 20px 24px 24px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Read-Only Amount Display */
+.demopay-amount-box {
+  background: var(--bg-secondary, #F7F5F0);
+  border: 1px solid var(--color-border-subtle, #E8E2D9);
+  padding: 14px 16px;
+  border-radius: var(--radius-xs, 1px);
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.demopay-amount-label {
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  color: var(--color-text-secondary, #5C554E);
+}
+
+.demopay-amount-value {
+  font-family: var(--font-serif);
+  font-size: 1.625rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #2C1E18);
+}
+
+/* Quick Fill Simulator Controls */
+.demopay-presets-box {
+  background: var(--bg-surface, #FFFFFF);
+  border: 1px dashed var(--color-border-subtle, #E8E2D9);
+  padding: 12px 14px;
+  margin-bottom: 20px;
+  border-radius: var(--radius-xs, 1px);
+}
+
+.demopay-presets-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #5C554E);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.demopay-preset-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.demopay-preset-btn {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 6px 10px;
+  min-height: 36px;
+  border: 1px solid var(--color-border, #E8E2D9);
+  background: var(--bg-secondary, #F7F5F0);
+  color: var(--color-text-primary, #2C1E18);
+  border-radius: var(--radius-xs, 1px);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.demopay-preset-btn:hover {
+  background: var(--color-brown-deep, #2C1E18);
+  color: #FFFFFF;
+  border-color: var(--color-brown-deep, #2C1E18);
+}
+
+/* Form Fields */
+.demopay-form-group {
+  margin-bottom: 16px;
+}
+
+.demopay-label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-primary, #2C1E18);
+  margin-bottom: 6px;
+}
+
+.demopay-input {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  color: var(--color-text-primary, #2C1E18);
+  background: var(--bg-surface, #FFFFFF);
+  border: 1px solid var(--color-border, #E8E2D9);
+  border-radius: var(--radius-xs, 1px);
+  box-sizing: border-box;
+  transition: border-color var(--transition-fast);
+}
+
+.demopay-input:focus {
+  outline: none;
+  border-color: var(--color-brown-deep, #2C1E18);
+  box-shadow: 0 0 0 1px var(--color-brown-deep, #2C1E18);
+}
+
+.demopay-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* Feedback / Error Alerts */
+.demopay-alert {
+  padding: 12px 14px;
+  border-radius: var(--radius-xs, 1px);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin-bottom: 16px;
+  display: none;
+}
+
+.demopay-alert.is-declined,
+.demopay-alert.is-failed {
+  display: block;
+  background: #FEF2F2;
+  border: 1px solid #FCA5A5;
+  color: #991B1B;
+}
+
+.demopay-alert.is-processing {
+  display: block;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  color: #1E40AF;
+}
+
+/* Action Buttons */
+.demopay-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.demopay-submit-btn {
+  width: 100%;
+  min-height: 52px;
+  background: var(--color-brown-deep, #2C1E18);
+  color: #FAF8F5;
+  border: 1px solid var(--color-brown-deep, #2C1E18);
+  border-radius: var(--radius-xs, 1px);
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all var(--transition-fast);
+  touch-action: manipulation;
+}
+
+.demopay-submit-btn:hover:not(:disabled) {
+  background: var(--color-sage-dark, #2A3830);
+  border-color: var(--color-sage-dark, #2A3830);
+}
+
+.demopay-submit-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.demopay-simulate-fail-btn {
+  width: 100%;
+  min-height: 48px;
+  background: transparent;
+  color: var(--color-error, #8F3B3B);
+  border: 1px solid var(--color-error, #8F3B3B);
+  border-radius: var(--radius-xs, 1px);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all var(--transition-fast);
+  touch-action: manipulation;
+}
+
+.demopay-simulate-fail-btn:hover:not(:disabled) {
+  background: rgba(143, 59, 59, 0.06);
+}
+
+.demopay-simulate-fail-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.demopay-cancel-btn {
+  width: 100%;
+  min-height: 48px;
+  background: transparent;
+  color: var(--color-text-secondary, #5C554E);
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: underline;
+  touch-action: manipulation;
+}
+
+.demopay-cancel-btn:hover {
+  color: var(--color-text-primary, #2C1E18);
+}
+
+/* Processing Spinner */
+.demopay-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #FFFFFF;
+  border-radius: 50%;
+  animation: demopay-spin 0.6s linear infinite;
+  display: inline-block;
+}
+
+.demopay-spinner-large {
+  width: 44px;
+  height: 44px;
+  border: 3px solid rgba(44, 30, 24, 0.15);
+  border-top-color: var(--color-brown-deep, #2C1E18);
+  border-radius: 50%;
+  animation: demopay-spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+@keyframes demopay-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   Milestone C20.6: Dedicated Mobile-First Payment State Screens
+   ========================================================================== */
+
+.demopay-status-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 8px 4px 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.demopay-status-icon-box {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  flex-shrink: 0;
+}
+
+.demopay-status-icon-box.demopay-icon-failed {
+  background: #FEE2E2;
+  color: #DC2626;
+  border: 1px solid #FECACA;
+}
+
+.demopay-status-icon-box.demopay-icon-success {
+  background: #D1FAE5;
+  color: #059669;
+  border: 1px solid #A7F3D0;
+}
+
+.demopay-status-title {
+  font-family: var(--font-serif);
+  font-size: 1.375rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--color-text-primary, #2C1E18);
+  margin: 0 0 10px 0;
+  word-break: break-word;
+}
+
+.demopay-status-desc {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary, #5C554E);
+  margin: 0 0 20px 0;
+  max-width: 380px;
+}
+
+.demopay-status-reason {
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: #991B1B;
+  background: #FEF2F2;
+  border: 1px solid #FCA5A5;
+  border-radius: var(--radius-xs, 2px);
+  padding: 12px 14px;
+  width: 100%;
+  margin: 0 0 16px 0;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.demopay-status-safe-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: var(--bg-secondary, #F7F5F0);
+  border: 1px solid var(--color-border-subtle, #E8E2D9);
+  border-radius: var(--radius-xs, 2px);
+  padding: 12px 14px;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--color-text-secondary, #5C554E);
+  text-align: left;
+  width: 100%;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+}
+
+.demopay-shield-icon {
+  font-size: 1rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.demopay-status-details-box {
+  background: var(--bg-surface, #FFFFFF);
+  border: 1px solid var(--color-border-subtle, #E8E2D9);
+  border-radius: var(--radius-xs, 2px);
+  padding: 12px 16px;
+  width: 100%;
+  margin-bottom: 24px;
+  box-sizing: border-box;
+}
+
+.demopay-status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 0.8125rem;
+  border-bottom: 1px solid var(--color-border-subtle, #F0ECE6);
+}
+
+.demopay-status-row:last-child {
+  border-bottom: none;
+}
+
+.demopay-status-label {
+  color: var(--color-text-secondary, #5C554E);
+  font-weight: 500;
+}
+
+.demopay-status-val {
+  color: var(--color-text-primary, #2C1E18);
+  font-weight: 600;
+}
+
+/* Full-width Vertical CTA Buttons Stack (Mobile Primary Target) */
+.demopay-status-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.demopay-btn-primary {
+  width: 100%;
+  min-height: 52px;
+  background: var(--color-brown-deep, #2C1E18);
+  color: #FAF8F5;
+  border: 1px solid var(--color-brown-deep, #2C1E18);
+  border-radius: var(--radius-xs, 2px);
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all var(--transition-fast, 150ms);
+  touch-action: manipulation;
+  padding: 0 16px;
+}
+
+.demopay-btn-primary:hover:not(:disabled) {
+  background: var(--color-sage-dark, #2A3830);
+  border-color: var(--color-sage-dark, #2A3830);
+}
+
+.demopay-btn-primary:focus-visible {
+  outline: 2px solid var(--color-brown-deep, #2C1E18);
+  outline-offset: 2px;
+}
+
+.demopay-btn-secondary {
+  width: 100%;
+  min-height: 48px;
+  background: var(--bg-surface, #FFFFFF);
+  color: var(--color-text-primary, #2C1E18);
+  border: 1px solid var(--color-border-medium, #C2B8AE);
+  border-radius: var(--radius-xs, 2px);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all var(--transition-fast, 150ms);
+  touch-action: manipulation;
+  padding: 0 16px;
+}
+
+.demopay-btn-secondary:hover:not(:disabled) {
+  background: var(--bg-secondary, #F7F5F0);
+  border-color: var(--color-text-primary, #2C1E18);
+}
+
+.demopay-btn-secondary:focus-visible {
+  outline: 2px solid var(--color-text-primary, #2C1E18);
+  outline-offset: 2px;
+}
+
+/* Tablet (600px - 834px) - Balanced Status Cards */
+@media (min-width: 601px) and (max-width: 834px) {
+  .demopay-modal {
+    max-width: 500px;
+    width: 90%;
+    margin: 0 auto;
+    border-radius: var(--radius-sm, 3px);
+  }
+
+  .demopay-status-view {
+    padding: 12px 16px 16px;
+  }
+}
+
+/* Desktop (1024px - 1440px) - Polished Centered Payment State */
+@media (min-width: 835px) {
+  .demopay-modal {
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  .demopay-status-view {
+    padding: 16px 20px 20px;
+  }
+}
+
+/* Mobile Responsiveness Overrides (360px - 480px) */
+@media (max-width: 480px) {
+  .demopay-modal {
+    max-height: 95vh;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    border-radius: 4px;
+  }
+
+  .demopay-header {
+    padding: 14px 16px;
+  }
+
+  .demopay-body {
+    padding: 16px 16px 20px;
+  }
+
+  .demopay-status-view {
+    padding: 4px 0 12px;
+  }
+
+  .demopay-status-title {
+    font-size: 1.25rem;
+  }
+
+  .demopay-actions,
+  .demopay-status-actions {
+    gap: 12px;
+  }
+
+  .demopay-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .demopay-amount-box {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .demopay-amount-value {
+    font-size: 1.5rem;
+  }
+}

@@ -1,0 +1,369 @@
+/**
+ * Slimky Hair — Cookie Consent UI
+ * Visually consistent with the brand system (solid colours, DM Sans / Cormorant).
+ * Mobile-primary: 360 / 375 / 390 / 430 / 480 stack vertically, fit viewport,
+ * no horizontal scroll, comfortable targets, safe-area aware, dismissible.
+ * Tablet/Desktop: 600 / 768 / 834 / 1024 / 1280 / 1440 compact card.
+ */
+
+.slimky-consent-banner {
+  position: fixed;
+  z-index: 400;
+  inset-inline: 0;
+  bottom: 0;
+  padding: 12px 12px calc(12px + var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)));
+  pointer-events: none;
+  box-sizing: border-box;
+  max-width: 100vw;
+}
+
+.slimky-consent-banner[hidden] {
+  display: none !important;
+}
+
+.slimky-consent-card {
+  pointer-events: auto;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  max-height: min(68vh, 560px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background-color: var(--bg-surface, #ffffff);
+  color: var(--color-text-primary, #2c1e18);
+  border: 1px solid var(--color-border, #e8e2d9);
+  border-radius: var(--radius-xs, 1px);
+  box-shadow: var(--shadow-elevated, 0 4px 12px rgba(44, 30, 24, 0.06));
+  padding: 18px 16px 16px;
+}
+
+.slimky-consent-eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-eyebrow, 0.16em);
+  text-transform: uppercase;
+  color: var(--color-sage-muted, #3b4e43);
+  margin: 0 0 6px;
+}
+
+.slimky-consent-title {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 1.375rem;
+  line-height: 1.2;
+  color: var(--color-text-primary, #2c1e18);
+  margin: 0 0 8px;
+}
+
+.slimky-consent-desc {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary, #5e5955);
+  margin: 0 0 8px;
+  max-width: 62ch;
+}
+
+.slimky-consent-links {
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  margin: 0 0 14px;
+  color: var(--color-text-muted, #8c8681);
+}
+
+.slimky-consent-links a {
+  color: var(--color-brown-deep, #2c1e18);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.slimky-consent-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.slimky-consent-btn {
+  width: 100%;
+  min-height: 48px;
+  font-size: 0.8125rem;
+  white-space: normal;
+  line-height: 1.3;
+  padding-inline: 16px;
+}
+
+/* Reserve space so the banner never permanently covers checkout CTAs/footer */
+body.has-consent-banner {
+  padding-bottom: 0;
+}
+
+/* ---------------- Preferences modal ---------------- */
+
+.slimky-consent-modal-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 700;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 12px 12px calc(12px + var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)));
+  box-sizing: border-box;
+}
+
+.slimky-consent-modal-wrap[hidden] {
+  display: none !important;
+}
+
+.slimky-consent-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: var(--overlay-backdrop, rgba(27, 36, 42, 0.45));
+}
+
+.slimky-consent-modal {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  max-height: min(88vh, 720px);
+  max-height: min(88dvh, 720px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background-color: var(--bg-surface, #ffffff);
+  border: 1px solid var(--color-border, #e8e2d9);
+  border-radius: var(--radius-xs, 1px);
+  box-shadow: var(--shadow-dropdown, 0 8px 24px rgba(27, 36, 42, 0.06));
+  padding: 20px 16px 16px;
+}
+
+.slimky-consent-modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.slimky-consent-modal-title {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 1.375rem;
+  line-height: 1.2;
+  margin: 0;
+  color: var(--color-text-primary, #2c1e18);
+}
+
+.slimky-consent-close {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  line-height: 1;
+  background: transparent;
+  border: 1px solid var(--color-border, #e8e2d9);
+  border-radius: var(--radius-xs, 1px);
+  color: var(--color-text-primary, #2c1e18);
+  cursor: pointer;
+}
+
+.slimky-consent-close:hover {
+  background-color: var(--bg-secondary, #f4efea);
+}
+
+.slimky-consent-modal-intro {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary, #5e5955);
+  margin: 0 0 14px;
+}
+
+.slimky-consent-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.slimky-consent-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--color-border-subtle, #e8e2d9);
+  border-radius: var(--radius-xs, 1px);
+  padding: 12px;
+  background-color: var(--bg-primary, #faf8f5);
+  cursor: pointer;
+  margin: 0;
+}
+
+.slimky-consent-option-text h3 {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0 0 4px;
+  color: var(--color-text-primary, #2c1e18);
+}
+
+.slimky-consent-option-text p {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary, #5e5955);
+  margin: 0;
+}
+
+.slimky-consent-pill {
+  flex-shrink: 0;
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-sage-muted, #3b4e43);
+  background-color: var(--bg-sage-subtle, #ebefe9);
+  border-radius: 9999px;
+  padding: 8px 12px;
+  white-space: nowrap;
+}
+
+/* Accessible switch */
+.slimky-switch {
+  flex-shrink: 0;
+  width: 56px;
+  height: 32px;
+  border-radius: 9999px;
+  border: 1px solid var(--color-border-medium, #d5cec4);
+  background-color: var(--color-gray-light, #e6e3df);
+  position: relative;
+  cursor: pointer;
+  padding: 0;
+  min-height: 32px;
+}
+
+.slimky-switch .slimky-switch-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px rgba(44, 30, 24, 0.2);
+  transition: transform 150ms ease;
+}
+
+.slimky-switch.is-on {
+  background-color: var(--color-sage-muted, #3b4e43);
+  border-color: var(--color-sage-muted, #3b4e43);
+}
+
+/* Expanded hit area so the switch meets 44px touch guidance */
+.slimky-switch::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+}
+
+.slimky-switch.is-on .slimky-switch-knob {
+  transform: translateX(24px);
+}
+
+.slimky-switch:focus-visible,
+.slimky-consent-close:focus-visible,
+.slimky-consent-btn:focus-visible {
+  outline: 2px solid var(--color-brown-deep, #2c1e18);
+  outline-offset: 2px;
+}
+
+.slimky-consent-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.slimky-consent-modal-foot {
+  margin: 14px 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted, #8c8681);
+  text-align: center;
+}
+
+.slimky-consent-modal-foot a {
+  color: var(--color-brown-deep, #2c1e18);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+/* On-device manage card injected into /cookies + /privacy */
+.legal-consent-manage-card {
+  margin-top: 16px;
+  border: 1px solid var(--color-border-subtle, #e8e2d9);
+  border-radius: var(--radius-xs, 1px);
+  background: var(--bg-surface, #fff);
+  padding: 16px;
+}
+
+.footer-consent-settings:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ---------------- Tablet / Desktop ---------------- */
+
+@media (min-width: 600px) {
+  .slimky-consent-banner {
+    inset-inline: auto 24px;
+    right: 24px;
+    left: auto;
+    bottom: 24px;
+    bottom: calc(24px + var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)));
+    padding: 0;
+    width: min(400px, calc(100vw - 48px));
+  }
+
+  .slimky-consent-card {
+    max-height: min(60vh, 520px);
+    padding: 22px 20px 18px;
+  }
+
+  .slimky-consent-modal-wrap {
+    align-items: center;
+    padding: 24px;
+  }
+
+  .slimky-consent-modal {
+    max-width: 560px;
+    padding: 28px 28px 24px;
+  }
+}
+
+@media (min-width: 834px) {
+  .slimky-consent-banner {
+    width: min(420px, calc(100vw - 48px));
+  }
+}
+
+@media (min-width: 1024px) {
+  .slimky-consent-banner {
+    left: 24px;
+    right: auto;
+    inset-inline: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slimky-switch .slimky-switch-knob {
+    transition: none;
+  }
+}

@@ -1,0 +1,212 @@
+/**
+ * Section 6: Curated Care for Every Hair Journey Component
+ * Slimky Hair
+ * 
+ * Strict Solid Color System (Zero Gradients)
+ * Background: Soft Sage (--bg-sage-subtle #EBEFE9)
+ */
+
+.rituals-section {
+  background-color: var(--bg-sage-subtle);
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding-block: clamp(4.5rem, 8vw, 7.5rem);
+  position: relative;
+}
+
+.rituals-header {
+  text-align: center;
+  max-width: 680px;
+  margin-inline: auto;
+  margin-bottom: var(--space-3xl);
+}
+
+.rituals-eyebrow {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: var(--text-eyebrow);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-sage-muted);
+  margin-bottom: var(--space-sm);
+}
+
+.rituals-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2.25rem, 4vw, 3.5rem);
+  line-height: 1.15;
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-md);
+  letter-spacing: -0.01em;
+}
+
+.rituals-description {
+  font-family: var(--font-sans);
+  font-size: clamp(0.9375rem, 1.15vw, 1.0625rem);
+  line-height: 1.65;
+  color: var(--color-text-secondary);
+}
+
+/* 4-Column Category Grid */
+.rituals-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-lg);
+}
+
+.ritual-card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+  height: 100%;
+}
+
+.ritual-card:hover {
+  border-color: var(--color-border-medium);
+  box-shadow: var(--shadow-subtle);
+  transform: translateY(-3px);
+}
+
+/* Fixed 4:5 Aspect Ratio Container */
+.ritual-card-media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background-color: var(--bg-secondary);
+}
+
+.ritual-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform var(--transition-smooth);
+}
+
+.ritual-card:hover .ritual-card-image {
+  transform: scale(1.03);
+}
+
+/* Card Content Details */
+.ritual-card-content {
+  padding: var(--space-md) var(--space-md) var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  background-color: var(--bg-surface);
+}
+
+.ritual-card-tag {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-sage-muted);
+  margin-bottom: 4px;
+}
+
+.ritual-card-title {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  line-height: 1.25;
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+  margin-bottom: 6px;
+}
+
+.ritual-card-descriptor {
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-md);
+  flex-grow: 1;
+}
+
+/* Understated Explore CTA */
+.ritual-card-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-brown-deep);
+  transition: gap var(--transition-fast), color var(--transition-fast);
+  margin-top: auto;
+  padding-top: var(--space-xs);
+}
+
+.ritual-card-cta svg {
+  width: 14px;
+  height: 14px;
+  transition: transform var(--transition-fast);
+}
+
+.ritual-card:hover .ritual-card-cta {
+  color: var(--color-sage-muted);
+}
+
+.ritual-card:hover .ritual-card-cta svg {
+  transform: translateX(3px);
+}
+
+/* Responsive Adaptations */
+@media (max-width: 1024px) {
+  .rituals-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-lg);
+  }
+}
+
+@media (max-width: 640px) {
+  .rituals-section {
+    padding-block: clamp(3.5rem, 8vw, 5rem);
+  }
+
+  .rituals-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .ritual-card-content {
+    padding: 10px 8px 12px;
+  }
+
+  .ritual-card-title {
+    font-size: 1rem;
+    line-height: 1.25;
+  }
+
+  .ritual-card-descriptor {
+    font-size: 0.75rem;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+
+  .ritual-card-cta {
+    font-size: 0.6875rem;
+  }
+}
+
+@media (max-width: 340px) {
+  .rituals-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+}

@@ -1,0 +1,121 @@
+/**
+ * Section 5: Statistics & Social Proof Band Component
+ * Slimky Hair
+ * 
+ * Strict Solid Color System (Zero Gradients)
+ * High-contrast earthy visual break between surrounding cream sections.
+ */
+
+.stats-section {
+  background-color: var(--color-brown-deep); /* Solid rich espresso brown #2C1E18 */
+  color: var(--color-text-inverse);
+  padding-block: clamp(3.75rem, 6.5vw, 5.75rem);
+  border-top: 1px solid rgba(250, 248, 245, 0.08);
+  border-bottom: 1px solid rgba(250, 248, 245, 0.08);
+  position: relative;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-xl);
+  align-items: center;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-md) var(--space-sm);
+  position: relative;
+  transition: transform var(--transition-fast);
+}
+
+.stat-item:hover {
+  transform: translateY(-2px);
+}
+
+/* Subtle separator between stats on desktop */
+.stat-item:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  right: calc(-0.5 * var(--space-xl));
+  top: 20%;
+  height: 60%;
+  width: 1px;
+  background-color: rgba(250, 248, 245, 0.12);
+}
+
+.stat-number {
+  font-family: var(--font-serif);
+  font-size: clamp(2.75rem, 4.75vw, 4.5rem);
+  line-height: 1;
+  font-weight: var(--font-weight-regular);
+  color: #FAF8F5;
+  letter-spacing: -0.02em;
+  margin-bottom: 10px;
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+}
+
+.stat-label {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #D5CEC4;
+  line-height: 1.4;
+  max-width: 180px;
+}
+
+/* Tablet (2x2) */
+@media (max-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-2xl) var(--space-xl);
+  }
+
+  .stat-item:not(:last-child)::after {
+    display: none;
+  }
+
+  .stat-item:nth-child(odd)::after {
+    display: block;
+    right: calc(-0.5 * var(--space-xl));
+  }
+}
+
+/* Mobile (2x2 with generous spacing) */
+@media (max-width: 640px) {
+  .stats-section {
+    padding-block: clamp(3rem, 7vw, 4rem);
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-xl) var(--space-md);
+  }
+
+  .stat-item {
+    padding: var(--space-xs);
+  }
+
+  .stat-item:nth-child(odd)::after {
+    display: block;
+    right: calc(-0.5 * var(--space-md));
+  }
+
+  .stat-number {
+    font-size: 2.375rem;
+    margin-bottom: 6px;
+  }
+
+  .stat-label {
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    max-width: 140px;
+  }
+}

@@ -1,0 +1,181 @@
+/**
+ * Slimky Hair Design Tokens
+ * 
+ * Aesthetic Direction: Modern African Luxury Hair Care, Editorial, Clinical/Botanical
+ * Restrained solid-color palette (NO GRADIENTS ANYWHERE).
+ * Typography: Cormorant Garamond & DM Sans.
+ */
+
+:root {
+  /* ==========================================================================
+     Color Palette (Solid Colors Only - No Gradients)
+     ========================================================================== */
+
+  /* Backgrounds */
+  --bg-primary: #FAF8F5;          /* Warm milky white / cream */
+  --bg-secondary: #F4EFEA;        /* Very light warm cream */
+  --bg-sage-subtle: #EBEFE9;      /* Very subtle muted sage/olive green */
+  --bg-surface: #FFFFFF;          /* Pure clean white for cards/drawers */
+  --bg-surface-elevated: #FAF8F5;
+  --bg-accent-soft: #F1ECE6;
+  --bg-dark: #1B242A;             /* Dark navy for high-contrast banners/footer accents */
+  --bg-espresso: #2C1E18;         /* Deep African botanical brown */
+
+  /* Text & Typography */
+  --color-text-primary: #2C1E18;   /* Deep rich botanical brown */
+  --color-text-secondary: #5E5955; /* Refined warm charcoal slate */
+  --color-text-muted: #8C8681;     /* Soft neutral gray */
+  --color-text-inverse: #FAF8F5;   /* Warm milky white on dark */
+  --color-cream-light: #FAF8F5;    /* High-contrast warm off-white cream */
+  --color-text-subtle: #A39D97;
+
+  /* Brand Accents */
+  --color-brown-deep: #2C1E18;     /* Deep brown */
+  --color-navy-dark: #1B242A;      /* Dark navy */
+  --color-sage-muted: #3B4E43;     /* Muted earthy green */
+  --color-sage-light: #5A7163;
+  --color-sage-dark: #2A3830;      /* Deep botanical sage green */
+  --bg-sage: #EBEFE9;              /* Subtle sage background */
+  --color-neutral-gray: #7B7875;   /* Soft neutral gray */
+  --color-gray-light: #E6E3DF;
+  --color-sand-light: #F4EFEA;   /* Light warm cream / sand */
+
+  /* Functional & Status (Refined, botanical, non-aggressive) */
+  --color-success: #3B4E43;
+  --color-warning: #946843;
+  --color-error: #8F3B3B;
+
+  /* Borders & Hairlines */
+  --color-border: #E8E2D9;         /* Standard hairline border */
+  --color-border-subtle: #E8E2D9;  /* Hairline border for editorial grid */
+  --color-border-medium: #D5CEC4;
+  --color-border-strong: #2C1E18;
+  --color-border-inverse: rgba(250, 248, 245, 0.15);
+
+  /* Overlays & Backdrops */
+  --overlay-backdrop: rgba(27, 36, 42, 0.45);
+  --overlay-surface: rgba(255, 255, 255, 0.96);
+
+  /* Layout dimensions */
+  --header-height: 72px;
+
+  /* ==========================================================================
+     Typography Scales & Fonts
+     ========================================================================== */
+  --font-serif: 'Cormorant Garamond', Garamond, Georgia, 'Times New Roman', serif;
+  --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  /* Fluid Font Sizes (Min, Preferred, Max) - Balanced for 360px through 1440px */
+  --text-display: clamp(2rem, 5vw, 4.25rem);       /* Editorial display */
+  --text-h1: clamp(1.75rem, 4.2vw, 3.25rem);       /* Major headlines */
+  --text-h2: clamp(1.4375rem, 3.2vw, 2.5rem);      /* Section titles */
+  --text-h3: clamp(1.25rem, 2.4vw, 1.875rem);      /* Sub-headers, product names */
+  --text-h4: clamp(1.0625rem, 1.8vw, 1.375rem);    /* Subsection titles */
+  --text-body-lg: 1.125rem;                        /* Lead paragraphs */
+  --text-body: 0.9375rem;                          /* Standard body text */
+  --text-body-sm: 0.8125rem;                       /* Small UI labels, metadata */
+  --text-eyebrow: 0.75rem;                         /* Eyebrow uppercase headers */
+  --text-caption: 0.6875rem;                       /* Fine clinical print & legal */
+
+  /* Line Heights */
+  --leading-none: 1;
+  --leading-tight: 1.15;
+  --leading-snug: 1.3;
+  --leading-normal: 1.6;
+  --leading-relaxed: 1.75;
+
+  /* Letter Spacings */
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0.04em;
+  --tracking-wider: 0.08em;
+  --tracking-eyebrow: 0.16em;
+  --tracking-brand: 0.22em;
+
+  /* Font Weights */
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* ==========================================================================
+     Spacing & Layout
+     ========================================================================== */
+  --space-2xs: 0.25rem;   /* 4px */
+  --space-xs: 0.5rem;     /* 8px */
+  --space-sm: 0.75rem;    /* 12px */
+  --space-md: 1rem;       /* 16px */
+  --space-lg: 1.5rem;     /* 24px */
+  --space-xl: 2rem;       /* 32px */
+  --space-2xl: 3rem;      /* 48px */
+  --space-3xl: 4.5rem;    /* 72px */
+  --space-4xl: 6rem;      /* 96px */
+  --space-5xl: 8rem;      /* 128px */
+
+  /* Fluid Section Spacing (Responsive across mobile/tablet/desktop) */
+  --space-section: clamp(2.75rem, 6vw, 6.5rem);
+  --space-gutter: clamp(1.25rem, 3.5vw, 3rem);
+
+  /* Containers */
+  --container-max: 1380px;
+  --container-editorial: 1180px;
+  --container-narrow: 840px;
+  --container-text: 680px;
+
+  /* Component Sizing & Touch Targets */
+  --touch-target-min: 44px;
+  --btn-height-primary: 50px;
+  --btn-height-secondary: 46px;
+  --btn-height-sm: 40px;
+  --input-height: 50px;
+
+  /* Safe Area Insets */
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-top: env(safe-area-inset-top, 0px);
+}
+
+/* Mobile responsive gutter scaling: 16px on <=390px, 20px on 391-480px */
+@media (max-width: 390px) {
+  :root {
+    --space-gutter: 16px;
+  }
+}
+
+@media (min-width: 391px) and (max-width: 480px) {
+  :root {
+    --space-gutter: 20px;
+  }
+}
+
+:root {
+
+  /* Radius (Subtle, micro-radii only — avoid bubble pills) */
+  --radius-none: 0px;
+  --radius-xs: 1px;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-full: 9999px; /* Reserved only for status badges & icon buttons */
+  --radius-pill: 9999px;
+
+  /* Minimal Crisp Shadows (Avoid heavy diffuse blur) */
+  --shadow-none: none;
+  --shadow-subtle: 0 1px 3px rgba(44, 30, 24, 0.04);
+  --shadow-drawer: -4px 0 24px rgba(27, 36, 42, 0.08);
+  --shadow-dropdown: 0 8px 24px rgba(27, 36, 42, 0.06);
+  --shadow-elevated: 0 4px 12px rgba(44, 30, 24, 0.06);
+
+  /* Z-Index Hierarchy */
+  --z-base: 1;
+  --z-header: 100;
+  --z-dropdown: 200;
+  --z-drawer-backdrop: 500;
+  --z-drawer: 600;
+  --z-toast: 900;
+
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.2, 0, 0, 1);
+  --transition-base: 250ms cubic-bezier(0.2, 0, 0, 1);
+  --transition-smooth: 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}

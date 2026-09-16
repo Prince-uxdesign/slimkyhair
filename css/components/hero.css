@@ -1,0 +1,275 @@
+/**
+ * Announcement Bar & Hero Section
+ * Section 1 of Slimky Hair Homepage
+ * 
+ * Strict Solid Color System (Zero Gradients)
+ * Cormorant Garamond & DM Sans Typography
+ */
+
+/* ==========================================================================
+   Announcement Bar (Slim, Minimal, Solid Deep Brown)
+   ========================================================================== */
+.announcement-bar {
+  background-color: var(--color-brown-deep);
+  color: var(--color-text-inverse);
+  padding: 9px var(--space-gutter);
+  text-align: center;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  font-weight: var(--font-weight-medium);
+  line-height: 1.2;
+  border-bottom: 1px solid rgba(250, 248, 245, 0.08);
+}
+
+.announcement-bar-text {
+  display: inline-block;
+  opacity: 0.95;
+}
+
+/* ==========================================================================
+   Hero Section
+   ========================================================================== */
+.hero-section {
+  background-color: var(--bg-primary); /* Warm milky cream solid background */
+  padding-block: clamp(3rem, 6vw, 6.5rem);
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.12fr 0.88fr;
+  gap: clamp(2.5rem, 5.5vw, 5.5rem);
+  align-items: center;
+}
+
+/* Hero Content Column (Left on Desktop) */
+.hero-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.hero-eyebrow {
+  margin-bottom: var(--space-sm);
+  color: var(--color-sage-muted);
+}
+
+.hero-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2.75rem, 5.2vw, 4.5rem);
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+  font-weight: var(--font-weight-light);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-lg);
+}
+
+.hero-description {
+  font-family: var(--font-sans);
+  font-size: clamp(1rem, 1.3vw, 1.1875rem);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-secondary);
+  max-width: 540px;
+  margin-bottom: var(--space-2xl);
+  font-weight: var(--font-weight-regular);
+}
+
+/* Hero CTA Button Row */
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-2xl);
+}
+
+.hero-actions .btn {
+  min-width: 170px;
+}
+
+/* Hero Quality Hallmark Trust Bullets */
+.hero-hallmarks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-lg);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--color-border-subtle);
+  width: 100%;
+}
+
+.hero-hallmark-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  font-weight: var(--font-weight-medium);
+}
+
+.hero-hallmark-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--color-sage-muted);
+  flex-shrink: 0;
+}
+
+/* Hero Visual Media Column (Right on Desktop: 40-50% width) */
+.hero-media-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.hero-media-frame {
+  aspect-ratio: 3 / 4;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--color-border-subtle);
+  background-color: var(--bg-secondary);
+  box-shadow: var(--shadow-subtle);
+}
+
+.hero-media-frame .media-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform var(--transition-smooth);
+}
+
+.hero-media-frame:hover .media-img {
+  transform: scale(1.02);
+}
+
+/* Subtle Editorial Image Tag */
+.hero-media-caption {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  background-color: rgba(250, 248, 245, 0.92);
+  border: 1px solid var(--color-border-subtle);
+  padding: 6px 12px;
+  border-radius: var(--radius-xs);
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   Responsive Adaptations
+   ========================================================================== */
+
+/* Tablet (Reduce spacing intelligently, preserve 2-column) */
+@media (max-width: 1024px) {
+  .hero-grid {
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: var(--space-xl);
+  }
+
+  .hero-title {
+    font-size: clamp(2.375rem, 4.2vw, 3.25rem);
+  }
+
+  .hero-hallmarks {
+    gap: var(--space-md);
+  }
+}
+
+/* Mobile: Stack intelligently in specified order:
+   1. Image
+   2. Headline
+   3. Supporting text
+   4. CTA
+*/
+@media (max-width: 768px) {
+  .hero-section {
+    padding-block: var(--space-xl);
+  }
+
+  .hero-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  /* Order sequence requested for mobile */
+  .hero-media-wrapper {
+    order: 1; /* 1. Visual first */
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .hero-media-frame {
+    aspect-ratio: 16 / 10; /* Balanced proportion ensuring CTA visibility */
+    max-height: 290px;
+    width: 100%;
+  }
+
+  .hero-content {
+    order: 2; /* 2. Content container */
+    width: 100%;
+  }
+
+  .hero-eyebrow {
+    margin-bottom: 6px;
+    font-size: 0.6875rem;
+  }
+
+  .hero-title {
+    font-size: clamp(1.85rem, 6.5vw, 2.35rem);
+    line-height: 1.14;
+    margin-bottom: var(--space-sm);
+    overflow-wrap: break-word;
+  }
+
+  .hero-description {
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    margin-bottom: var(--space-lg);
+  }
+
+  .hero-actions {
+    width: 100%;
+    flex-direction: column;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-lg);
+  }
+
+  .hero-actions .btn {
+    width: 100%;
+    min-height: 50px;
+    font-size: 0.8125rem;
+  }
+
+  .hero-hallmarks {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding-top: var(--space-md);
+  }
+
+  .hero-hallmark-item {
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+  }
+}
+
+@media (max-width: 360px) {
+  .hero-hallmarks {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .hero-media-frame {
+    max-height: 230px;
+  }
+}

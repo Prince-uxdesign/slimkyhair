@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Account Overview | Slimky Hair</title>
+  <meta name="description" content="Manage your Slimky Hair customer account, saved delivery addresses, order history, and personal preferences.">
+  <meta name="robots" content="noindex, nofollow">
+
+  
+    <!-- Social-share image: assets/og/og-default.jpg is the interim branded 1200x630 asset (brand colours + wordmark; no product/stock imagery). Replace that file with the final branded asset using the same filename &mdash; no HTML changes needed. -->
+  <meta property="og:site_name" content="Slimky Hair">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" content="Customer Account Overview | Slimky Hair">
+  <meta property="og:description" content="Manage your Slimky Hair customer account, saved delivery addresses, order history, and personal preferences.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://slimkyhair.com/account/">
+  <meta property="og:image" content="https://slimkyhair.com/assets/og/og-default.jpg">
+  <meta property="og:image:secure_url" content="https://slimkyhair.com/assets/og/og-default.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Slimky Hair — Botanical Hair Science">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Customer Account Overview | Slimky Hair">
+  <meta name="twitter:description" content="Manage your Slimky Hair customer account, saved delivery addresses, order history, and personal preferences.">
+  <meta name="twitter:image" content="https://slimkyhair.com/assets/og/og-default.jpg">
+  <meta name="twitter:image:alt" content="Slimky Hair — Botanical Hair Science">
+
+<!-- Favicon / Icons -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='2' fill='%232C1E18'/><text x='16' y='22' font-family='serif' font-size='18' fill='%23FAF8F5' text-anchor='middle'>S</text></svg>">
+  
+  <!-- Master Stylesheets -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components/account.css">
+</head>
+<body class="theme-light">
+
+  <!-- Header -->
+  <header class="site-header" id="main-header" role="banner">
+    <div class="container header-inner" style="justify-content: space-between;">
+      <a href="./" class="header-brand" aria-label="Slimky Hair Home">
+        <span class="brand-title">SLIMKY HAIR</span>
+        <span class="brand-subtitle">African Botanical Science</span>
+      </a>
+
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <a href="shop/" class="btn-outline btn-sm" style="text-decoration: none;">
+          Explore Formulations
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="account-page-main" id="main-content">
+    <div class="container account-container">
+      
+      <!-- Breadcrumbs -->
+      <nav aria-label="Breadcrumbs" class="checkout-breadcrumbs" style="margin-bottom: 24px;">
+        <a href="./">Home</a>
+        <span class="checkout-breadcrumbs-sep">/</span>
+        <span class="checkout-breadcrumbs-current">My Account</span>
+      </nav>
+
+      <!-- Account 2-Column Responsive Layout -->
+      <div class="account-layout">
+        
+        <!-- Left: Desktop Sidebar Navigation -->
+        <div id="account-sidebar-mount"></div>
+
+        <!-- Right: Main Account Content Panel -->
+        <div class="account-content-panel">
+          
+          <!-- Mobile & Tablet Horizontal Pill Navigation -->
+          <div id="account-mobile-nav-mount"></div>
+
+          <!-- Greeting Hero Area -->
+          <div id="dashboard-greeting-mount"></div>
+
+          <!-- Dashboard Cards Grid (Single-column on mobile, 2-column on desktop) -->
+          <div class="dashboard-cards-grid">
+            
+            <!-- Personal Profile Summary -->
+            <div id="dashboard-profile-mount"></div>
+
+            <!-- Recent Order or Intentional Empty State -->
+            <div id="dashboard-order-mount"></div>
+
+            <!-- Saved Addresses or Intentional Empty State -->
+            <div id="dashboard-addresses-mount"></div>
+
+            <!-- Wishlist Count or Intentional Empty State -->
+            <div id="dashboard-wishlist-mount"></div>
+
+            <!-- Settings & Password Assistance -->
+            <div id="dashboard-settings-mount" style="grid-column: 1 / -1;"></div>
+
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Edit Profile Modal Dialog -->
+  <div id="dashboard-edit-modal" class="dashboard-modal-backdrop" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
+    <div class="dashboard-modal-card">
+      <div class="dashboard-modal-header">
+        <h2 id="edit-modal-title" class="dashboard-modal-title">Edit Profile</h2>
+        <button type="button" id="btn-close-edit-modal" class="dashboard-modal-close" aria-label="Close dialog">&times;</button>
+      </div>
+
+      <div id="edit-profile-feedback" style="display: none; margin-bottom: 16px; font-size: 0.875rem;"></div>
+
+      <form id="dashboard-edit-form">
+        <div class="auth-form-group">
+          <label for="edit-profile-name" class="auth-label">Full Name</label>
+          <input type="text" id="edit-profile-name" class="auth-input" required autocomplete="name">
+        </div>
+
+        <div class="auth-form-group">
+          <label for="edit-profile-phone" class="auth-label">Phone / WhatsApp</label>
+          <input type="tel" id="edit-profile-phone" class="auth-input" placeholder="+234 803 123 4567" autocomplete="tel">
+          <span style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 4px; display: block;">
+            Used for delivery coordination and shipping quote updates.
+          </span>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 24px;">
+          <button type="button" id="btn-cancel-edit-modal" class="btn-outline" style="flex: 1; height: 44px;">
+            Cancel
+          </button>
+          <button type="submit" class="btn-primary" style="flex: 1; height: 44px; justify-content: center;">
+            Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer" role="contentinfo" style="border-top: 1px solid var(--color-border-subtle); padding: 40px 0; background: var(--color-bg-primary); text-align: center;">
+    <div class="container">
+      <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-bottom: 8px;">
+        © 2026 Slimky Hair. All rights reserved. African Botanical Formulations.
+      </p>
+      <div style="display: flex; justify-content: center; gap: 20px; font-size: 0.8125rem;">
+        <a href="privacy/" style="color: var(--color-text-secondary);">Privacy Policy</a>
+        <a href="terms/" style="color: var(--color-text-secondary);">Terms of Service</a>
+        <a href="contact/" style="color: var(--color-text-secondary);">Client Care</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script type="module" src="js/account-dashboard.js"></script>
+</body>
+</html>

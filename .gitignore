@@ -1,0 +1,15 @@
+# Environment secrets — never commit real values
+.env
+.env.local
+supabase/.env.local
+js/env.js
+
+# Internal testing & audit scratch scripts
+scratch/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/

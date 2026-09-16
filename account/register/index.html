@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Your Account | Slimky Hair</title>
+  <meta name="description" content="Create a Slimky Hair customer account to save delivery addresses, track orders, and check out faster.">
+  <meta name="robots" content="noindex, nofollow">
+
+  
+    <!-- Social-share image: assets/og/og-default.jpg is the interim branded 1200x630 asset (brand colours + wordmark; no product/stock imagery). Replace that file with the final branded asset using the same filename &mdash; no HTML changes needed. -->
+  <meta property="og:site_name" content="Slimky Hair">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" content="Create Your Account | Slimky Hair">
+  <meta property="og:description" content="Create a Slimky Hair customer account to save delivery addresses, track orders, and check out faster.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://slimkyhair.com/account/register/">
+  <meta property="og:image" content="https://slimkyhair.com/assets/og/og-default.jpg">
+  <meta property="og:image:secure_url" content="https://slimkyhair.com/assets/og/og-default.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Slimky Hair — Botanical Hair Science">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Create Your Account | Slimky Hair">
+  <meta name="twitter:description" content="Create a Slimky Hair customer account to save delivery addresses, track orders, and check out faster.">
+  <meta name="twitter:image" content="https://slimkyhair.com/assets/og/og-default.jpg">
+  <meta name="twitter:image:alt" content="Slimky Hair — Botanical Hair Science">
+
+<!-- Favicon / Icons -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+  
+  <!-- Master Stylesheets -->
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/components/account.css">
+</head>
+<body class="theme-light">
+
+  <!-- Header -->
+  <header class="header sticky-header" id="main-header" role="banner">
+    <div class="container header-inner" style="justify-content: space-between;">
+      <a href="../../" class="header-brand" aria-label="Slimky Hair Home">
+        <span class="brand-title">SLIMKY HAIR</span>
+        <span class="brand-subtitle">African Botanical Science</span>
+      </a>
+
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <a href="../../shop/" class="btn-outline btn-sm" style="text-decoration: none;">
+          Explore Formulations
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="account-page-main" id="main-content">
+    <div class="container">
+      
+      <!-- Breadcrumbs -->
+      <nav aria-label="Breadcrumbs" class="checkout-breadcrumbs" style="margin-bottom: 24px;">
+        <a href="../../">Home</a>
+        <span class="checkout-breadcrumbs-sep">/</span>
+        <a href="../">My Account</a>
+        <span class="checkout-breadcrumbs-sep">/</span>
+        <span class="checkout-breadcrumbs-current">Create Account</span>
+      </nav>
+
+      <!-- App Mounting Point -->
+      <div id="register-page-mount">
+        <div class="auth-page-wrapper">
+          <div class="auth-card">
+            
+            <a href="../" class="auth-back-link">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+              <span>Back to Account</span>
+            </a>
+
+            <header class="auth-header">
+              <h1 class="auth-title">Create your account</h1>
+              <p class="auth-subtitle">
+                Join Slimky Hair for seamless formulation tracking, saved delivery addresses, and dedicated botanical client care.
+              </p>
+            </header>
+
+            <div id="register-general-error" class="auth-error-msg" style="margin-bottom: 16px;" role="alert"></div>
+
+            <form id="register-form" novalidate>
+              
+              <!-- Full Name -->
+              <div class="auth-form-group">
+                <label for="reg-name" class="auth-label">
+                  <span>Full Name</span>
+                  <span class="auth-label-required" aria-hidden="true">*</span>
+                </label>
+                <input 
+                  type="text" 
+                  id="reg-name" 
+                  name="fullName" 
+                  class="auth-input" 
+                  placeholder="e.g. Chioma Okonkwo" 
+                  required 
+                  autocomplete="name"
+                  aria-describedby="reg-name-error"
+                >
+                <div id="reg-name-error" class="auth-error-msg" role="alert"></div>
+              </div>
+
+              <!-- Email Address -->
+              <div class="auth-form-group">
+                <label for="reg-email" class="auth-label">
+                  <span>Email Address</span>
+                  <span class="auth-label-required" aria-hidden="true">*</span>
+                </label>
+                <input 
+                  type="email" 
+                  id="reg-email" 
+                  name="email" 
+                  class="auth-input" 
+                  placeholder="name@example.com" 
+                  required 
+                  autocomplete="email"
+                  aria-describedby="reg-email-error"
+                >
+                <div id="reg-email-error" class="auth-error-msg" role="alert"></div>
+              </div>
+
+              <!-- Phone / WhatsApp -->
+              <div class="auth-form-group">
+                <label for="reg-phone" class="auth-label">
+                  <span>Phone / WhatsApp</span>
+                  <span class="auth-label-required" aria-hidden="true">*</span>
+                </label>
+                <input 
+                  type="tel" 
+                  id="reg-phone" 
+                  name="phone" 
+                  class="auth-input" 
+                  placeholder="+234 803 123 4567" 
+                  required 
+                  autocomplete="tel"
+                  aria-describedby="reg-phone-error"
+                >
+                <div id="reg-phone-error" class="auth-error-msg" role="alert"></div>
+              </div>
+
+              <!-- Password -->
+              <div class="auth-form-group">
+                <label for="reg-password" class="auth-label">
+                  <span>Password</span>
+                  <span class="auth-label-required" aria-hidden="true">*</span>
+                </label>
+                <div class="auth-password-wrapper">
+                  <input 
+                    type="password" 
+                    id="reg-password" 
+                    name="password" 
+                    class="auth-input" 
+                    placeholder="At least 8 characters" 
+                    required 
+                    autocomplete="new-password"
+                    aria-describedby="reg-password-requirements reg-password-error"
+                  >
+                  <button 
+                    type="button" 
+                    id="toggle-password-btn" 
+                    class="auth-password-toggle" 
+                    aria-label="Show password" 
+                    aria-controls="reg-password" 
+                    aria-pressed="false"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  </button>
+                </div>
+                <div id="reg-password-requirements" class="auth-password-requirements">
+                  Must be at least 8 characters and include both letters and numbers.
+                </div>
+                <div id="reg-password-error" class="auth-error-msg" role="alert"></div>
+              </div>
+
+              <!-- Confirm Password -->
+              <div class="auth-form-group">
+                <label for="reg-confirm-password" class="auth-label">
+                  <span>Confirm Password</span>
+                  <span class="auth-label-required" aria-hidden="true">*</span>
+                </label>
+                <div class="auth-password-wrapper">
+                  <input 
+                    type="password" 
+                    id="reg-confirm-password" 
+                    name="confirmPassword" 
+                    class="auth-input" 
+                    placeholder="Repeat your password" 
+                    required 
+                    autocomplete="new-password"
+                    aria-describedby="reg-confirm-password-error"
+                  >
+                  <button 
+                    type="button" 
+                    id="toggle-confirm-password-btn" 
+                    class="auth-password-toggle" 
+                    aria-label="Show password" 
+                    aria-controls="reg-confirm-password" 
+                    aria-pressed="false"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  </button>
+                </div>
+                <div id="reg-confirm-password-error" class="auth-error-msg" role="alert"></div>
+              </div>
+
+              <!-- Terms & Privacy -->
+              <div class="auth-terms-group">
+                <input 
+                  type="checkbox" 
+                  id="reg-terms" 
+                  name="terms" 
+                  class="auth-terms-checkbox" 
+                  required
+                  aria-describedby="reg-terms-error"
+                >
+                <label for="reg-terms" class="auth-terms-text">
+                  I have read and agree to the <a href="../../terms/" target="_blank">Terms of Service</a> and <a href="../../privacy/" target="_blank">Privacy Policy</a>.
+                </label>
+              </div>
+              <div id="reg-terms-error" class="auth-error-msg" style="margin-top: -16px; margin-bottom: 20px;" role="alert"></div>
+
+              <!-- Primary Submit CTA -->
+              <button type="submit" id="register-submit-btn" class="btn-primary auth-submit-btn">
+                Create Account
+              </button>
+
+              <!-- Secondary Existing Account Link -->
+              <div class="auth-footer">
+                Already have an account? <a href="../login/" class="auth-footer-link">Sign In</a>
+              </div>
+
+            </form>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer" role="contentinfo" style="border-top: 1px solid var(--color-border-subtle); padding: 40px 0; background: var(--color-bg-primary); text-align: center;">
+    <div class="container">
+      <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-bottom: 8px;">
+        © 2026 Slimky Hair. All rights reserved. African Botanical Formulations.
+      </p>
+      <div style="display: flex; justify-content: center; gap: 20px; font-size: 0.8125rem;">
+        <a href="../../privacy/" style="color: var(--color-text-secondary);">Privacy Policy</a>
+        <a href="../../terms/" style="color: var(--color-text-secondary);">Terms of Service</a>
+        <a href="../../contact/" style="color: var(--color-text-secondary);">Client Care</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <!-- Public runtime config (Supabase URL + anon key only — no secrets, see js/env.example.js) -->
+  <script src="../../js/env.js"></script>
+  <script type="module" src="../../js/auth/register-page.js"></script>
+</body>
+</html>

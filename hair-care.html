@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hair Care Guide | Slimky Hair</title>
+  <meta name="description" content="Simple, useful guidance for building a thoughtful botanical hair-care routine. Learn about hair types, scalp wellness, oil rituals, and protective style care.">
+  <link rel="canonical" href="https://slimkyhair.com/hair-care/">
+  <!-- Social-share image: assets/og/og-default.jpg is the interim branded 1200x630 asset (brand colours + wordmark; no product/stock imagery). Replace that file with the final branded asset using the same filename &mdash; no HTML changes needed. -->
+  <meta property="og:site_name" content="Slimky Hair">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" content="Hair Care Guide | Slimky Hair">
+  <meta property="og:description" content="Simple, useful guidance for building a thoughtful botanical hair-care routine. Learn about hair types, scalp wellness, oil rituals, and protective style care.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://slimkyhair.com/hair-care/">
+  <meta property="og:image" content="https://slimkyhair.com/assets/og/og-default.jpg">
+  <meta property="og:image:secure_url" content="https://slimkyhair.com/assets/og/og-default.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Slimky Hair — Botanical Hair Science">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Hair Care Guide | Slimky Hair">
+  <meta name="twitter:description" content="Simple, useful guidance for building a thoughtful botanical hair-care routine. Learn about hair types, scalp wellness, oil rituals, and protective style care.">
+  <meta name="twitter:image" content="https://slimkyhair.com/assets/og/og-default.jpg">
+  <meta name="twitter:image:alt" content="Slimky Hair — Botanical Hair Science">
+
+<!-- Minimal Brand Favicon -->
+  <link rel="icon" href="./favicon.ico">
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="./css/main.css">
+</head>
+<body>
+
+  <!-- Drawer Backdrop -->
+  <div class="drawer-backdrop" aria-hidden="true"></div>
+
+  <!-- Global Announcement Bar -->
+  <div class="announcement-bar" role="region" aria-label="Announcement">
+    <div class="container announcement-inner">
+      <span>Complimentary Scalp Elixir with all Regimen Orders over ₦50,000</span>
+    </div>
+  </div>
+
+  <!-- Global Header -->
+  <header class="site-header" id="site-header">
+    <div class="container header-inner">
+      
+      <!-- Brand Wordmark -->
+      <a href="./" class="header-brand" aria-label="Slimky Hair Home">
+        <span class="brand-title">SLIMKY HAIR</span>
+        <span class="brand-subtitle">Botanical Hair Science</span>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <nav class="nav-desktop" aria-label="Primary Navigation">
+        <a href="./" class="nav-link">Home</a>
+        <a href="shop/" class="nav-link">Shop</a>
+        <a href="about/" class="nav-link">About</a>
+        <a href="faq/" class="nav-link">FAQ</a>
+        <a href="contact/" class="nav-link">Contact</a>
+      </nav>
+
+      <!-- Utility Header Actions -->
+      <div class="header-actions">
+        <!-- Search Link -->
+        <a href="search/" class="btn-icon" aria-label="Search Formulations">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+          </svg>
+        </a>
+
+        <!-- Wishlist Link -->
+        <a href="wishlist/" class="btn-icon" aria-label="Wishlist">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+          </svg>
+          <span class="btn-icon-badge wishlist-count-badge" style="display: none;">0</span>
+        </a>
+
+        <!-- Cart Trigger -->
+        <button type="button" class="btn-icon trigger-cart" aria-label="Shopping Bag">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
+            <path d="M3 6h18"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          <span class="btn-icon-badge cart-count-val">0</span>
+        </button>
+
+        <!-- Mobile Hamburger Menu Button -->
+        <button type="button" class="btn-icon mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Open Navigation Menu" aria-expanded="false" aria-controls="mobile-drawer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <aside class="drawer drawer-left" id="mobile-drawer" aria-label="Mobile Navigation" aria-hidden="true">
+    <div class="drawer-header">
+      <div class="header-brand">
+        <span class="brand-title" style="font-size: 1.5rem;">SLIMKY HAIR</span>
+        <span class="brand-subtitle">African Botanical Science</span>
+      </div>
+      <button type="button" class="btn-icon" id="mobile-drawer-close" aria-label="Close Navigation Menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="drawer-body">
+      <nav class="mobile-nav">
+        <a href="./" class="mobile-nav-link"><span>Home</span></a>
+        <a href="shop/" class="mobile-nav-link"><span>Shop All Products</span></a>
+        <a href="about/" class="mobile-nav-link"><span>About Slimky Hair</span></a>
+        <a href="hair-care/" class="mobile-nav-link active" aria-current="page"><span>Hair Care Guide</span></a>
+        <a href="faq/" class="mobile-nav-link"><span>Frequently Asked Questions</span></a>
+        <a href="contact/" class="mobile-nav-link"><span>Contact &amp; Support</span></a>
+      </nav>
+      <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--color-border-subtle);">
+        <a href="shop/" class="btn btn-primary btn-full">Shop Our Formulations</a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Cart Drawer -->
+  <aside class="drawer drawer-right" id="cart-drawer" aria-label="Shopping Bag" aria-hidden="true">
+    <div class="drawer-header">
+      <h2 class="drawer-title">Shopping Bag (<span class="cart-count-val">0</span>)</h2>
+      <button type="button" class="btn-icon" id="cart-drawer-close" aria-label="Close Shopping Bag">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="drawer-body" id="cart-drawer-body">
+      <!-- Managed dynamically by js/cart-store.js -->
+    </div>
+    <div class="drawer-footer" id="cart-drawer-footer" style="padding: 1.5rem; border-top: 1px solid var(--color-border-subtle); background-color: var(--bg-surface);">
+      <!-- Managed dynamically by js/cart-store.js -->
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main id="main-content">
+
+    <!-- Hero -->
+    <section class="guide-hero" aria-labelledby="guide-hero-heading">
+      <div class="container guide-hero-inner">
+        <span class="guide-hero-eyebrow">Botanical Hair Education</span>
+        <h1 class="guide-hero-title" id="guide-hero-heading">Your Hair Care Guide</h1>
+        <p class="guide-hero-text">
+          Simple, useful guidance for building a thoughtful hair-care routine.
+        </p>
+      </div>
+    </section>
+
+    <!-- Guide Cards Grid -->
+    <section class="guide-section" aria-label="Educational Hair Care Guides">
+      <div class="container">
+        <div class="guide-grid">
+          
+      <article class="guide-card">
+        <div>
+          <div class="guide-card-header">
+            <span class="guide-card-badge">Texture & Structure</span>
+            <h3 class="guide-card-title">Understanding Your Hair Type</h3>
+          </div>
+          <div class="guide-card-body">
+            <p>Natural hair ranges from fine waves to dense 4C coily textures. Identifying your coil diameter, density, and natural porosity helps you choose between featherweight elixirs or rich, moisture-sealing plant butters.</p>
+            <ul class="guide-card-points">
+              
+      <li class="guide-card-point">
+        <span class="guide-card-point-bullet" aria-hidden="true">&bull;</span>
+        <span>Fine to medium coils thrive on lightweight hydration and leave-in liquids.</span>
+      </li>
+    
+      <li class="guide-card-point">
+        <span class="guide-card-point-bullet" aria-hidden="true">&bull;</span>
+        <span>High-density coarse strands benefit from rich cupuaçu and shea butter sealants.</span>
+      </li>
+    
+      <li class="guide-card-point">
+        <span class="guide-card-point-bullet" aria-hidden="true">&bull;</span>
+        <span>Porosity determines how fast moisture enters and escapes your hair cuticles.</span>
+      </li>
+    
+            </ul>
+          </div>
+        </div>
+        <div class="guide-card-footer">
+          <a href="shop/" class="guide-card-link">
+            <span>Shop Hair Care by Texture</span>
+            <span aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+      </article>
+    
+      <article class="guide-card">
+        <div>
+          <div class="guide-card-header">
+            <span class="guide-card-badge">Foundation Science</span>
+            <h3 class="guide-card-title">Understanding Your Scalp Type</h3>
+          </div>
+          <div class="guide-card-body">
+            <p>A healthy, balanced scalp creates the essential foundation for resilient hair growth. Notice whether your scalp tends to be dry, oil-prone, or sensitive to heavy product buildup.</p>
+            <ul class="guide-card-points">
+              
+      <li class="guide-card-point">
+        <span class="guide-card-point-bullet" aria-hidden="true">&bull;</span>
+        <span>Dry scalps respond best to soothing botanical oils like castor and jojoba.</span>
+      </li>
+    
+      <li class="guide-card-point">
+        <span class="guide-card-point-bullet" aria-hidden="true">&bull;</span>
+        <span>Scalps with buildup need periodic clarifying washes with non-stripping botanicals.</span>
+      </li>
+    
+      <li class="guide-card-point">
+        <span class="guide-card-point-bullet" aria-hidden="true">&bull;</span>
+        <span>Soothe itching with anti-inflammatory botanical extracts and light scalp serums.</span>
+      </li>
+    
+            </ul>
+          </div>
+        </div>
+        <div class="guide-card-footer">
+          <a href="category/scalp-treatments/" class="guide-card-link">
+            <span>Explore Scalp Treatments</span>
+            <span aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+      </article>
+    
+      <article class="guide-card">
+        <div>
+          <div class="guide-card-header">
+            <span class="guide-card-badge">Core Regimen</span>
+            <h3 class="guide-card-title">Building a Simple Hair-Care Routine</h3>
+          </div>
+          <div class="guide-card-body">
+            <p>An intentional routine doesn't require a dozen complicated steps. Focus on three fundamental pillars: purifying without stripping, infusing sustained water hydration, and sealing lipid moisture.</p>
+            <ul class="guide-card-points">
+              
+      <li class="guide-card-point">
+        <span class="guide-card-point-bullet" aria-hidden="true">&bull;</span>
+        <span>Step 1 (Cleanse): Wash with sulfate-free hydrating cleansers.</span>
+      </li>
+    
+      <li class="guide-card-point">
+        <span class="guide-card-point-bullet" aria-hidden="true">&bull;</span>
+        <span>Step 2 (Condition): Replenish moisture slip with rich botanical conditioners.</span>
+      </li>
+    
+      <li class="guide-card-point">
+        <span class="guide-card-point-bullet" aria-hidden="true">&bull;</span>
+        <span>Step 3 (Seal): Lock in moisture with botanical oils or nourishing hair butters.</span>
+      </li>
+    
+            </ul>
+          </div>
+        </div>
+        <div class="guide-card-footer">
+          <a href="shop/" class="guide-card-link">
+            <span>Discover Essential Formulations</span>
+            <span aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+      </article>
+    
+      <article class="guide-card">
+        <div>
+          <div class="guide-card-header">
+            <span class="guide-card-badge">Botanical Lipids</span>
+            <h3 class="guide-card-title">How to Use Hair Oils</h3>
+          </div>
+          <div class="guide-card-body">
+            <p>Pure botanical oils seal hydration into hair strands and nourish the scalp barrier. Since oils do not contain water, they should always be layered over water-based leave-in moisturizers.</p>
+            <ul class="guide-card-points">
+              
+      <li class="guide-card-point">
+        <span class="guide-card-point-bullet" aria-hidden="true">&bull;</span>
+        <span>Apply directly to the scalp with a dropper for targeted follicle nourishment.</span>
+      </li>
+    
+      <li class="guide-card-point">
+        <span class="guide-card-point-bullet" aria-hidden="true">&bull;</span>
+        <span>Smooth 2-3 drops through damp hair ends to seal cuticles and prevent breakage.</span>
+      </li>
+    
+      <li class="guide-card-point">
+        <span class="guide-card-point-bullet" aria-hidden="true">&bull;</span>
+        <span>Use as a warm pre-shampoo oil treatment to shield delicate hair from wash fatigue.</span>
+      </li>
+    
+            </ul>
+          </div>
+        </div>
+        <div class="guide-card-footer">
+          <a href="category/hair-oils/" class="guide-card-link">
+            <span>Explore Botanical Hair Oils</span>
+            <span aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+      </article>
+    
+      <article class="guide-card">
+        <div>
+          <div class="guide-card-header">
+            <span class="guide-card-badge">Moisture & Slip</span>
+            <h3 class="guide-card-title">How to Use Conditioners</h3>
+          </div>
+          <div class="guide-card-body">
+            <p>Conditioners soften cuticles and restore elastic flexibility to textured curls. Distinguish between rinse-out treatment detanglers and leave-in moisture shields.</p>
+            <ul class="guide-card-points">
+              
+      <li class="guide-card-point">
+        <span class="guide-card-point-bullet" aria-hidden="true">&bull;</span>
+        <span>Rinse-out conditioners: Distribute evenly after cleansing, wait 3-5 mins, and rinse.</span>
+      </li>
+    
+      <li class="guide-card-point">
+        <span class="guide-card-point-bullet" aria-hidden="true">&bull;</span>
+        <span>Leave-in conditioners: Apply generously to damp clean strands for all-day softness.</span>
+      </li>
+    
+      <li class="guide-card-point">
+        <span class="guide-card-point-bullet" aria-hidden="true">&bull;</span>
+        <span>Deep repair masks: Apply with gentle warmth every 1-2 weeks for intensive strengthening.</span>
+      </li>
+    
+            </ul>
+          </div>
+        </div>
+        <div class="guide-card-footer">
+          <a href="category/conditioners/" class="guide-card-link">
+            <span>Explore Conditioning Care</span>
+            <span aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+      </article>
+    
+      <article class="guide-card">
+        <div>
+          <div class="guide-card-header">
+            <span class="guide-card-badge">Texture Care</span>
+            <h3 class="guide-card-title">Caring for Natural Hair</h3>
+          </div>
+          <div class="guide-card-body">
+            <p>Natural curls and coils possess unique beauty and delicate points of curvature. Retaining length requires prioritizing moisture retention, minimal tension, and gentle detangling rituals.</p>
+            <ul class="guide-card-points">
+              
+      <li class="guide-card-point">
+        <span class="guide-card-point-bullet" aria-hidden="true">&bull;</span>
+        <span>Always detangle in sections with conditioner and wide-tooth tools when damp.</span>
+      </li>
+    
+      <li class="guide-card-point">
+        <span class="guide-card-point-bullet" aria-hidden="true">&bull;</span>
+        <span>Sleep on satin or silk pillowcases to prevent moisture friction and night frizz.</span>
+      </li>
+    
+      <li class="guide-card-point">
+        <span class="guide-card-point-bullet" aria-hidden="true">&bull;</span>
+        <span>Honor your natural curl pattern without using aggressive chemical straighteners.</span>
+      </li>
+    
+            </ul>
+          </div>
+        </div>
+        <div class="guide-card-footer">
+          <a href="category/hair-creams/" class="guide-card-link">
+            <span>Explore Natural Hair Creams</span>
+            <span aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+      </article>
+    
+      <article class="guide-card">
+        <div>
+          <div class="guide-card-header">
+            <span class="guide-card-badge">Protective Styling</span>
+            <h3 class="guide-card-title">Caring for Protective Styles</h3>
+          </div>
+          <div class="guide-card-body">
+            <p>Braids, twists, and updos protect delicate hair ends from everyday manipulation. Keeping your scalp hydrated and tension low ensures your natural hair flourishes throughout the wear time.</p>
+            <ul class="guide-card-points">
+              
+      <li class="guide-card-point">
+        <span class="guide-card-point-bullet" aria-hidden="true">&bull;</span>
+        <span>Keep scalp clean and refreshed using a lightweight soothing scalp serum.</span>
+      </li>
+    
+      <li class="guide-card-point">
+        <span class="guide-card-point-bullet" aria-hidden="true">&bull;</span>
+        <span>Mist braids or twists with botanical hydrating lotion 2-3 times per week.</span>
+      </li>
+    
+      <li class="guide-card-point">
+        <span class="guide-card-point-bullet" aria-hidden="true">&bull;</span>
+        <span>Gently protect your perimeter hairline edges with botanical edge balm.</span>
+      </li>
+    
+            </ul>
+          </div>
+        </div>
+        <div class="guide-card-footer">
+          <a href="category/styling-products/" class="guide-card-link">
+            <span>Explore Styling & Edge Balms</span>
+            <span aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+      </article>
+    
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="site-footer" id="contact" role="contentinfo">
+    <div class="container footer-inner">
+      <div class="footer-top">
+        
+        <!-- Column 1: SHOP -->
+        <div class="footer-col">
+          <h3 class="footer-heading">Shop</h3>
+          <ul class="footer-links">
+            <li><a href="shop/" class="footer-link">All Products</a></li>
+            <li><a href="category/hair-oils/" class="footer-link">Hair Oils</a></li>
+            <li><a href="category/shampoo/" class="footer-link">Shampoo &amp; Cleansers</a></li>
+            <li><a href="category/conditioners/" class="footer-link">Conditioning Care</a></li>
+            <li><a href="category/hair-butters/" class="footer-link">Hair Butters &amp; Creams</a></li>
+            <li><a href="category/hair-masks/" class="footer-link">Deep Treatment Masks</a></li>
+            <li><a href="category/scalp-treatments/" class="footer-link">Scalp Treatments</a></li>
+            <li><a href="category/styling-products/" class="footer-link">Botanical Styling</a></li>
+          </ul>
+        </div>
+
+        <!-- Column 2: CUSTOMER CARE -->
+        <div class="footer-col">
+          <h3 class="footer-heading">Customer Care</h3>
+          <ul class="footer-links">
+            <li><a href="faq/" class="footer-link">Frequently Asked Questions</a></li>
+            <li><a href="contact/" class="footer-link">Contact &amp; Support</a></li>
+            <li><a href="shipping/" class="footer-link">Shipping Information</a></li>
+            <li><a href="returns/" class="footer-link">Returns &amp; Refunds</a></li>
+            <li><a href="product-safety/" class="footer-link">Product Safety &amp; Care</a></li>
+            <li><a href="hair-care/" class="footer-link is-active" aria-current="page">Hair Care Guide</a></li>
+          </ul>
+        </div>
+
+        <!-- Column 3: LEGAL & COMPANY -->
+        <div class="footer-col">
+          <h3 class="footer-heading">Legal</h3>
+          <ul class="footer-links">
+            <li><a href="privacy/" target="_blank" rel="noopener noreferrer" class="footer-link">Privacy Policy</a></li>
+            <li><a href="terms/" target="_blank" rel="noopener noreferrer" class="footer-link">Terms &amp; Conditions</a></li>
+            <li><a href="cookies/" target="_blank" rel="noopener noreferrer" class="footer-link">Cookie Policy</a></li>
+            <li><a href="about/" class="footer-link">About Slimky Hair</a></li>
+          </ul>
+        </div>
+
+        <!-- Column 4: BRAND PHILOSOPHY SUMMARY -->
+        <div class="footer-col footer-col-brand">
+          <div class="footer-brand-title">SLIMKY HAIR</div>
+          <p class="footer-brand-bio">
+            Independent hair-care maker crafting botanical formulations tailored for healthy scalp environments and flourishing natural hair textures.
+          </p>
+          <ul class="footer-social-links" aria-label="Social Media Channels">
+            <li>
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="footer-social-link" aria-label="Follow Slimky Hair on Instagram">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                <span>Instagram</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="footer-social-link" aria-label="Follow Slimky Hair on Facebook">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                <span>Facebook</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="footer-social-link" aria-label="Follow Slimky Hair on TikTok">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
+                <span>TikTok</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://wa.me/2348000000000" target="_blank" rel="noopener noreferrer" class="footer-social-link" aria-label="Chat with Slimky Hair on WhatsApp">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                <span>WhatsApp</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Bottom Legal & Copyright Bar -->
+      <div class="footer-bottom">
+        <div class="footer-copyright">
+          &copy; 2026 Slimky Hair Laboratories Ltd. All rights reserved. Thoughtfully formulated with botanical precision.
+        </div>
+        <div class="footer-legal-links">
+          <a href="privacy/" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+          <a href="terms/" target="_blank" rel="noopener noreferrer">Terms &amp; Conditions</a>
+          <a href="cookies/" target="_blank" rel="noopener noreferrer">Cookie Policy</a>
+          <a href="contact/">Accessibility</a>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>

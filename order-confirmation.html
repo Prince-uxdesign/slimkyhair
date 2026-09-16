@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Confirmed | Slimky Hair</title>
+  <meta name="description" content="Your Slimky Hair order was successful. View your order number, payment status, items, subtotal, shipping status and next steps.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#FAF8F5">
+  <!-- C20.8: This page IS the ecommerce thank-you experience. Do NOT create a separate /thank-you page. -->
+
+  
+    <!-- Social-share image: assets/og/og-default.jpg is the interim branded 1200x630 asset (brand colours + wordmark; no product/stock imagery). Replace that file with the final branded asset using the same filename &mdash; no HTML changes needed. -->
+  <meta property="og:site_name" content="Slimky Hair">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" content="Order Confirmed | Slimky Hair">
+  <meta property="og:description" content="Official order confirmation receipt for your Slimky Hair botanical formulations.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://slimkyhair.com/order-confirmation/">
+  <meta property="og:image" content="https://slimkyhair.com/assets/og/og-default.jpg">
+  <meta property="og:image:secure_url" content="https://slimkyhair.com/assets/og/og-default.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Slimky Hair — Botanical Hair Science">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Order Confirmed | Slimky Hair">
+  <meta name="twitter:description" content="Official order confirmation receipt for your Slimky Hair botanical formulations.">
+  <meta name="twitter:image" content="https://slimkyhair.com/assets/og/og-default.jpg">
+  <meta name="twitter:image:alt" content="Slimky Hair — Botanical Hair Science">
+
+<!-- Favicon / Icons -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='2' fill='%232C1E18'/><text x='16' y='22' font-family='serif' font-size='18' fill='%23FAF8F5' text-anchor='middle'>S</text></svg>">
+  
+  <!-- Master Stylesheets -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components/order-confirmation.css">
+</head>
+<body class="theme-light">
+
+  <!-- Header -->
+  <header class="site-header" id="main-header" role="banner">
+    <div class="container header-inner" style="justify-content: space-between;">
+      <a href="./" class="header-brand" aria-label="Slimky Hair Home">
+        <span class="brand-title">SLIMKY HAIR</span>
+        <span class="brand-subtitle">African Botanical Science</span>
+      </a>
+
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <a href="shop/" class="btn-outline btn-sm" style="text-decoration: none;">
+          Explore Formulations
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="order-confirmation-main">
+    <div class="container">
+      
+      <!-- Breadcrumbs -->
+      <nav aria-label="Breadcrumbs" class="checkout-breadcrumbs" style="margin-bottom: 24px;">
+        <a href="./">Home</a>
+        <span class="checkout-breadcrumbs-sep">/</span>
+        <a href="shop/">Shop</a>
+        <span class="checkout-breadcrumbs-sep">/</span>
+        <span class="checkout-breadcrumbs-current">Order Receipt</span>
+      </nav>
+
+      <!-- App Mounting Point (C20.8 thank-you experience: read-only, refresh-safe) -->
+      <div id="order-confirmation-app" class="order-confirmation-container" aria-live="polite">
+        <!-- Rendered dynamically by js/order-confirmation.js -->
+        <div style="text-align: center; padding: 60px 0;">
+          <div class="loading-spinner" style="margin: 0 auto 16px auto;"></div>
+          <p style="color: var(--color-text-secondary);">Verifying order access...</p>
+        </div>
+        <noscript>
+          <p style="text-align:center; padding: 24px 0;">Your order was successful. Please enable JavaScript to view your full receipt, or check your confirmation email for your order number.</p>
+        </noscript>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer" role="contentinfo" style="border-top: 1px solid var(--color-border-subtle); padding: 40px 0; background: var(--color-bg-primary); text-align: center;">
+    <div class="container">
+      <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-bottom: 8px;">
+        © 2026 Slimky Hair. All rights reserved. African Botanical Formulations.
+      </p>
+      <div style="display: flex; justify-content: center; gap: 20px; font-size: 0.8125rem;">
+        <a href="privacy/" style="color: var(--color-text-secondary);">Privacy Policy</a>
+        <a href="terms/" style="color: var(--color-text-secondary);">Terms of Service</a>
+        <a href="contact/" style="color: var(--color-text-secondary);">Client Care</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script type="module" src="js/order-confirmation.js"></script>
+</body>
+</html>

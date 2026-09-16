@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Profile | Slimky Hair</title>
+  <meta name="description" content="Update your Slimky Hair profile details and contact preferences.">
+  <meta name="robots" content="noindex, nofollow">
+
+  
+    <!-- Social-share image: assets/og/og-default.jpg is the interim branded 1200x630 asset (brand colours + wordmark; no product/stock imagery). Replace that file with the final branded asset using the same filename &mdash; no HTML changes needed. -->
+  <meta property="og:site_name" content="Slimky Hair">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" content="Customer Profile | Slimky Hair">
+  <meta property="og:description" content="Update your Slimky Hair profile details and contact preferences.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://slimkyhair.com/account/profile/">
+  <meta property="og:image" content="https://slimkyhair.com/assets/og/og-default.jpg">
+  <meta property="og:image:secure_url" content="https://slimkyhair.com/assets/og/og-default.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Slimky Hair — Botanical Hair Science">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Customer Profile | Slimky Hair">
+  <meta name="twitter:description" content="Update your Slimky Hair profile details and contact preferences.">
+  <meta name="twitter:image" content="https://slimkyhair.com/assets/og/og-default.jpg">
+  <meta name="twitter:image:alt" content="Slimky Hair — Botanical Hair Science">
+
+<!-- Favicon / Icons -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+  
+  <!-- Master Stylesheets -->
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/components/account.css">
+</head>
+<body class="theme-light">
+
+  <!-- Header -->
+  <header class="header sticky-header" id="main-header" role="banner">
+    <div class="container header-inner" style="justify-content: space-between;">
+      <a href="../../" class="header-brand" aria-label="Slimky Hair Home">
+        <span class="brand-title">SLIMKY HAIR</span>
+        <span class="brand-subtitle">African Botanical Science</span>
+      </a>
+
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <a href="../../shop/" class="btn-outline btn-sm" style="text-decoration: none;">
+          Explore Formulations
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="account-page-main" id="main-content">
+    <div class="container account-container">
+      
+      <!-- Breadcrumbs -->
+      <nav aria-label="Breadcrumbs" class="checkout-breadcrumbs" style="margin-bottom: 24px;">
+        <a href="../../">Home</a>
+        <span class="checkout-breadcrumbs-sep">/</span>
+        <a href="../">My Account</a>
+        <span class="checkout-breadcrumbs-sep">/</span>
+        <span class="checkout-breadcrumbs-current">Personal Profile</span>
+      </nav>
+
+      <!-- Account 2-Column Responsive Layout -->
+      <div class="account-layout">
+        
+        <!-- Left: Desktop Sidebar Navigation -->
+        <div id="account-sidebar-mount"></div>
+
+        <!-- Right: Main Account Content Panel -->
+        <div class="account-content-panel">
+          
+          <!-- Mobile & Tablet Horizontal Pill Navigation -->
+          <div id="account-mobile-nav-mount"></div>
+
+          <!-- Profile Shell Card -->
+          <div class="account-card-box">
+            <header class="account-panel-header">
+              <h1 class="account-panel-title">Personal Profile</h1>
+              <p class="account-panel-desc">Keep your client information and order dispatch contact channels up to date.</p>
+            </header>
+
+            <form id="profile-shell-form" style="max-width: 540px;">
+              <div style="margin-bottom: 20px;">
+                <label for="profile-name" style="display: block; font-size: 0.8125rem; font-weight: 600; margin-bottom: 6px; color: var(--color-text-primary);">Full Name</label>
+                <input type="text" id="profile-name" class="checkout-input" style="width: 100%; box-sizing: border-box; height: 44px; padding: 0 12px; border: 1px solid var(--color-border-subtle); border-radius: 4px;" value="Chioma E. Okonkwo">
+              </div>
+
+              <div style="margin-bottom: 20px;">
+                <label for="profile-email" style="display: block; font-size: 0.8125rem; font-weight: 600; margin-bottom: 6px; color: var(--color-text-primary);">Email Address</label>
+                <input type="email" id="profile-email" class="checkout-input" style="width: 100%; box-sizing: border-box; height: 44px; padding: 0 12px; border: 1px solid var(--color-border-subtle); border-radius: 4px; background: var(--color-bg-primary);" value="chioma.demo@slimkyhair.com" readonly>
+                <span style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 4px; display: block;">Email identity managed securely through authentication.</span>
+              </div>
+
+              <div style="margin-bottom: 20px;">
+                <label for="profile-phone" style="display: block; font-size: 0.8125rem; font-weight: 600; margin-bottom: 6px; color: var(--color-text-primary);">Phone / WhatsApp Number</label>
+                <input type="tel" id="profile-phone" class="checkout-input" style="width: 100%; box-sizing: border-box; height: 44px; padding: 0 12px; border: 1px solid var(--color-border-subtle); border-radius: 4px;" value="+234 803 123 4567">
+                <span style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 4px; display: block;">Used for shipping coordination, courier updates, and quote communications.</span>
+              </div>
+
+              <div style="margin-top: 28px;">
+                <button type="submit" class="btn-primary" style="height: 48px; padding: 0 28px; cursor: pointer;">
+                  Save Profile Changes
+                </button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer" role="contentinfo" style="border-top: 1px solid var(--color-border-subtle); padding: 40px 0; background: var(--color-bg-primary); text-align: center;">
+    <div class="container">
+      <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-bottom: 8px;">
+        © 2026 Slimky Hair. All rights reserved. African Botanical Formulations.
+      </p>
+      <div style="display: flex; justify-content: center; gap: 20px; font-size: 0.8125rem;">
+        <a href="../../privacy/" style="color: var(--color-text-secondary);">Privacy Policy</a>
+        <a href="../../terms/" style="color: var(--color-text-secondary);">Terms of Service</a>
+        <a href="../../contact/" style="color: var(--color-text-secondary);">Client Care</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { initAccountShell } from '../../js/account-shell.js';
+    import { customerService } from '../../js/auth/customer-service.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initAccountShell({ activeNav: 'profile', rootPrefix: '../../' });
+
+      const customer = customerService.getCurrentCustomer();
+      if (customer) {
+        const nameInput = document.querySelector('#profile-name');
+        const emailInput = document.querySelector('#profile-email');
+        const phoneInput = document.querySelector('#profile-phone');
+        if (nameInput) nameInput.value = customer.fullName || '';
+        if (emailInput) emailInput.value = customer.email || '';
+        if (phoneInput) phoneInput.value = customer.phone || '';
+      }
+
+      document.querySelector('#profile-shell-form')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const customer = customerService.getCurrentCustomer();
+        if (!customer) return;
+
+        const fullName = document.querySelector('#profile-name')?.value;
+        const phone = document.querySelector('#profile-phone')?.value;
+        customerService.updateProfile(customer.id, { fullName, phone });
+        alert('Profile details updated successfully.');
+      });
+    });
+  </script>
+</body>
+</html>

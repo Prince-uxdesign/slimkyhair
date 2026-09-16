@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping Bag | Slimky Hair</title>
+  <meta name="description" content="Review your selected Slimky Hair botanical formulations before checkout.">
+  <meta name="robots" content="noindex, nofollow">
+
+  
+    <!-- Social-share image: assets/og/og-default.jpg is the interim branded 1200x630 asset (brand colours + wordmark; no product/stock imagery). Replace that file with the final branded asset using the same filename &mdash; no HTML changes needed. -->
+  <meta property="og:site_name" content="Slimky Hair">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" content="Shopping Bag | Slimky Hair">
+  <meta property="og:description" content="Review your selected Slimky Hair botanical formulations before checkout.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://slimkyhair.com/cart/">
+  <meta property="og:image" content="https://slimkyhair.com/assets/og/og-default.jpg">
+  <meta property="og:image:secure_url" content="https://slimkyhair.com/assets/og/og-default.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Slimky Hair — Botanical Hair Science">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Shopping Bag | Slimky Hair">
+  <meta name="twitter:description" content="Review your selected Slimky Hair botanical formulations before checkout.">
+  <meta name="twitter:image" content="https://slimkyhair.com/assets/og/og-default.jpg">
+  <meta name="twitter:image:alt" content="Slimky Hair — Botanical Hair Science">
+
+<!-- Favicon / Icons -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='2' fill='%232C1E18'/><text x='16' y='22' font-family='serif' font-size='18' fill='%23FAF8F5' text-anchor='middle'>S</text></svg>">
+  
+  <!-- Master Stylesheet -->
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body class="theme-light">
+
+  <!-- Top Announcement Utility Bar -->
+  <aside class="announcement-bar" role="complementary" aria-label="Announcement">
+    <div class="container announcement-bar-inner">
+      <span class="announcement-text">Curated botanical formulations for textured hair health &bull; Clean African science</span>
+      <a href="shop/" class="announcement-link">Explore Catalogue</a>
+    </div>
+  </aside>
+
+  <!-- Global Header Navigation -->
+  <header class="site-header" id="main-header" role="banner">
+    <div class="container header-inner">
+      
+      <!-- Brand Logo -->
+      <a href="./" class="header-brand" aria-label="Slimky Hair Home">
+        <span class="brand-title">SLIMKY HAIR</span>
+        <span class="brand-subtitle">African Botanical Science</span>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <nav class="nav-desktop" aria-label="Primary Navigation">
+        <a href="./" class="nav-link">Home</a>
+        <a href="shop/" class="nav-link">Shop</a>
+        <a href="about/" class="nav-link">About</a>
+        <a href="faq/" class="nav-link">FAQ</a>
+        <a href="contact/" class="nav-link">Contact</a>
+      </nav>
+
+      <!-- Utility Header Actions -->
+      <div class="header-actions">
+        <!-- Search Link -->
+        <a href="search/" class="btn-icon" aria-label="Search Formulations">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+          </svg>
+        </a>
+
+        <!-- Wishlist Link -->
+        <a href="wishlist/" class="btn-icon" aria-label="Wishlist">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+          </svg>
+          <span class="btn-icon-badge wishlist-count-badge" style="display: none;">0</span>
+        </a>
+
+        <!-- Cart Trigger (Active Page Indicator) -->
+        <button type="button" class="btn-icon trigger-cart" aria-label="Shopping Bag">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
+            <path d="M3 6h18"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          <span class="btn-icon-badge cart-count-val">0</span>
+        </button>
+
+        <!-- Mobile Hamburger Menu Button -->
+        <button type="button" class="btn-icon mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Open Navigation Menu" aria-expanded="false" aria-controls="mobile-drawer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <aside class="drawer drawer-left" id="mobile-drawer" aria-label="Mobile Navigation" aria-hidden="true">
+    <div class="drawer-header">
+      <div class="header-brand">
+        <span class="brand-title" style="font-size: 1.5rem;">SLIMKY HAIR</span>
+        <span class="brand-subtitle">African Botanical Science</span>
+      </div>
+      <button type="button" class="btn-icon" id="mobile-drawer-close" aria-label="Close Navigation Menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="drawer-body">
+      <nav class="mobile-nav">
+        <a href="./" class="mobile-nav-link"><span>Home</span></a>
+        <a href="shop/" class="mobile-nav-link"><span>Shop All Products</span></a>
+        <a href="about/" class="mobile-nav-link"><span>About</span></a>
+        <a href="faq/" class="mobile-nav-link"><span>FAQ</span></a>
+        <a href="contact/" class="mobile-nav-link"><span>Contact</span></a>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- Search Drawer Overlay -->
+  <div class="search-drawer" id="search-drawer" aria-label="Quick Search" aria-hidden="true">
+    <div class="search-drawer-inner">
+      <div class="search-drawer-header">
+        <input type="search" class="search-drawer-input" id="search-input" placeholder="Search botanical formulations...">
+        <button type="button" class="btn-icon" id="search-drawer-close" aria-label="Close Search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart Preview Drawer (Central Reusable Presentation Layer) -->
+  <aside class="drawer drawer-right" id="cart-drawer" role="dialog" aria-modal="true" aria-label="Shopping Bag" aria-hidden="true">
+    <div class="drawer-header">
+      <div>
+        <h2 class="drawer-title">Shopping Bag (<span class="cart-count-val">0</span>)</h2>
+      </div>
+      <button type="button" class="btn-icon" id="cart-drawer-close" aria-label="Close Shopping Bag">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="drawer-body">
+      <div class="shipping-progress-bar">
+        <div class="shipping-progress-text">Calculating shipping...</div>
+        <div class="shipping-meter">
+          <div class="shipping-meter-fill"></div>
+        </div>
+      </div>
+    </div>
+    <div class="drawer-footer"></div>
+  </aside>
+
+  <!-- Backdrop -->
+  <div class="drawer-backdrop" aria-hidden="true"></div>
+
+  <!-- Main Content: C4 Full Cart Page -->
+  <main id="main-content" class="cart-page-main">
+    <div class="container">
+      
+      <!-- Breadcrumbs -->
+      <nav class="cart-breadcrumbs" aria-label="Breadcrumbs">
+        <a href="./">Home</a>
+        <span class="cart-breadcrumbs-sep">/</span>
+        <span class="cart-breadcrumbs-current">Shopping Bag</span>
+      </nav>
+
+      <!-- Page Heading Strip -->
+      <div class="cart-header-strip">
+        <h1 class="cart-title">
+          Shopping Bag <span class="cart-count-label" id="cart-page-count-header">(0 items)</span>
+        </h1>
+        <div class="cart-header-actions">
+          <a href="shop/" class="cart-continue-link">Continue Shopping</a>
+          <button type="button" id="cart-page-clear-btn" class="cart-clear-btn">Clear Bag</button>
+        </div>
+      </div>
+
+      <!-- Empty State View -->
+      <div id="cart-page-empty" class="cart-empty-container" role="region" aria-label="Empty Shopping Bag">
+        <svg class="cart-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
+        <h2 class="cart-empty-title">Your shopping bag is empty</h2>
+        <p class="cart-empty-description">
+          Explore our collection of clean botanical elixirs, scalp serums, and nourishing rituals formulated for textured hair health.
+        </p>
+        <a href="shop/" class="btn btn-primary cart-empty-cta">Continue Shopping</a>
+      </div>
+
+      <!-- Populated Content View: Desktop 2-column, Mobile 1-column -->
+      <div id="cart-page-content" class="cart-layout">
+        
+        <!-- Left: Line Items List -->
+        <section class="cart-items-container" aria-label="Shopping bag line items">
+          <div class="cart-items-header" aria-hidden="true">
+            <span>Product</span>
+            <span>Price</span>
+            <div class="cart-items-header-controls">
+              <span>Quantity</span>
+              <span>Total</span>
+            </div>
+          </div>
+          <div id="cart-page-items" role="list"></div>
+        </section>
+
+        <!-- Right: Order Summary (moves below items on mobile) -->
+        <aside class="cart-summary-card" aria-label="Order Summary">
+          <h2 class="cart-summary-title">Order Summary</h2>
+
+          <div class="cart-summary-row">
+            <span>Subtotal</span>
+            <span id="cart-page-subtotal" class="cart-summary-row-subtotal">₦0</span>
+          </div>
+
+          <!-- Shipping Status (Strict C4 MVP Requirement) -->
+          <div class="cart-shipping-notice-box" role="region" aria-label="Shipping Status">
+            <div class="cart-shipping-notice-heading">Shipping Status</div>
+            <div class="cart-shipping-status-line">
+              <span class="cart-shipping-country">Nigeria</span>
+              <span class="cart-shipping-badge">Calculated separately</span>
+            </div>
+            <div class="cart-shipping-status-line">
+              <span class="cart-shipping-country">International</span>
+              <span class="cart-shipping-badge">Quote required</span>
+            </div>
+            <div class="cart-shipping-helper">
+              Shipping fees are calculated at checkout based on destination.
+            </div>
+          </div>
+
+          <div class="cart-summary-total">
+            <span class="cart-total-label">Total</span>
+            <span id="cart-page-total" class="cart-total-amount">₦0</span>
+          </div>
+
+          <a href="checkout/" id="cart-page-checkout-cta" class="cart-checkout-cta">
+            Proceed to Checkout
+          </a>
+
+          <a href="shop/" class="cart-continue-btn">
+            Continue Shopping
+          </a>
+
+          <div class="cart-security-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+              <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <span>Bank-grade 256-bit SSL encryption. Safe &amp; verified.</span>
+          </div>
+        </aside>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <div class="footer-copyright">
+          &copy; 2026 Slimky Hair Laboratories Ltd. All rights reserved.
+        </div>
+        <div class="footer-legal-links">
+          <a href="privacy/">Privacy Policy</a>
+          <a href="terms/">Terms &amp; Conditions</a>
+          <a href="cookies/">Cookie Policy</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script type="module" src="js/cart-page.js"></script>
+</body>
+</html>

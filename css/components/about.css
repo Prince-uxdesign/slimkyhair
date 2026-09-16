@@ -1,0 +1,769 @@
+/**
+ * About Page Component Styles
+ * Slimky Hair
+ * 
+ * Strict Solid Color System (Solid Colors Only)
+ * Palette: Cream (#FAF8F5, #F4EFEA), Pure White (#FFFFFF), Deep Brown (#2C1E18), Dark Navy (#1B242A), Muted Sage (#3B4E43)
+ * Typography: Cormorant Garamond (Serif Headlines) & DM Sans (Body / UI)
+ */
+
+/* ==========================================================================
+   1. About Hero Section
+   ========================================================================== */
+.about-hero-section {
+  background-color: var(--bg-primary);
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding-block: clamp(3.5rem, 6vw, 6rem);
+  position: relative;
+}
+
+.about-hero-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: clamp(2.5rem, 5vw, 5rem);
+  align-items: center;
+}
+
+.about-hero-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.about-hero-eyebrow {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: var(--text-eyebrow);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-sage-muted);
+  margin-bottom: var(--space-sm);
+}
+
+.about-hero-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2.5rem, 5.5vw, 4.25rem);
+  line-height: 1.08;
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+  letter-spacing: -0.015em;
+  margin-bottom: var(--space-md);
+}
+
+.about-hero-desc {
+  font-family: var(--font-sans);
+  font-size: clamp(1rem, 1.35vw, 1.1875rem);
+  line-height: 1.65;
+  color: var(--color-text-secondary);
+  max-width: 540px;
+  margin-bottom: var(--space-xl);
+}
+
+.about-hero-ctas {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.about-hero-media {
+  position: relative;
+}
+
+.about-hero-frame {
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--color-border-subtle);
+  position: relative;
+}
+
+.about-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.about-hero-caption-card {
+  position: absolute;
+  bottom: var(--space-lg);
+  left: var(--space-lg);
+  right: var(--space-lg);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xs);
+  padding: var(--space-md) var(--space-lg);
+}
+
+.about-hero-caption-label {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-sage-muted);
+  margin-bottom: 2px;
+}
+
+.about-hero-caption-quote {
+  font-family: var(--font-serif);
+  font-size: 1.0625rem;
+  line-height: 1.35;
+  color: var(--color-text-primary);
+  font-style: italic;
+}
+
+/* ==========================================================================
+   2. Our Story Section
+   ========================================================================== */
+.about-story-section {
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding-block: clamp(4rem, 7vw, 6.5rem);
+}
+
+.about-story-grid {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: clamp(2.5rem, 5vw, 5rem);
+  align-items: start;
+}
+
+.about-story-sticky {
+  position: sticky;
+  top: 100px;
+}
+
+.about-story-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 3.8vw, 3rem);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+  line-height: 1.15;
+  margin-top: var(--space-xs);
+  margin-bottom: var(--space-lg);
+}
+
+.about-story-pullquote {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  line-height: 1.45;
+  font-style: italic;
+  color: var(--color-sage-muted);
+  padding-left: var(--space-lg);
+  border-left: 2px solid var(--color-sage-muted);
+  margin-top: var(--space-xl);
+}
+
+.about-story-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.about-story-p {
+  font-family: var(--font-sans);
+  font-size: clamp(0.9375rem, 1.15vw, 1.0625rem);
+  line-height: 1.75;
+  color: var(--color-text-secondary);
+}
+
+.about-story-p strong {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.about-story-placeholder-note {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+  border-top: 1px solid var(--color-border-subtle);
+  padding-top: var(--space-md);
+  margin-top: var(--space-sm);
+}
+
+/* ==========================================================================
+   3. Made by Slimky Hair (We Make What We Sell)
+   ========================================================================== */
+.about-craft-section {
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding-block: clamp(4.5rem, 7.5vw, 7rem);
+}
+
+.about-craft-header {
+  text-align: center;
+  max-width: 680px;
+  margin-inline: auto;
+  margin-bottom: clamp(3rem, 5vw, 4.5rem);
+}
+
+.about-craft-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2.25rem, 4.5vw, 3.5rem);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+  line-height: 1.12;
+  margin-top: var(--space-xs);
+  margin-bottom: var(--space-md);
+}
+
+.about-craft-lead {
+  font-family: var(--font-sans);
+  font-size: clamp(1rem, 1.25vw, 1.125rem);
+  line-height: 1.65;
+  color: var(--color-text-secondary);
+}
+
+.about-craft-composition {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(2rem, 4vw, 4rem);
+  align-items: center;
+}
+
+.about-craft-media-frame {
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.about-craft-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.about-craft-pillars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.about-craft-pillar {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xs);
+  padding: var(--space-lg) var(--space-xl);
+  transition: border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.about-craft-pillar:hover {
+  border-color: var(--color-border-strong);
+  transform: translateY(-2px);
+}
+
+.about-craft-pillar-num {
+  font-family: var(--font-serif);
+  font-size: 1.125rem;
+  color: var(--color-sage-muted);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: 4px;
+}
+
+.about-craft-pillar-title {
+  font-family: var(--font-serif);
+  font-size: 1.375rem;
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-regular);
+  margin-bottom: 6px;
+}
+
+.about-craft-pillar-desc {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* ==========================================================================
+   4. Product Philosophy (Our Approach to Hair Care)
+   ========================================================================== */
+.about-philosophy-section {
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding-block: clamp(4rem, 7vw, 6.5rem);
+}
+
+.about-philosophy-header {
+  text-align: center;
+  max-width: 640px;
+  margin-inline: auto;
+  margin-bottom: clamp(3rem, 5vw, 4.5rem);
+}
+
+.about-philosophy-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+  line-height: 1.15;
+  margin-top: var(--space-xs);
+  margin-bottom: var(--space-sm);
+}
+
+.about-philosophy-lead {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.about-principles-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-lg);
+}
+
+.about-principle-card {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xs);
+  padding: var(--space-xl) var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  transition: border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.about-principle-card:hover {
+  border-color: var(--color-brown-deep);
+  transform: translateY(-3px);
+}
+
+.about-principle-num {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-regular);
+  color: var(--color-sage-muted);
+  margin-bottom: var(--space-md);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.about-principle-title {
+  font-family: var(--font-serif);
+  font-size: 1.375rem;
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-xs);
+  line-height: 1.25;
+}
+
+.about-principle-desc {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* ==========================================================================
+   5. Natural + Science-Informed Balance Section
+   ========================================================================== */
+.about-balance-section {
+  background-color: var(--bg-sage-subtle);
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding-block: clamp(4.5rem, 7.5vw, 6.5rem);
+}
+
+.about-balance-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(2.5rem, 5vw, 5rem);
+  align-items: center;
+}
+
+.about-balance-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.about-balance-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2.125rem, 4vw, 3.25rem);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+  line-height: 1.15;
+  margin-top: var(--space-xs);
+  margin-bottom: var(--space-md);
+}
+
+.about-balance-desc {
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-lg);
+}
+
+.about-balance-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-md);
+}
+
+.about-balance-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xs);
+  padding: var(--space-lg) var(--space-xl);
+}
+
+.about-balance-card-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: 6px;
+}
+
+.about-balance-card-icon {
+  width: 22px;
+  height: 22px;
+  color: var(--color-sage-muted);
+}
+
+.about-balance-card-title {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.about-balance-card-p {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* ==========================================================================
+   6. Quality & Manufacturing Process
+   ========================================================================== */
+.about-process-section {
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding-block: clamp(4.5rem, 7vw, 6.5rem);
+}
+
+.about-process-header {
+  text-align: center;
+  max-width: 680px;
+  margin-inline: auto;
+  margin-bottom: clamp(3rem, 5vw, 4.5rem);
+}
+
+.about-process-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2.25rem, 4.2vw, 3.25rem);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+  line-height: 1.15;
+  margin-top: var(--space-xs);
+  margin-bottom: var(--space-sm);
+}
+
+.about-process-lead {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.about-process-flow {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--space-md);
+  position: relative;
+}
+
+.about-process-step {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xs);
+  padding: var(--space-lg) var(--space-md);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.about-process-step:hover {
+  border-color: var(--color-brown-deep);
+  transform: translateY(-2px);
+}
+
+.about-process-step-num {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-sage-muted);
+  margin-bottom: var(--space-sm);
+}
+
+.about-process-step-title {
+  font-family: var(--font-serif);
+  font-size: 1.1875rem;
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.25;
+  margin-bottom: 6px;
+}
+
+.about-process-step-desc {
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.about-process-disclaimer {
+  margin-top: var(--space-2xl);
+  text-align: center;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+/* ==========================================================================
+   7. Brand Values
+   ========================================================================== */
+.about-values-section {
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding-block: clamp(4.5rem, 7vw, 6.5rem);
+}
+
+.about-values-header {
+  text-align: center;
+  max-width: 640px;
+  margin-inline: auto;
+  margin-bottom: clamp(3rem, 5vw, 4.5rem);
+}
+
+.about-values-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2.25rem, 4vw, 3.25rem);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+  line-height: 1.15;
+  margin-top: var(--space-xs);
+  margin-bottom: var(--space-sm);
+}
+
+.about-values-lead {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.about-values-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-lg);
+}
+
+.about-value-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xs);
+  padding: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  transition: border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.about-value-card:hover {
+  border-color: var(--color-border-strong);
+  transform: translateY(-2px);
+}
+
+.about-value-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+}
+
+.about-value-name {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.about-value-badge {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-sage-muted);
+}
+
+.about-value-desc {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* ==========================================================================
+   8. Final CTA Section
+   ========================================================================== */
+.about-cta-section {
+  background-color: var(--bg-primary);
+  padding-block: clamp(4.5rem, 8vw, 7.5rem);
+  text-align: center;
+  position: relative;
+}
+
+.about-cta-inner {
+  max-width: 640px;
+  margin-inline: auto;
+}
+
+.about-cta-eyebrow {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: var(--text-eyebrow);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-sage-muted);
+  margin-bottom: var(--space-sm);
+}
+
+.about-cta-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2.5rem, 5vw, 3.75rem);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+  line-height: 1.12;
+  margin-bottom: var(--space-md);
+}
+
+.about-cta-desc {
+  font-family: var(--font-sans);
+  font-size: clamp(1rem, 1.25vw, 1.125rem);
+  line-height: 1.65;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-2xl);
+}
+
+.about-cta-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+/* ==========================================================================
+   Responsive Adaptations
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .about-hero-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-2xl);
+  }
+
+  .about-hero-media {
+    max-width: 580px;
+    margin-inline: auto;
+    width: 100%;
+  }
+
+  .about-story-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-xl);
+  }
+
+  .about-story-sticky {
+    position: static;
+  }
+
+  .about-craft-composition {
+    grid-template-columns: 1fr;
+    gap: var(--space-2xl);
+  }
+
+  .about-principles-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .about-balance-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-2xl);
+  }
+
+  .about-process-flow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .about-values-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .about-principles-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-process-flow {
+    grid-template-columns: 1fr;
+  }
+
+  .about-values-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-hero-ctas {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .about-hero-ctas .btn {
+    width: 100%;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .about-cta-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .about-cta-actions .btn {
+    width: 100%;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .about-hero-caption-card {
+    bottom: var(--space-sm);
+    left: var(--space-sm);
+    right: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+  }
+}

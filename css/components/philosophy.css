@@ -1,0 +1,246 @@
+/**
+ * Section 4: Editorial Philosophy Split Component
+ * Slimky Hair
+ * 
+ * Strict Solid Color System (Zero Gradients)
+ * Inspired by premium editorial beauty composition: "Where innovation becomes beauty".
+ */
+
+.philosophy-section {
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding-block: clamp(4.5rem, 8vw, 8rem);
+  position: relative;
+}
+
+.philosophy-layout {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "header media"
+    "values media";
+  column-gap: clamp(2.5rem, 6vw, 6rem);
+  row-gap: clamp(2.5rem, 4vw, 4rem);
+  align-items: start;
+}
+
+/* 1. Header & Lead Block */
+.philosophy-header-block {
+  grid-area: header;
+}
+
+.philosophy-eyebrow {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: var(--text-eyebrow);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-sage-muted);
+  margin-bottom: var(--space-md);
+}
+
+.philosophy-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2.25rem, 4.2vw, 3.75rem);
+  line-height: 1.12;
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-lg);
+  letter-spacing: -0.01em;
+}
+
+.philosophy-lead {
+  font-family: var(--font-sans);
+  font-size: clamp(1rem, 1.25vw, 1.125rem);
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+  max-width: 580px;
+}
+
+/* 2. Media Image Block */
+.philosophy-media-block {
+  grid-area: media;
+  position: relative;
+}
+
+.media-frame-philosophy {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  box-shadow: var(--shadow-subtle);
+}
+
+.media-frame-philosophy img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 25%;
+  transition: transform var(--transition-smooth);
+}
+
+.philosophy-media-block:hover .media-frame-philosophy img {
+  transform: scale(1.02);
+}
+
+/* Floating caption badge */
+.philosophy-media-badge {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  background-color: rgba(250, 248, 245, 0.95);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xs);
+  padding: 8px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+  z-index: 2;
+  backdrop-filter: none;
+}
+
+.philosophy-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--color-sage-muted);
+  flex-shrink: 0;
+}
+
+/* 3. Three Value Points */
+.philosophy-values-block {
+  grid-area: values;
+}
+
+.philosophy-values-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.philosophy-value-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-lg);
+  padding-block: var(--space-lg);
+  border-top: 1px solid var(--color-border-subtle);
+  transition: background-color var(--transition-fast);
+}
+
+.philosophy-value-item:last-child {
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.philosophy-value-index {
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-sage-muted);
+  padding: 4px 8px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xs);
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.philosophy-value-body {
+  flex-grow: 1;
+}
+
+.philosophy-value-title {
+  font-family: var(--font-serif);
+  font-size: 1.3125rem;
+  line-height: 1.25;
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+
+.philosophy-value-item:hover .philosophy-value-index {
+  background-color: var(--bg-sage-subtle);
+  border-color: var(--color-border-medium);
+  color: var(--color-brown-deep);
+}
+
+.philosophy-value-item:hover .philosophy-value-title {
+  color: var(--color-brown-deep);
+}
+
+.philosophy-value-text {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  max-width: 520px;
+  margin: 0;
+}
+
+@media (min-width: 1025px) {
+  .philosophy-media-block {
+    position: sticky;
+    top: calc(var(--header-height, 80px) + 32px);
+  }
+}
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+  .philosophy-layout {
+    grid-template-columns: 1fr 1fr;
+    column-gap: var(--space-xl);
+    row-gap: var(--space-2xl);
+  }
+
+  .philosophy-title {
+    font-size: clamp(2rem, 3.5vw, 2.75rem);
+  }
+}
+
+@media (max-width: 768px) {
+  .philosophy-layout {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "header"
+      "media"
+      "values";
+    row-gap: var(--space-xl);
+  }
+
+  .philosophy-lead {
+    max-width: 100%;
+  }
+
+  .philosophy-media-block {
+    max-width: 500px;
+    width: 100%;
+    margin-inline: auto;
+  }
+
+  .philosophy-value-item {
+    gap: var(--space-md);
+    padding-block: var(--space-md);
+  }
+
+  .philosophy-value-title {
+    font-size: 1.1875rem;
+  }
+
+  .philosophy-value-text {
+    font-size: 0.8125rem;
+  }
+}

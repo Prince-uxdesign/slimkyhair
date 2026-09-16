@@ -1,0 +1,101 @@
+/**
+ * Section 2: Brand Trust & Values Strip
+ * Slimky Hair
+ * 
+ * Minimal, text-based editorial trust divider.
+ * Solid background, elegant tracking, zero gradients.
+ */
+
+.trust-strip-section {
+  background-color: var(--bg-secondary); /* Very subtle warm cream */
+  border-top: 1px solid var(--color-border-subtle);
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding-block: clamp(1.25rem, 2.2vw, 2rem);
+  position: relative;
+}
+
+.trust-strip-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xl);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.trust-strip-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-family: var(--font-sans);
+  font-size: clamp(0.6875rem, 0.95vw, 0.8125rem);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  transition: color var(--transition-fast);
+}
+
+.trust-strip-item:hover {
+  color: var(--color-brown-deep);
+}
+
+/* Subtle editorial accent mark */
+.trust-strip-mark {
+  width: 4px;
+  height: 4px;
+  background-color: var(--color-sage-muted);
+  border-radius: 50%;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 1024px) {
+  .trust-strip-inner {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--space-md) var(--space-xl);
+  }
+}
+
+@media (max-width: 768px) {
+  .trust-strip-section {
+    padding-block: 1.25rem;
+  }
+
+  .trust-strip-inner {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px 14px;
+    justify-items: center;
+  }
+
+  .trust-strip-item {
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+    white-space: normal;
+    text-align: center;
+    justify-content: center;
+    line-height: 1.35;
+  }
+
+  /* Span the 5th item across 2 columns on mobile */
+  .trust-strip-item:nth-child(5) {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 380px) {
+  .trust-strip-inner {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    justify-items: center;
+  }
+
+  .trust-strip-item:nth-child(5) {
+    grid-column: span 1;
+  }
+}

@@ -1,0 +1,56 @@
+# Slimky Hair — robots.txt (production)
+#
+# Production domain source: canonical link tags + og:url used consistently
+# across the published site (e.g. <link rel="canonical"
+# href="https://slimkyhair.com/"> in index.html). js/env.js APP_URL and
+# .env.example APP_URL are still unconfigured placeholders
+# (https://YOUR_PRODUCTION_DOMAIN.example) and are therefore NOT used here.
+# If the production domain ever changes, update the Sitemap URL below.
+#
+# NOTE: robots.txt is a crawling hint only — it is NOT access control.
+# Private data remains protected by Supabase Auth + RLS and server-side
+# checks. Do not rely on these Disallow rules for security.
+#
+# Public pages (homepage, /shop/, /category/, /product/, /search/,
+# /about, /faq, /contact, /shipping, /returns, /product-safety,
+# /hair-care, /privacy, /terms, /cookies, /wishlist/) are intentionally
+# left crawlable for desktop and mobile crawlers alike. No rule below
+# targets them.
+
+User-agent: *
+Allow: /
+
+# Favicon assets must never be blocked.
+Allow: /favicon.ico
+Allow: /favicon.svg
+
+# --- Private / application areas: save crawl budget, avoid indexing
+# --- personal or transactional flows.
+Disallow: /account/
+Disallow: /checkout/
+Disallow: /payment/
+Disallow: /admin/
+Disallow: /cart/
+Disallow: /order-confirmation/
+Disallow: /*forgot-password*
+Disallow: /*reset-password*
+
+# --- Search & filter query combinations: block crawl traps while keeping
+# --- the base pages (/shop/, /category/*, /product/*, /search/) crawlable.
+# --- Shop/category filters run client-side with no indexable URL params;
+# --- search uses ?q= (see js/search-controller.js, js/drawers.js) and the
+# --- order-confirmation page uses ?order= / ?ref= style params
+# --- (see js/order-confirmation.js, js/account-orders.js).
+Disallow: /*?q=*
+Disallow: /*?*sort=*
+Disallow: /*?*filter=*
+Disallow: /*?*price=*
+Disallow: /*?*order=*
+Disallow: /*?*ref=*
+
+# --- Internal / tooling directories present in the repo: never public content.
+Disallow: /scratch/
+Disallow: /supabase/
+Disallow: /database/
+
+Sitemap: https://slimkyhair.com/sitemap.xml

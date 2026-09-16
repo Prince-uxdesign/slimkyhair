@@ -1,0 +1,294 @@
+/**
+ * International Shipping Quote Card & Status Rows - Slimky Hair
+ * Milestone C20.11: International Shipping Workflow
+ *
+ * Shared between the guest order-confirmation page and the signed-in
+ * account order detail page. No automated shipping calculation — amounts
+ * shown here are always admin-entered actual carrier quotes.
+ */
+
+/* Section 8: Separated Product Payment / Shipping status rows */
+.order-payment-status-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.order-payment-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg-primary, #FAF8F5);
+  border: 1px solid var(--color-border-subtle, #E8E2D9);
+  border-radius: 4px;
+}
+
+.order-payment-status-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #5E5955);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.order-payment-status-value {
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.order-payment-status-value.is-paid {
+  color: var(--color-sage-dark, #2A3830);
+}
+
+.order-payment-status-value.is-pending {
+  color: #8C6510;
+}
+
+.order-payment-status-value.is-quote {
+  color: #4A3E37;
+}
+
+/* Shipping Quote Card */
+.shipping-quote-card {
+  background: #FFFFFF;
+  border: 1px solid var(--color-border-subtle, #E8E2D9);
+  border-radius: 6px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-sizing: border-box;
+}
+
+.shipping-quote-card.is-pending-state {
+  background: var(--bg-secondary, #F4EFEA);
+  border-style: dashed;
+}
+
+.shipping-quote-eyebrow {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-sage-dark, #2A3830);
+  margin-bottom: 8px;
+}
+
+.shipping-quote-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #2C1E18);
+  margin: 0 0 16px 0;
+  line-height: 1.35;
+}
+
+.shipping-quote-card.is-pending-state .shipping-quote-title {
+  margin-bottom: 10px;
+}
+
+.shipping-quote-body-text {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary, #5E5955);
+  margin: 0 0 16px 0;
+}
+
+.shipping-quote-card.is-pending-state .shipping-quote-body-text {
+  margin-bottom: 0;
+}
+
+.shipping-quote-amount-block {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--color-border-subtle, #E8E2D9);
+}
+
+.shipping-quote-amount {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #2C1E18);
+  line-height: 1;
+}
+
+.shipping-quote-amount-label {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted, #8C8681);
+}
+
+.shipping-quote-meta-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.shipping-quote-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  font-size: 0.875rem;
+}
+
+.shipping-quote-meta-key {
+  color: var(--color-text-secondary, #5E5955);
+  flex-shrink: 0;
+}
+
+.shipping-quote-meta-val {
+  font-weight: 500;
+  color: var(--color-text-primary, #2C1E18);
+  text-align: right;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.shipping-quote-notes {
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--color-text-secondary, #5E5955);
+  background: var(--bg-primary, #FAF8F5);
+  padding: 12px 14px;
+  border-radius: 4px;
+  margin-bottom: 18px;
+}
+
+.shipping-quote-customs-note {
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: #634C19;
+  background: #FDF9EE;
+  border-left: 3px solid #C4984F;
+  padding: 12px 14px;
+  border-radius: 0 4px 4px 0;
+  margin-bottom: 20px;
+}
+
+.shipping-quote-card.is-pending-state .shipping-quote-customs-note,
+.shipping-quote-card.is-pending-state .shipping-quote-amount-block {
+  display: none;
+}
+
+/* Accept / Decline Actions - wrap naturally to a stacked column whenever
+   the available width can't comfortably fit both buttons side by side
+   (covers every mobile viewport from 360px through 480px). */
+.shipping-quote-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.shipping-quote-actions > button {
+  flex: 1 1 200px;
+  min-height: 50px;
+}
+
+.shipping-quote-decline-panel {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--color-border-subtle, #E8E2D9);
+}
+
+.shipping-quote-decline-label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #2C1E18);
+  margin-bottom: 8px;
+}
+
+.shipping-quote-decline-textarea {
+  width: 100%;
+  min-height: 84px;
+  padding: 10px 14px;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  color: var(--color-text-primary, #2C1E18);
+  border: 1px solid var(--color-border-subtle, #E8E2D9);
+  border-radius: 4px;
+  resize: vertical;
+  margin-bottom: 14px;
+  box-sizing: border-box;
+}
+
+.shipping-quote-decline-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.shipping-quote-decline-actions #btn-submit-decline {
+  flex: 1 1 180px;
+  min-height: 48px;
+}
+
+.shipping-quote-feedback {
+  margin-top: 18px;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  padding: 12px 14px;
+  border-radius: 4px;
+}
+
+.shipping-quote-feedback.is-success {
+  background: var(--bg-sage-subtle, #EBEFE9);
+  color: var(--color-sage-dark, #2A3830);
+}
+
+.shipping-quote-feedback.is-error {
+  background: #FDF0EE;
+  color: #B42318;
+}
+
+/* Mobile: guarantee full-width stacked buttons, never side-by-side */
+@media (max-width: 600px) {
+  .shipping-quote-card {
+    padding: 20px 16px;
+  }
+
+  .shipping-quote-amount {
+    font-size: 1.75rem;
+  }
+
+  .shipping-quote-actions {
+    flex-direction: column;
+  }
+
+  .shipping-quote-actions > button {
+    width: 100%;
+    flex: none;
+  }
+
+  .shipping-quote-decline-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .shipping-quote-decline-actions #btn-submit-decline {
+    width: 100%;
+    flex: none;
+  }
+
+  .shipping-quote-decline-actions #btn-cancel-decline {
+    text-align: center;
+  }
+
+  .order-payment-status-row {
+    padding: 12px 14px;
+  }
+}
+
+/* Tablet: allow the quote card to sit in a comfortably wide two-column context */
+@media (min-width: 601px) and (max-width: 834px) {
+  .shipping-quote-meta-row {
+    font-size: 0.9375rem;
+  }
+}

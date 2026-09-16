@@ -1,0 +1,384 @@
+/**
+ * Section 11: Hair Care Essentials (Editorial Collection Catalog)
+ * Slimky Hair
+ * 
+ * Strict Solid Color System (Zero Gradients)
+ * Background: Warm Cream (--bg-secondary #F4EFEA)
+ * Aesthetic: High-fashion beauty catalogue, refined typography, generous whitespace.
+ */
+
+.essentials-section {
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding-block: clamp(4rem, 7.5vw, 7rem);
+  position: relative;
+}
+
+/* ==========================================================================
+   Top Editorial Composition: Split Intro + Editorial Lifestyle Frame
+   ========================================================================== */
+
+.essentials-hero {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: clamp(2.5rem, 5vw, 5rem);
+  align-items: center;
+  margin-bottom: clamp(3.5rem, 6vw, 5.5rem);
+}
+
+.essentials-intro {
+  display: flex;
+  flex-direction: column;
+}
+
+.essentials-eyebrow {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: var(--text-eyebrow);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-sage-muted);
+  margin-bottom: var(--space-sm);
+}
+
+.essentials-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  line-height: 1.08;
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+  letter-spacing: -0.015em;
+  margin-bottom: var(--space-md);
+}
+
+.essentials-description {
+  font-family: var(--font-sans);
+  font-size: clamp(1rem, 1.25vw, 1.125rem);
+  line-height: 1.65;
+  color: var(--color-text-secondary);
+  max-width: 540px;
+  margin-bottom: var(--space-xl);
+}
+
+/* Category Filter Navigation */
+.essentials-nav-container {
+  margin-top: var(--space-xs);
+  margin-bottom: var(--space-2xl);
+}
+
+.essentials-nav-label {
+  font-family: var(--font-sans);
+  font-size: var(--text-eyebrow);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-sm);
+}
+
+.essentials-nav-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.essentials-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 18px;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-text-primary);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+  white-space: nowrap;
+}
+
+.essentials-filter-btn:hover {
+  border-color: var(--color-border-strong);
+  color: var(--color-brown-deep);
+  transform: translateY(-1px);
+}
+
+.essentials-filter-btn.active,
+.essentials-filter-btn[aria-selected="true"] {
+  background-color: var(--color-brown-deep);
+  color: var(--bg-primary);
+  border-color: var(--color-brown-deep);
+}
+
+/* Editorial Routine Value Bar */
+.essentials-editorial-meta {
+  display: flex;
+  align-items: center;
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.essentials-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.essentials-meta-num {
+  font-family: var(--font-serif);
+  font-size: 1.375rem;
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+  line-height: 1;
+}
+
+.essentials-meta-text {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+.essentials-meta-divider {
+  width: 1px;
+  height: 32px;
+  background-color: var(--color-border-subtle);
+}
+
+/* Editorial Lifestyle Media Frame */
+.essentials-media-frame {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  box-shadow: var(--shadow-subtle);
+}
+
+.essentials-media-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+  transition: transform var(--transition-smooth);
+}
+
+.essentials-media-frame:hover .essentials-media-img {
+  transform: scale(1.02);
+}
+
+/* Floating Editorial Card on Image */
+.essentials-media-card {
+  position: absolute;
+  bottom: var(--space-lg);
+  left: var(--space-lg);
+  right: var(--space-lg);
+  padding: var(--space-md) var(--space-lg);
+  background-color: rgba(250, 248, 245, 0.95);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xs);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  backdrop-filter: blur(4px);
+}
+
+.essentials-media-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.essentials-media-quote {
+  font-family: var(--font-serif);
+  font-size: 1.0625rem;
+  line-height: 1.35;
+  color: var(--color-text-primary);
+  font-style: italic;
+}
+
+.essentials-media-caption {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* ==========================================================================
+   Bottom Product Catalog Subsection ("Shop Our Must-Have Collection")
+   ========================================================================== */
+
+.essentials-catalog {
+  margin-top: var(--space-xl);
+}
+
+.essentials-catalog-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding-bottom: var(--space-md);
+  margin-bottom: var(--space-2xl);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.essentials-catalog-title {
+  font-family: var(--font-serif);
+  font-size: clamp(1.625rem, 2.8vw, 2.25rem);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+  margin-top: 4px;
+}
+
+.essentials-catalog-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+.essentials-item-count {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm);
+  color: var(--color-text-muted);
+}
+
+.essentials-grid {
+  transition: opacity var(--transition-base);
+}
+
+/* Product Card specific overrides within essentials section to sit seamlessly on cream bg */
+.essentials-grid .product-card {
+  background-color: var(--bg-surface);
+  border-color: var(--color-border-subtle);
+}
+
+.essentials-grid .product-card.is-hidden {
+  display: none;
+}
+
+/* Bottom Discovery CTA */
+.essentials-bottom-bar {
+  margin-top: var(--space-3xl);
+  padding: var(--space-xl) var(--space-2xl);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xs);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xl);
+}
+
+.essentials-bottom-text {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  color: var(--color-text-primary);
+}
+
+.essentials-bottom-subtext {
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   Responsive Architecture
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .essentials-hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2xl);
+  }
+
+  .essentials-hero > * {
+    min-width: 0;
+  }
+
+  .essentials-media-frame {
+    max-height: 480px;
+    aspect-ratio: 16 / 10;
+  }
+
+  .essentials-media-img {
+    object-position: center 25%;
+  }
+
+  .essentials-catalog-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-md);
+  }
+
+  .essentials-catalog-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 768px) {
+  .essentials-section {
+    padding-block: clamp(3rem, 6vw, 4.5rem);
+  }
+
+  .essentials-nav-list {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 6px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .essentials-nav-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .essentials-media-frame {
+    aspect-ratio: 4 / 3;
+  }
+
+  .essentials-media-card {
+    position: static;
+    margin: var(--space-sm);
+    background-color: var(--bg-surface);
+  }
+
+  .essentials-bottom-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: var(--space-lg);
+    gap: var(--space-md);
+  }
+
+  .essentials-bottom-bar .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .essentials-filter-btn {
+    min-height: 42px;
+    padding: 10px 14px;
+    font-size: 0.75rem;
+  }
+
+  .essentials-title {
+    font-size: 2.125rem;
+  }
+
+  .essentials-media-quote {
+    font-size: 0.9375rem;
+  }
+}

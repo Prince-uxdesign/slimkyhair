@@ -1,0 +1,740 @@
+/**
+ * Slimky Hair Admin Dashboard Styles
+ * Milestones C21 - C26: Backoffice Orders & Shipping Management
+ */
+
+:root {
+  --admin-sidebar-width: 240px;
+  --admin-header-height: 64px;
+  --admin-surface: #FFFFFF;
+  --admin-bg: #F9F7F4;
+  --admin-border: #E8E2D9;
+  --admin-border-subtle: #F0EAE1;
+  --admin-text-main: #231B18;
+  --admin-text-muted: #6B625B;
+  --admin-brand-brown: #4A352F;
+  --admin-brand-terracotta: #8F3B3B;
+  --admin-status-paid-bg: #E8F5E9;
+  --admin-status-paid-text: #2E7D32;
+  --admin-status-pending-bg: #FFF8E1;
+  --admin-status-pending-text: #F57F17;
+  --admin-status-quote-bg: #E0F2FE;
+  --admin-status-quote-text: #0284C7;
+  --admin-status-dispatch-bg: #EDE9FE;
+  --admin-status-dispatch-text: #6D28D9;
+  --admin-status-failed-bg: #FEE2E2;
+  --admin-status-failed-text: #B91C1C;
+}
+
+body.admin-body {
+  background-color: var(--admin-bg);
+  color: var(--admin-text-main);
+  font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* Admin Shell Layout */
+.admin-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.admin-sidebar {
+  width: var(--admin-sidebar-width);
+  background: #1C1513;
+  color: #FAF7F2;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-sidebar-brand {
+  padding: 24px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-sidebar-brand h1 {
+  margin: 0;
+  font-family: var(--font-serif, "Cormorant Garamond", Georgia, serif);
+  font-size: 1.25rem;
+  letter-spacing: 0.08em;
+  color: #FFFFFF;
+}
+
+.admin-sidebar-brand span {
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #D4AF37;
+  display: block;
+  margin-top: 2px;
+}
+
+.admin-nav {
+  padding: 16px 8px;
+  flex: 1;
+}
+
+.admin-nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  color: #C5BCB6;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 4px;
+  transition: background 0.15s ease, color 0.15s ease;
+  min-height: 44px;
+  box-sizing: border-box;
+}
+
+.admin-nav-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #FFFFFF;
+}
+
+.admin-nav-item.is-active {
+  background: rgba(255, 255, 255, 0.12);
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.admin-nav-badge {
+  background: var(--admin-brand-terracotta);
+  color: #FFFFFF;
+  font-size: 0.75rem;
+  padding: 2px 7px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.admin-sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.75rem;
+  color: #8C827A;
+}
+
+/* Main Content Area */
+.admin-main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Admin Header */
+.admin-header {
+  height: var(--admin-header-height);
+  background: var(--admin-surface);
+  border-bottom: 1px solid var(--admin-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.admin-header-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-header-title h2 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.admin-user-menu {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.admin-user-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--admin-text-main);
+  background: var(--admin-bg);
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--admin-border);
+}
+
+.admin-user-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2E7D32;
+}
+
+/* Content Container */
+.admin-content {
+  padding: 24px;
+  flex: 1;
+}
+
+/* Operational Queue Tabs */
+.admin-queue-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.admin-queue-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 24px;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--admin-text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  min-height: 44px;
+}
+
+.admin-queue-tab:hover {
+  background: #F3EFEA;
+  color: var(--admin-text-main);
+}
+
+.admin-queue-tab.is-active {
+  background: var(--admin-brand-brown);
+  color: #FFFFFF;
+  border-color: var(--admin-brand-brown);
+}
+
+.admin-queue-tab.is-active .admin-queue-count {
+  background: rgba(255, 255, 255, 0.25);
+  color: #FFFFFF;
+}
+
+.admin-queue-count {
+  background: var(--admin-border-subtle);
+  color: var(--admin-text-main);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+
+/* Search & Filter Toolbar */
+.admin-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--admin-surface);
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid var(--admin-border);
+}
+
+.admin-search-box {
+  flex: 1;
+  min-width: 240px;
+  position: relative;
+}
+
+.admin-search-input {
+  width: 100%;
+  box-sizing: border-box;
+  height: 48px;
+  padding: 0 14px 0 38px;
+  border: 1px solid var(--admin-border);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  background: #FFFFFF;
+}
+
+.admin-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--admin-text-muted);
+  pointer-events: none;
+}
+
+.admin-filter-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-select {
+  height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--admin-border);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  background: #FFFFFF;
+  color: var(--admin-text-main);
+  cursor: pointer;
+  min-width: 150px;
+}
+
+/* Orders Table (Desktop) */
+.admin-card {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.admin-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.875rem;
+}
+
+.admin-table th {
+  background: #FAF7F2;
+  color: var(--admin-text-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--admin-border);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.admin-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--admin-border-subtle);
+  vertical-align: middle;
+}
+
+.admin-table tr:hover td {
+  background: #FCFAF7;
+}
+
+.admin-order-link {
+  font-weight: 600;
+  color: var(--admin-brand-brown);
+  text-decoration: none;
+}
+
+.admin-order-link:hover {
+  text-decoration: underline;
+}
+
+/* Status Badges */
+.admin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.badge-paid, .badge-successful {
+  background: var(--admin-status-paid-bg);
+  color: var(--admin-status-paid-text);
+}
+
+.badge-pending, .badge-pending_payment, .badge-processing {
+  background: var(--admin-status-pending-bg);
+  color: var(--admin-status-pending-text);
+}
+
+.badge-quote, .badge-shipping_quote_required, .badge-shipping_quote_sent, .badge-shipping_payment_pending {
+  background: var(--admin-status-quote-bg);
+  color: var(--admin-status-quote-text);
+}
+
+.badge-dispatch, .badge-ready_for_dispatch, .badge-shipped {
+  background: var(--admin-status-dispatch-bg);
+  color: var(--admin-status-dispatch-text);
+}
+
+.badge-failed, .badge-declined, .badge-payment_failed, .badge-cancelled {
+  background: var(--admin-status-failed-bg);
+  color: var(--admin-status-failed-text);
+}
+
+.badge-country {
+  background: #EFECE6;
+  color: #4A3E39;
+  font-weight: 500;
+}
+
+/* Responsive Orders Card Mode (Mobile / Tablet) */
+.admin-cards-list {
+  display: none;
+  gap: 12px;
+  padding: 16px;
+}
+
+.admin-order-card {
+  background: #FFFFFF;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-order-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--admin-border-subtle);
+  padding-bottom: 10px;
+}
+
+.admin-order-card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  font-size: 0.8125rem;
+}
+
+.admin-order-card-label {
+  color: var(--admin-text-muted);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.admin-order-card-footer {
+  border-top: 1px solid var(--admin-border-subtle);
+  padding-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Action Buttons */
+.btn-admin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+  text-decoration: none;
+}
+
+.btn-admin-primary {
+  background: var(--admin-brand-brown);
+  color: #FFFFFF;
+}
+
+.btn-admin-primary:hover {
+  background: #33231F;
+}
+
+.btn-admin-outline {
+  background: transparent;
+  border-color: var(--admin-border);
+  color: var(--admin-text-main);
+}
+
+.btn-admin-outline:hover {
+  background: #F3EFEA;
+}
+
+.btn-admin-sm {
+  height: 36px;
+  padding: 0 12px;
+  font-size: 0.75rem;
+}
+
+/* Modal / Drawer */
+.admin-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  display: flex;
+  justify-content: flex-end;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.admin-modal-backdrop.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.admin-modal-drawer {
+  width: 100%;
+  max-width: 680px;
+  height: 100%;
+  background: #FFFFFF;
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.admin-modal-backdrop.is-open .admin-modal-drawer {
+  transform: translateX(0);
+}
+
+.admin-modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--admin-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #FAF7F2;
+}
+
+.admin-modal-close {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--admin-text-muted);
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Detail Sections */
+.admin-detail-section {
+  background: var(--admin-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  padding: 18px;
+}
+
+.admin-detail-title {
+  margin: 0 0 14px 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--admin-border-subtle);
+  padding-bottom: 8px;
+}
+
+.admin-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  font-size: 0.8125rem;
+}
+
+.admin-detail-item strong {
+  display: block;
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  color: var(--admin-text-muted);
+  margin-bottom: 2px;
+}
+
+/* ==========================================================================
+   Inventory Management (Milestone C20.12)
+   ========================================================================== */
+
+.admin-stock-badge-in-stock { background: var(--admin-status-paid-bg); color: var(--admin-status-paid-text); }
+.admin-stock-badge-low-stock { background: #FFF3E0; color: #B4690E; }
+.admin-stock-badge-out-of-stock { background: var(--admin-status-failed-bg); color: var(--admin-status-failed-text); }
+
+.admin-stock-number {
+  font-weight: 700;
+  font-size: 0.9375rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-stock-number-lg {
+  font-size: 1.75rem;
+  font-family: var(--font-serif, Georgia, serif);
+}
+
+/* Stock adjustment controls — 44px+ targets so they stay comfortably tappable on mobile */
+.admin-stock-adjust-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.admin-stock-step-btn {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 6px;
+  border: 1px solid var(--admin-border);
+  background: #FFFFFF;
+  font-size: 1.125rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--admin-text-main);
+}
+
+.admin-stock-step-btn:hover {
+  background: #F3EFEA;
+}
+
+.admin-stock-input {
+  width: 64px;
+  height: 40px;
+  text-align: center;
+  border: 1px solid var(--admin-border);
+  border-radius: 6px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-inventory-card-stock-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 4px 0 12px 0;
+  border-bottom: 1px solid var(--admin-border-subtle);
+  margin-bottom: 4px;
+}
+
+/* Admin inventory cards inherit .admin-order-card's box styling */
+.admin-inventory-card {
+  background: #FFFFFF;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 900px) {
+  .admin-sidebar {
+    display: none;
+  }
+  .admin-table-wrap {
+    display: none;
+  }
+  .admin-cards-list {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+/* Tablet hybrid for Inventory specifically: keep a condensed TABLE (fewer
+   columns) rather than dropping straight to cards like the Orders view does —
+   "compact table/card hybrid" per spec. Mobile still gets full cards below. */
+@media (min-width: 601px) and (max-width: 1024px) {
+  .admin-inventory-table-wrap {
+    display: block;
+  }
+  .admin-inventory-cards-list {
+    display: none;
+  }
+  .admin-inventory-table .admin-inv-hide-tablet {
+    display: none;
+  }
+  .admin-stock-adjust-group {
+    flex-wrap: nowrap;
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-inventory-table-wrap {
+    display: none;
+  }
+  .admin-inventory-cards-list {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+@media (min-width: 1025px) {
+  .admin-inventory-table-wrap {
+    display: block;
+  }
+  .admin-inventory-cards-list {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-content {
+    padding: 16px 12px;
+  }
+  .admin-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .admin-filter-group {
+    flex-direction: column;
+  }
+  .admin-select {
+    width: 100%;
+  }
+  .admin-modal-drawer {
+    max-width: 100%;
+  }
+  .admin-stock-adjust-group-mobile {
+    justify-content: space-between;
+  }
+  .admin-stock-adjust-group-mobile .admin-stock-input {
+    flex: 1;
+  }
+}

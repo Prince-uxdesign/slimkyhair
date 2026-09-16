@@ -1,0 +1,162 @@
+/**
+ * Section 13: Newsletter Signup ("Stay in the Loop")
+ * Slimky Hair
+ * 
+ * Strict Solid Color System (Zero Gradients)
+ * Background: Subtle Sage (--bg-sage-subtle #EBEFE9)
+ * Aesthetic: Spacious, typography-driven, minimal elegance.
+ */
+
+.newsletter-section {
+  background-color: var(--bg-sage-subtle);
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding-block: clamp(4.5rem, 8vw, 7rem);
+  position: relative;
+}
+
+.newsletter-inner {
+  max-width: 780px;
+  margin-inline: auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.newsletter-eyebrow {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: var(--text-eyebrow);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-sage-muted);
+  margin-bottom: var(--space-sm);
+}
+
+.newsletter-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2.5rem, 5vw, 3.75rem);
+  line-height: 1.1;
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+  letter-spacing: -0.015em;
+  margin-bottom: var(--space-md);
+}
+
+.newsletter-description {
+  font-family: var(--font-sans);
+  font-size: clamp(1rem, 1.25vw, 1.125rem);
+  line-height: 1.65;
+  color: var(--color-text-secondary);
+  max-width: 540px;
+  margin-bottom: var(--space-2xl);
+}
+
+/* Minimalist Form */
+.newsletter-form-wrap {
+  width: 100%;
+  max-width: 560px;
+}
+
+.newsletter-form {
+  display: flex;
+  gap: 0;
+  width: 100%;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  box-shadow: var(--shadow-subtle);
+  transition: border-color var(--transition-fast);
+}
+
+.newsletter-form:focus-within {
+  border-color: var(--color-brown-deep);
+}
+
+.newsletter-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 16px 20px;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  color: var(--color-text-primary);
+  min-width: 0;
+}
+
+.newsletter-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.newsletter-input:focus {
+  outline: none;
+}
+
+.newsletter-btn {
+  border: none;
+  border-radius: 0;
+  background-color: var(--color-brown-deep);
+  color: var(--bg-primary);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  padding-inline: clamp(1.5rem, 3vw, 2.25rem);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+  white-space: nowrap;
+}
+
+.newsletter-btn:hover {
+  background-color: var(--color-sage-muted);
+  color: var(--bg-primary);
+}
+
+/* Privacy micro-note */
+.newsletter-note {
+  font-family: var(--font-sans);
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+  margin-top: var(--space-md);
+  letter-spacing: var(--tracking-wide);
+}
+
+/* Responsive Newsletter */
+@media (max-width: 640px) {
+  .newsletter-section {
+    padding-block: clamp(3.5rem, 6vw, 4.5rem);
+  }
+
+  .newsletter-form {
+    flex-direction: column;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    gap: var(--space-xs);
+  }
+
+  .newsletter-input {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-xs);
+    width: 100%;
+    min-height: 48px;
+    font-size: 1rem; /* Prevent iOS Safari auto-zoom */
+  }
+
+  .newsletter-input:focus {
+    border-color: var(--color-brown-deep);
+  }
+
+  .newsletter-btn {
+    border-radius: var(--radius-xs);
+    min-height: 48px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

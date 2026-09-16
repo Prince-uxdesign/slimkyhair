@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout | Slimky Hair</title>
+  <meta name="description" content="Complete your Slimky Hair order with secure guest checkout and nationwide or international delivery.">
+  <meta name="robots" content="noindex, nofollow">
+
+  
+    <!-- Social-share image: assets/og/og-default.jpg is the interim branded 1200x630 asset (brand colours + wordmark; no product/stock imagery). Replace that file with the final branded asset using the same filename &mdash; no HTML changes needed. -->
+  <meta property="og:site_name" content="Slimky Hair">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" content="Checkout | Slimky Hair">
+  <meta property="og:description" content="Complete your Slimky Hair order with secure guest checkout and nationwide or international delivery.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://slimkyhair.com/checkout/">
+  <meta property="og:image" content="https://slimkyhair.com/assets/og/og-default.jpg">
+  <meta property="og:image:secure_url" content="https://slimkyhair.com/assets/og/og-default.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Slimky Hair — Botanical Hair Science">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Checkout | Slimky Hair">
+  <meta name="twitter:description" content="Complete your Slimky Hair order with secure guest checkout and nationwide or international delivery.">
+  <meta name="twitter:image" content="https://slimkyhair.com/assets/og/og-default.jpg">
+  <meta name="twitter:image:alt" content="Slimky Hair — Botanical Hair Science">
+
+<!-- Favicon / Icons -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+  
+  <!-- Master Stylesheet -->
+  <link rel="stylesheet" href="../css/main.css">
+</head>
+<body class="theme-light">
+
+  <!-- Header -->
+  <header class="header sticky-header checkout-header" id="main-header" role="banner">
+    <div class="container header-inner checkout-header-inner" style="justify-content: space-between;">
+      <a href="../" class="header-brand checkout-header-brand" aria-label="Slimky Hair Home">
+        <span class="brand-title">SLIMKY HAIR</span>
+        <span class="brand-subtitle">African Botanical Science</span>
+      </a>
+
+      <div class="checkout-header-actions" style="display: flex; align-items: center; gap: 16px;">
+        <a href="../cart/" class="btn-outline btn-sm checkout-back-to-bag" id="checkout-header-back-link" style="text-decoration: none;">
+          ← Back to Bag
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="checkout-page-main">
+    <div class="container">
+      
+      <!-- Breadcrumbs -->
+      <nav aria-label="Breadcrumbs" class="checkout-breadcrumbs">
+        <a href="../">Home</a>
+        <span class="checkout-breadcrumbs-sep">/</span>
+        <a href="../cart/">Shopping Bag</a>
+        <span class="checkout-breadcrumbs-sep">/</span>
+        <span class="checkout-breadcrumbs-current">Checkout</span>
+      </nav>
+
+      <!-- Header Strip -->
+      <div class="checkout-header-strip">
+        <h1 class="checkout-title">Checkout</h1>
+        <div class="checkout-guest-badge" id="checkout-guest-status">
+          <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background-color: var(--color-sage-muted);"></span>
+          Guest Checkout · No Account Required
+        </div>
+      </div>
+
+      <!-- Auth Status & Guest vs Sign-in Choice Banner -->
+      <div id="checkout-auth-banner" class="checkout-auth-banner" role="region" aria-label="Account and Checkout Status"></div>
+
+      <!-- Global Feedback / Error Banner -->
+      <div id="checkout-feedback-banner" class="checkout-feedback-banner" role="alert"></div>
+
+      <!-- Empty State Guidance (when cart is empty) -->
+      <div id="checkout-empty-state" class="checkout-empty-container">
+        <svg class="checkout-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <path d="M16 10a4 4 0 0 1-8 0"></path>
+        </svg>
+        <h2 class="checkout-empty-title">Your shopping bag is empty</h2>
+        <p class="checkout-empty-desc">
+          There are no formulations in your shopping bag to check out. Select botanical treatments from our catalog to begin.
+        </p>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
+          <a href="../cart/" class="btn-outline" style="min-height: 44px;">View Bag</a>
+          <a href="../shop/" class="btn-primary" style="min-height: 44px;">Explore Catalog</a>
+        </div>
+      </div>
+
+      <!-- Success View (Order Information Staged) -->
+      <div id="checkout-success-view" class="checkout-success-view" role="status"></div>
+
+      <!-- Main 2-Column Checkout Layout -->
+      <div id="checkout-layout" class="checkout-layout">
+        
+        <!-- Left: Form & Input Details -->
+        <div class="checkout-main-column">
+          <form id="checkout-form" novalidate data-form-state="INITIAL">
+            
+            <!-- 1. Contact Information -->
+            <section class="checkout-section" aria-labelledby="section-contact-heading">
+              <div class="checkout-section-header">
+                <h2 id="section-contact-heading" class="checkout-section-title">
+                  <span class="checkout-section-num">1</span>
+                  Contact Information
+                </h2>
+                <div class="checkout-prefill-actions">
+                  <button type="button" id="checkout-prefill-demo-btn" class="checkout-prefill-btn">
+                    Prefill Nigeria Demo
+                  </button>
+                  <button type="button" id="checkout-prefill-intl-btn" class="checkout-prefill-btn">
+                    Prefill US Demo
+                  </button>
+                  <button type="button" id="checkout-prefill-uk-btn" class="checkout-prefill-btn">
+                    Prefill UK Demo
+                  </button>
+                </div>
+              </div>
+
+              <div class="checkout-form-group">
+                <label for="checkout-fullname" class="checkout-form-label">
+                  <span>Full Name</span>
+                </label>
+                <input 
+                  type="text" 
+                  id="checkout-fullname" 
+                  name="fullname" 
+                  class="checkout-input" 
+                  placeholder="e.g. Ada Lovelace" 
+                  autocomplete="name"
+                  data-field-name="fullname"
+                  aria-describedby="error-fullname"
+                  required
+                >
+                <div id="error-fullname" class="checkout-field-error" role="alert"></div>
+              </div>
+
+              <div class="checkout-form-grid">
+                <div class="checkout-form-group">
+                  <label for="checkout-email" class="checkout-form-label">
+                    <span>Email Address</span>
+                  </label>
+                  <input 
+                    type="email" 
+                    id="checkout-email" 
+                    name="email" 
+                    class="checkout-input" 
+                    placeholder="e.g. ada.test@example.com" 
+                    autocomplete="email"
+                    data-field-name="email"
+                    aria-describedby="error-email"
+                    required
+                  >
+                  <div id="error-email" class="checkout-field-error" role="alert"></div>
+                </div>
+
+                <div class="checkout-form-group">
+                  <label for="checkout-phone" class="checkout-form-label">
+                    <span>Phone / WhatsApp</span>
+                  </label>
+                  <input 
+                    type="tel" 
+                    id="checkout-phone" 
+                    name="phone" 
+                    class="checkout-input" 
+                    placeholder="e.g. +234 800 000 0000" 
+                    autocomplete="tel"
+                    data-field-name="phone"
+                    aria-describedby="error-phone"
+                    required
+                  >
+                  <div id="error-phone" class="checkout-field-error" role="alert"></div>
+                </div>
+              </div>
+
+              <!-- C20.2: Save updated contact details to account profile (Signed-in customers) -->
+              <div id="checkout-save-contact-group" class="checkout-form-group checkout-save-contact-group" style="display: none; margin-top: 14px;">
+                <label class="checkout-checkbox-label" for="checkout-save-contact-check">
+                  <input type="checkbox" id="checkout-save-contact-check" name="save-contact-to-account">
+                  <span>Save changes to my account profile</span>
+                </label>
+              </div>
+            </section>
+
+            <!-- 2. Delivery Address -->
+            <section class="checkout-section" aria-labelledby="section-delivery-heading">
+              <div class="checkout-section-header">
+                <h2 id="section-delivery-heading" class="checkout-section-title">
+                  <span class="checkout-section-num">2</span>
+                  Delivery Address
+                </h2>
+              </div>
+
+              <!-- Saved Addresses Section (for signed-in customers) -->
+              <div id="checkout-saved-addresses-wrapper" class="checkout-saved-addresses-wrapper" style="display: none;">
+                <div class="checkout-saved-addresses-header">
+                  <span class="checkout-form-label" id="saved-addresses-label" style="margin-bottom: 0;">
+                    <span>Saved Addresses</span>
+                  </span>
+                  <button type="button" id="btn-toggle-new-address" class="checkout-new-address-toggle" aria-controls="checkout-delivery-fields-wrapper">
+                    + Use a different address
+                  </button>
+                </div>
+                <div id="checkout-saved-addresses-list" class="checkout-saved-addresses-list" role="radiogroup" aria-labelledby="saved-addresses-label">
+                  <!-- Dynamically rendered address cards -->
+                </div>
+              </div>
+
+              <!-- Delivery Input Fields Wrapper (Dynamic: Nigeria vs International) -->
+              <div id="checkout-delivery-fields-wrapper" class="checkout-delivery-fields-wrapper">
+
+              <!-- Country Selection (Flow Controller) -->
+              <div class="checkout-form-group">
+                <label for="checkout-country" class="checkout-form-label">
+                  <span>Country / Territory</span>
+                </label>
+                <select id="checkout-country" name="country" class="checkout-select" data-field-name="country" autocomplete="country-name" aria-describedby="error-country">
+                  <option value="">Select Destination Country...</option>
+                  <option value="Nigeria" selected>Nigeria</option>
+                  <option value="United States">United States</option>
+                  <option value="United Kingdom">United Kingdom</option>
+                  <option value="Canada">Canada</option>
+                  <option value="Ghana">Ghana</option>
+                  <option value="South Africa">South Africa</option>
+                  <option value="Kenya">Kenya</option>
+                  <option value="Germany">Germany</option>
+                  <option value="France">France</option>
+                  <option value="Ireland">Ireland</option>
+                  <option value="United Arab Emirates">United Arab Emirates</option>
+                  <option value="Other">Other International Destination</option>
+                </select>
+                <div id="error-country" class="checkout-field-error" role="alert"></div>
+              </div>
+
+              <!-- Nigeria Delivery Fields (Flow A) -->
+              <div id="checkout-delivery-nigeria" class="checkout-delivery-fields">
+                <div class="checkout-form-grid">
+                  <div class="checkout-form-group">
+                    <label for="checkout-ng-state" class="checkout-form-label">
+                      <span>State</span>
+                    </label>
+                    <select id="checkout-ng-state" name="ng-state" class="checkout-select" data-field-name="ng-state" autocomplete="address-level1" aria-describedby="error-ng-state">
+                      <option value="">Select State...</option>
+                      <option value="Lagos">Lagos</option>
+                      <option value="Abuja (FCT)">Abuja (FCT)</option>
+                      <option value="Rivers">Rivers (Port Harcourt)</option>
+                      <option value="Oyo">Oyo (Ibadan)</option>
+                      <option value="Delta">Delta</option>
+                      <option value="Edo">Edo (Benin)</option>
+                      <option value="Enugu">Enugu</option>
+                      <option value="Anambra">Anambra</option>
+                      <option value="Ogun">Ogun</option>
+                      <option value="Kano">Kano</option>
+                      <option value="Kaduna">Kaduna</option>
+                      <option value="Kwara">Kwara</option>
+                      <option value="Ondo">Ondo</option>
+                      <option value="Akwa Ibom">Akwa Ibom</option>
+                      <option value="Other">Other State</option>
+                    </select>
+                    <div id="error-ng-state" class="checkout-field-error" role="alert"></div>
+                  </div>
+
+                  <div class="checkout-form-group">
+                    <label for="checkout-ng-city" class="checkout-form-label">
+                      <span>City / Local Area</span>
+                    </label>
+                    <input 
+                      type="text" 
+                      id="checkout-ng-city" 
+                      name="ng-city" 
+                      class="checkout-input" 
+                      placeholder="e.g. Ikeja, Lekki, Victoria Island"
+                      data-field-name="ng-city"
+                      autocomplete="address-level2"
+                      aria-describedby="error-ng-city"
+                    >
+                    <div id="error-ng-city" class="checkout-field-error" role="alert"></div>
+                  </div>
+                </div>
+
+                <div class="checkout-form-group">
+                  <label for="checkout-ng-address" class="checkout-form-label">
+                    <span>Street Address</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    id="checkout-ng-address" 
+                    name="ng-address" 
+                    class="checkout-input" 
+                    placeholder="House / flat number, street name, estate or landmark"
+                    data-field-name="ng-address"
+                    autocomplete="street-address"
+                    aria-describedby="error-ng-address"
+                  >
+                  <div id="error-ng-address" class="checkout-field-error" role="alert"></div>
+                </div>
+
+                <div class="checkout-form-group">
+                  <label for="checkout-ng-instructions" class="checkout-form-label">
+                    <span>Delivery Instructions</span>
+                    <span class="checkout-form-optional">Optional</span>
+                  </label>
+                  <textarea 
+                    id="checkout-ng-instructions" 
+                    name="ng-instructions" 
+                    class="checkout-textarea" 
+                    placeholder="Security gate details, landmarks, or preferred delivery timing"
+                    data-field-name="ng-instructions"
+                    rows="2"
+                  ></textarea>
+                </div>
+              </div>
+
+              <!-- International Delivery Fields (Flow B) -->
+              <div id="checkout-delivery-intl" class="checkout-delivery-fields hidden">
+                <div class="checkout-form-grid">
+                  <div class="checkout-form-group">
+                    <label for="checkout-intl-state" class="checkout-form-label">
+                      <span>State / Province / Region</span>
+                    </label>
+                    <input 
+                      type="text" 
+                      id="checkout-intl-state" 
+                      name="intl-state" 
+                      class="checkout-input" 
+                      placeholder="e.g. Greater London, Ontario, California"
+                      data-field-name="intl-state"
+                      autocomplete="address-level1"
+                      aria-describedby="error-intl-state"
+                    >
+                    <div id="error-intl-state" class="checkout-field-error" role="alert"></div>
+                  </div>
+
+                  <div class="checkout-form-group">
+                    <label for="checkout-intl-city" class="checkout-form-label">
+                      <span>City</span>
+                    </label>
+                    <input 
+                      type="text" 
+                      id="checkout-intl-city" 
+                      name="intl-city" 
+                      class="checkout-input" 
+                      placeholder="e.g. London, Toronto, Atlanta"
+                      data-field-name="intl-city"
+                      autocomplete="address-level2"
+                      aria-describedby="error-intl-city"
+                    >
+                    <div id="error-intl-city" class="checkout-field-error" role="alert"></div>
+                  </div>
+                </div>
+
+                <div class="checkout-form-group">
+                  <label for="checkout-intl-postal" class="checkout-form-label">
+                    <span>Postal / ZIP Code</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    id="checkout-intl-postal" 
+                    name="intl-postal" 
+                    class="checkout-input" 
+                    placeholder="e.g. W1B 3AG, 10001, M5V 2T6"
+                    data-field-name="intl-postal"
+                    autocomplete="postal-code"
+                    aria-describedby="error-intl-postal"
+                  >
+                  <div id="error-intl-postal" class="checkout-field-error" role="alert"></div>
+                </div>
+
+                <div class="checkout-form-group">
+                  <label for="checkout-intl-address" class="checkout-form-label">
+                    <span>Full Street Address</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    id="checkout-intl-address" 
+                    name="intl-address" 
+                    class="checkout-input" 
+                    placeholder="Street name, building, apartment, suite"
+                    data-field-name="intl-address"
+                    autocomplete="street-address"
+                    aria-describedby="error-intl-address"
+                  >
+                  <div id="error-intl-address" class="checkout-field-error" role="alert"></div>
+                </div>
+
+                <div class="checkout-form-group">
+                  <label for="checkout-intl-instructions" class="checkout-form-label">
+                    <span>Delivery Instructions</span>
+                    <span class="checkout-form-optional">Optional</span>
+                  </label>
+                  <textarea 
+                    id="checkout-intl-instructions" 
+                    name="intl-instructions" 
+                    class="checkout-textarea" 
+                    placeholder="International courier notes, buzzer code, or recipient instructions"
+                    rows="2"
+                  ></textarea>
+                </div>
+
+                <!-- Concise International Customs & Import Duties Note -->
+                <div class="checkout-shipping-separate-alert" style="background-color: var(--bg-secondary); margin-top: 16px;">
+                  <strong>Customs & Import Duties Information</strong>
+                  Applicable destination-country customs duties, import taxes, or local clearance fees may be assessed upon arrival by authorities in your country. These charges are separate from formulation payment and shipping quotes.
+                </div>
+              </div>
+
+              <!-- Save Address Checkbox for Logged-In Customers -->
+              <div id="checkout-save-address-group" class="checkout-form-group checkout-save-address-group" style="display: none; margin-top: 16px;">
+                <label class="checkout-checkbox-label" for="checkout-save-address-check">
+                  <input type="checkbox" id="checkout-save-address-check" name="save-address-to-account">
+                  <span>Save this address to my account for future orders</span>
+                </label>
+              </div>
+
+            </div>
+          </section>
+
+            <!-- 3. Payment Method Placeholder (C7: No fake payment success; handoff point) -->
+            <section class="checkout-section" aria-labelledby="section-payment-heading">
+              <div class="checkout-section-header">
+                <h2 id="section-payment-heading" class="checkout-section-title">
+                  <span class="checkout-section-num">3</span>
+                  Product Payment
+                </h2>
+              </div>
+
+              <div class="checkout-payment-placeholder">
+                <svg class="checkout-payment-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                  <line x1="2" y1="10" x2="22" y2="10"></line>
+                </svg>
+                <h3 class="checkout-payment-title">Product Payment Flow</h3>
+                <p class="checkout-payment-text">
+                  The product payment flow charges only the verified Product Payment Total. Shipping fees are not collected online and are coordinated separately via Phone / WhatsApp after payment is verified.
+                </p>
+                <div class="checkout-payment-badges">
+                  <span class="checkout-payment-badge">Paystack Ready</span>
+                  <span class="checkout-payment-badge">Flutterwave Ready</span>
+                  <span class="checkout-payment-badge">Debit Card</span>
+                  <span class="checkout-payment-badge">Bank Transfer</span>
+                </div>
+              </div>
+            </section>
+
+            <!-- Submit CTA -->
+            <div style="margin-top: 24px;">
+              <button 
+                type="submit" 
+                id="checkout-submit-btn" 
+                class="checkout-submit-cta"
+              >
+                Verify Information & Proceed to Payment
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Right: Order Summary Sidebar -->
+        <aside class="checkout-sidebar" aria-label="Order Summary">
+          <div class="checkout-summary-card">
+            
+            <!-- Mobile Toggle Header (Visible on Mobile) -->
+            <button 
+              type="button" 
+              id="checkout-summary-toggle" 
+              class="checkout-summary-toggle" 
+              aria-expanded="false" 
+              aria-controls="checkout-summary-content"
+            >
+              <span class="checkout-summary-title" style="font-size: 1.125rem;">
+                Order Summary (<span id="checkout-summary-count">0</span>)
+              </span>
+              <span style="display: flex; align-items: center; gap: 8px;">
+                <span id="checkout-summary-mobile-total" style="font-weight: 600; color: var(--color-text-primary);">₦0</span>
+                <svg class="checkout-summary-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </span>
+            </button>
+
+            <!-- Collapsible Summary Content -->
+            <div id="checkout-summary-content" class="checkout-summary-content">
+              <h2 class="checkout-summary-desktop-title">
+                Order Summary
+              </h2>
+
+              <!-- Items List -->
+              <div id="checkout-items-list" class="checkout-items-list" role="list">
+                <!-- Dynamically injected items -->
+              </div>
+
+              <!-- Subtotal Row -->
+              <div class="checkout-summary-row">
+                <span>Subtotal</span>
+                <span id="checkout-subtotal" class="checkout-summary-subtotal">₦0</span>
+              </div>
+
+              <!-- Shipping Info Box -->
+              <div class="checkout-shipping-box">
+                <div class="checkout-shipping-heading">Shipping & Delivery</div>
+                <div id="checkout-shipping-status" class="checkout-shipping-status">Shipping: Calculated separately</div>
+                <div id="checkout-shipping-note" class="checkout-shipping-note">
+                  The product total is what you will pay through the product payment flow. After payment is verified, Slimky will contact you directly with the delivery fee.
+                </div>
+              </div>
+
+              <!-- Total Row -->
+              <div class="checkout-summary-total">
+                <span class="checkout-total-label" id="checkout-total-label">Product Payment Total</span>
+                <span id="checkout-total" class="checkout-total-amount">₦0</span>
+              </div>
+              <div style="font-size: 0.75rem; color: var(--color-text-muted); margin: -10px 0 16px;">
+                Product total only. Shipping fee calculated separately after payment.
+              </div>
+
+              <!-- Reassurance / Trust Points -->
+              <div style="font-size: 0.75rem; color: var(--color-text-muted); line-height: 1.5; border-top: 1px solid var(--color-border-subtle); padding-top: 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                  <span style="color: var(--color-sage-muted);">✔</span>
+                  <span>Direct from Lagos Botanical Formulation Lab</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span style="color: var(--color-sage-muted);">✔</span>
+                  <span>Carefully packed in tamper-evident sustainable glass</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </aside>
+
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <div class="footer-copyright">
+          &copy; 2026 Slimky Hair Laboratories Ltd. All rights reserved.
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Checkout Controller Module -->
+  <!-- Public runtime config (Supabase URL + anon key only — no secrets, see js/env.example.js) -->
+  <script src="../js/env.js"></script>
+  <script type="module" src="../js/checkout.js"></script>
+</body>
+</html>

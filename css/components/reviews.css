@@ -1,0 +1,237 @@
+/**
+ * Section 12: Customer Reviews & Testimonials
+ * Slimky Hair
+ * 
+ * Strict Solid Color System (Zero Gradients)
+ * Background: Milky Cream (--bg-primary #FAF8F5)
+ * Aesthetic: Minimalist, editorial typography, subtle navigation.
+ */
+
+.reviews-section {
+  background-color: var(--bg-primary);
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding-block: clamp(4.5rem, 8vw, 7.5rem);
+  position: relative;
+}
+
+.reviews-header-wrap {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-xl);
+  margin-bottom: clamp(2.5rem, 5vw, 4.5rem);
+}
+
+.reviews-header {
+  max-width: 640px;
+}
+
+.reviews-eyebrow {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: var(--text-eyebrow);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-sage-muted);
+  margin-bottom: var(--space-sm);
+}
+
+.reviews-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2.25rem, 4.5vw, 3.5rem);
+  line-height: 1.12;
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+  letter-spacing: -0.015em;
+  margin-bottom: var(--space-xs);
+}
+
+.reviews-subtitle {
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+/* Minimal Subtle Navigation Arrows */
+.reviews-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.reviews-arrow-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--color-border-subtle);
+  background-color: var(--bg-surface);
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.reviews-arrow-btn:hover {
+  border-color: var(--color-border-strong);
+  color: var(--color-brown-deep);
+  background-color: var(--bg-secondary);
+}
+
+.reviews-arrow-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.75;
+}
+
+/* 3-Column Testimonial Grid */
+.reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-xl);
+}
+
+/* Testimonial Card */
+.review-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xs);
+  padding: clamp(1.75rem, 3vw, 2.5rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+  position: relative;
+}
+
+.review-card:hover {
+  border-color: var(--color-border-medium);
+  box-shadow: var(--shadow-subtle);
+  transform: translateY(-2px);
+}
+
+.review-card-top {
+  margin-bottom: var(--space-lg);
+}
+
+/* Star Rating */
+.review-stars {
+  display: flex;
+  gap: 3px;
+  color: var(--color-brown-deep);
+  margin-bottom: var(--space-md);
+}
+
+.review-stars svg {
+  width: 14px;
+  height: 14px;
+  fill: var(--color-brown-deep);
+}
+
+/* Review Text */
+.review-quote {
+  font-family: var(--font-serif);
+  font-size: clamp(1.125rem, 1.4vw, 1.25rem);
+  line-height: 1.5;
+  color: var(--color-text-primary);
+  font-style: italic;
+  margin-bottom: var(--space-xl);
+  flex-grow: 1;
+}
+
+/* Reviewer Info */
+.review-author {
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.review-author-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.review-name {
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.review-profile {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+/* Verified Buyer Indicator */
+.review-verified {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-sage-muted);
+  background-color: var(--bg-sage-subtle);
+  padding: 3px 8px;
+  border-radius: var(--radius-xs);
+  white-space: nowrap;
+}
+
+.review-verified svg {
+  width: 11px;
+  height: 11px;
+  stroke-width: 2;
+}
+
+/* Responsive Adaptations */
+@media (max-width: 1024px) {
+  .reviews-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-lg);
+  }
+
+  .review-card:last-child {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .reviews-section {
+    padding-block: clamp(3.5rem, 6vw, 5rem);
+  }
+
+  .reviews-header-wrap {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-md);
+    margin-bottom: var(--space-2xl);
+  }
+
+  .reviews-controls {
+    display: none; /* Mobile naturally stacks cards without scroll buttons */
+  }
+
+  .reviews-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+
+  .review-card:last-child {
+    grid-column: span 1;
+  }
+
+  .review-card {
+    padding: var(--space-lg);
+  }
+}

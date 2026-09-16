@@ -1,0 +1,178 @@
+/**
+ * Section 9: Why Choose Slimky Hair / Benefits Component
+ * Slimky Hair
+ * 
+ * Strict Solid Color System (Zero Gradients)
+ * Background: Warm Light Cream (--bg-secondary #F4EFEA)
+ */
+
+.benefits-section {
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding-block: clamp(4.5rem, 8vw, 7.5rem);
+  position: relative;
+}
+
+.benefits-header {
+  text-align: center;
+  max-width: 680px;
+  margin-inline: auto;
+  margin-bottom: var(--space-3xl);
+}
+
+.benefits-eyebrow {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: var(--text-eyebrow);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-sage-muted);
+  margin-bottom: var(--space-sm);
+}
+
+.benefits-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2.25rem, 4vw, 3.5rem);
+  line-height: 1.15;
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-md);
+  letter-spacing: -0.01em;
+}
+
+.benefits-description {
+  font-family: var(--font-sans);
+  font-size: clamp(0.9375rem, 1.15vw, 1.0625rem);
+  line-height: 1.65;
+  color: var(--color-text-secondary);
+}
+
+/* 4-Column Benefit Grid */
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-lg);
+}
+
+.benefit-card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xs);
+  padding: var(--space-xl) var(--space-lg);
+  transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+  height: 100%;
+}
+
+.benefit-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-border-medium);
+  box-shadow: var(--shadow-subtle);
+}
+
+/* Benefit Header Row with Icon & Numeral */
+.benefit-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-lg);
+}
+
+.benefit-icon-wrap {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background-color: var(--bg-sage-subtle);
+  border: 1px solid rgba(59, 78, 67, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-sage-muted);
+  flex-shrink: 0;
+}
+
+.benefit-icon-wrap svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 1.5;
+}
+
+.benefit-numeral {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.12em;
+  color: var(--color-text-muted);
+}
+
+.benefit-title {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  line-height: 1.25;
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+  margin-bottom: 8px;
+}
+
+.benefit-text {
+  font-family: var(--font-sans);
+  font-size: 0.84375rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* Responsive Adaptations */
+@media (max-width: 1024px) {
+  .benefits-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-lg);
+  }
+}
+
+@media (max-width: 640px) {
+  .benefits-section {
+    padding-block: clamp(3.5rem, 8vw, 5rem);
+  }
+
+  .benefits-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .benefit-card {
+    padding: var(--space-md) var(--space-sm) var(--space-lg);
+  }
+
+  .benefit-icon-wrap {
+    width: 36px;
+    height: 36px;
+  }
+
+  .benefit-icon-wrap svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .benefit-title {
+    font-size: 1.0625rem;
+  }
+
+  .benefit-text {
+    font-size: 0.78125rem;
+    line-height: 1.5;
+  }
+}
+
+@media (max-width: 420px) {
+  .benefits-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+
+  .benefit-card {
+    padding: var(--space-lg);
+  }
+}

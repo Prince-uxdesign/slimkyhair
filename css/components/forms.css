@@ -1,0 +1,175 @@
+/**
+ * Form Fields & Input Controls
+ * Slimky Hair
+ */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-md);
+}
+
+.form-label {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-text-primary);
+  text-transform: uppercase;
+}
+
+.form-label-optional {
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+  text-transform: none;
+  margin-left: 4px;
+}
+
+/* Text Input & Textarea */
+input[type="text"],
+input[type="search"],
+input[type="email"],
+input[type="tel"],
+input[type="password"],
+input[type="number"],
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  color: var(--color-text-primary);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xs);
+  padding: 12px 16px;
+  min-height: 50px;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: var(--color-text-muted);
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--color-brown-deep);
+  background-color: #FFFFFF;
+}
+
+.form-input.is-invalid,
+.form-input:user-invalid {
+  border-color: var(--color-error);
+}
+
+.form-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* Editorial Minimal Underline Field (for newsletter / search) */
+.form-input-minimal {
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  color: var(--color-text-primary);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--color-border-subtle);
+  border-radius: 0;
+  padding: 12px 0;
+  transition: border-color var(--transition-fast);
+}
+
+.form-input-minimal:focus {
+  outline: none;
+  border-color: var(--color-brown-deep);
+}
+
+/* Newsletter Bar Form */
+.newsletter-form {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-xs);
+  width: 100%;
+  max-width: 480px;
+}
+
+.newsletter-form .form-input {
+  flex: 1;
+  background-color: var(--bg-surface);
+}
+
+/* Form Helper & Error */
+.form-hint {
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+.form-error {
+  font-size: var(--text-caption);
+  color: var(--color-error);
+}
+
+/* Custom Checkbox */
+.form-checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-xs);
+  cursor: pointer;
+  font-size: var(--text-body-sm);
+  color: var(--color-text-secondary);
+}
+
+.form-checkbox {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--color-border-medium);
+  border-radius: var(--radius-xs);
+  background-color: var(--bg-surface);
+  cursor: pointer;
+  display: grid;
+  place-content: center;
+  margin-top: 2px;
+  flex-shrink: 0;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.form-checkbox:checked {
+  background-color: var(--color-brown-deep);
+  border-color: var(--color-brown-deep);
+}
+
+.form-checkbox:checked::after {
+  content: '';
+  width: 10px;
+  height: 6px;
+  border-left: 1.5px solid #FFFFFF;
+  border-bottom: 1.5px solid #FFFFFF;
+  transform: rotate(-45deg) translate(1px, -1px);
+}
+
+/* ==========================================================================
+   Responsive Form Grid / Multi-Field Rows
+   ========================================================================== */
+.form-row {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.form-row > * {
+  flex: 1;
+}
+
+@media (max-width: 640px) {
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+}
+

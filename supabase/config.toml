@@ -1,0 +1,16 @@
+# Merge these entries into your project's supabase/config.toml.
+# If you don't have one yet, run `supabase init` first and add this section.
+
+[functions.send-transactional-email]
+# Called by the storefront with the public anon key (never the service role
+# key or RESEND_API_KEY) — a valid JWT (anon or user) is enough.
+verify_jwt = true
+
+[functions.auth-email-hook]
+# Supabase Auth calls hooks without a user JWT — this function verifies the
+# Standard Webhooks signature itself using SEND_EMAIL_HOOK_SECRET.
+verify_jwt = false
+
+[functions.retry-failed-emails]
+# Invoked by a scheduler with a shared `x-cron-secret` header instead of a JWT.
+verify_jwt = false

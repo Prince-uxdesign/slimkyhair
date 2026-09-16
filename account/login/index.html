@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In | Slimky Hair</title>
+  <meta name="description" content="Sign in to your Slimky Hair customer account to track orders, manage saved delivery destinations, and enjoy seamless client care.">
+  <meta name="robots" content="noindex, nofollow">
+
+  
+    <!-- Social-share image: assets/og/og-default.jpg is the interim branded 1200x630 asset (brand colours + wordmark; no product/stock imagery). Replace that file with the final branded asset using the same filename &mdash; no HTML changes needed. -->
+  <meta property="og:site_name" content="Slimky Hair">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" content="Sign In | Slimky Hair">
+  <meta property="og:description" content="Sign in to your Slimky Hair customer account to track orders, manage saved delivery destinations, and enjoy seamless client care.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://slimkyhair.com/account/login/">
+  <meta property="og:image" content="https://slimkyhair.com/assets/og/og-default.jpg">
+  <meta property="og:image:secure_url" content="https://slimkyhair.com/assets/og/og-default.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Slimky Hair — Botanical Hair Science">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Sign In | Slimky Hair">
+  <meta name="twitter:description" content="Sign in to your Slimky Hair customer account to track orders, manage saved delivery destinations, and enjoy seamless client care.">
+  <meta name="twitter:image" content="https://slimkyhair.com/assets/og/og-default.jpg">
+  <meta name="twitter:image:alt" content="Slimky Hair — Botanical Hair Science">
+
+<!-- Favicon / Icons -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+  
+  <!-- Master Stylesheets -->
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/components/account.css">
+</head>
+<body class="theme-light">
+
+  <!-- Header -->
+  <header class="header sticky-header" id="main-header" role="banner">
+    <div class="container header-inner" style="justify-content: space-between;">
+      <a href="../../" class="header-brand" aria-label="Slimky Hair Home">
+        <span class="brand-title">SLIMKY HAIR</span>
+        <span class="brand-subtitle">African Botanical Science</span>
+      </a>
+
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <a href="../../shop/" class="btn-outline btn-sm" style="text-decoration: none;">
+          Explore Formulations
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="account-page-main" id="main-content">
+    <div class="container">
+      
+      <!-- Breadcrumbs & Back Navigation -->
+      <nav aria-label="Breadcrumbs" class="checkout-breadcrumbs" style="margin-bottom: 28px;">
+        <a href="../../">Home</a>
+        <span class="checkout-breadcrumbs-sep">/</span>
+        <a href="../">My Account</a>
+        <span class="checkout-breadcrumbs-sep">/</span>
+        <span class="checkout-breadcrumbs-current">Sign In</span>
+      </nav>
+
+      <!-- Centered Authentication Card Mount -->
+      <div id="login-page-mount">
+        <div class="auth-page-wrapper">
+          <div class="auth-card">
+            
+            <header class="auth-header">
+              <h1 class="auth-title">Welcome Back</h1>
+              <p class="auth-subtitle">
+                Sign in to manage your formulation orders, saved delivery addresses, and client care rituals.
+              </p>
+            </header>
+
+            <!-- General / Technical Error Alert -->
+            <div id="login-general-error" class="auth-error-banner" role="alert"></div>
+
+            <!-- Login Form -->
+            <form id="login-form" novalidate>
+              
+              <!-- Email Address -->
+              <div class="auth-form-group">
+                <label for="login-email" class="auth-label">
+                  <span>Email Address</span>
+                  <span class="auth-label-required" aria-hidden="true">*</span>
+                </label>
+                <input 
+                  type="email" 
+                  id="login-email" 
+                  name="email" 
+                  class="auth-input" 
+                  placeholder="name@example.com" 
+                  required 
+                  autocomplete="email"
+                  aria-describedby="login-email-error"
+                >
+                <div id="login-email-error" class="auth-error-msg" role="alert"></div>
+              </div>
+
+              <!-- Password -->
+              <div class="auth-form-group">
+                <label for="login-password" class="auth-label">
+                  <span>Password</span>
+                  <span class="auth-label-required" aria-hidden="true">*</span>
+                </label>
+                <div class="auth-password-wrapper">
+                  <input 
+                    type="password" 
+                    id="login-password" 
+                    name="password" 
+                    class="auth-input" 
+                    placeholder="Enter your password" 
+                    required 
+                    autocomplete="current-password"
+                    aria-describedby="login-password-error"
+                  >
+                  <button 
+                    type="button" 
+                    id="toggle-login-password-btn" 
+                    class="auth-password-toggle" 
+                    aria-label="Show password" 
+                    aria-controls="login-password" 
+                    aria-pressed="false"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  </button>
+                </div>
+                <div id="login-password-error" class="auth-error-msg" role="alert"></div>
+              </div>
+
+              <!-- Auxiliary Options: Remember Me & Forgot Password -->
+              <div class="auth-aux-row">
+                <label class="auth-remember-group" for="login-remember">
+                  <input 
+                    type="checkbox" 
+                    id="login-remember" 
+                    name="remember" 
+                    class="auth-remember-checkbox"
+                    checked
+                  >
+                  <span class="auth-remember-label">Keep me signed in</span>
+                </label>
+
+                <a href="../forgot-password/" class="auth-forgot-link">
+                  Forgot Password?
+                </a>
+              </div>
+
+              <!-- Primary Submit CTA -->
+              <button type="submit" id="login-submit-btn" class="btn-primary auth-submit-btn">
+                Sign In
+              </button>
+
+              <!-- Secondary Sign Up Link -->
+              <div class="auth-footer">
+                Don't have an account? <a href="../register/" class="auth-footer-link">Sign Up</a>
+              </div>
+
+            </form>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Forgot Password Informational Modal -->
+  <div id="forgot-password-modal" class="auth-modal-backdrop" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="forgot-modal-title">
+    <div class="auth-modal-card">
+      <div class="auth-modal-header">
+        <h2 id="forgot-modal-title" class="auth-modal-title">Password Assistance</h2>
+        <button type="button" id="close-forgot-modal-btn" class="auth-modal-close-btn" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="auth-modal-body">
+        <p style="margin-bottom: 12px;">
+          Self-service password recovery is scheduled for activation in the upcoming customer release.
+        </p>
+        <p style="margin-bottom: 16px;">
+          To reset your credentials or verify order history immediately, please message our dedicated concierge:
+        </p>
+        <div style="background: var(--color-bg-primary, #FAF8F5); padding: 14px; border-radius: 4px; border: 1px solid var(--color-border-subtle, #EAE5DF); margin-bottom: 16px;">
+          <div style="font-weight: 600; color: var(--color-text-primary, #2A2421); margin-bottom: 4px;">Slimky Hair Client Care</div>
+          <div style="font-size: 0.875rem; color: var(--color-text-secondary, #6A625D);">Email: <a href="mailto:care@slimkyhair.com" style="color: var(--color-brown-deep); text-decoration: underline;">care@slimkyhair.com</a></div>
+          <div style="font-size: 0.875rem; color: var(--color-text-secondary, #6A625D);">WhatsApp: <a href="https://wa.me/2348169104565" target="_blank" rel="noopener noreferrer" style="color: var(--color-brown-deep); text-decoration: underline;">+234 816 910 4565</a></div>
+        </div>
+        <p style="font-size: 0.8125rem; color: var(--color-text-secondary, #6A625D); margin: 0;">
+          Our concierge team is available Monday through Saturday from 9:00 AM to 6:00 PM WAT.
+        </p>
+      </div>
+      <button type="button" id="dismiss-forgot-modal-btn" class="btn-primary" style="width: 100%; height: 48px; justify-content: center;">
+        Understood
+      </button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer" role="contentinfo" style="border-top: 1px solid var(--color-border-subtle); padding: 40px 0; background: var(--color-bg-primary); text-align: center;">
+    <div class="container">
+      <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-bottom: 8px;">
+        © 2026 Slimky Hair. All rights reserved. African Botanical Formulations.
+      </p>
+      <div style="display: flex; justify-content: center; gap: 20px; font-size: 0.8125rem;">
+        <a href="../../privacy/" style="color: var(--color-text-secondary);">Privacy Policy</a>
+        <a href="../../terms/" style="color: var(--color-text-secondary);">Terms of Service</a>
+        <a href="../../contact/" style="color: var(--color-text-secondary);">Client Care</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script type="module" src="../../js/auth/login-page.js"></script>
+</body>
+</html>
