@@ -7,6 +7,7 @@ import { customerService } from './customer-service.js';
 import { initNavigation } from '../navigation.js';
 import { initDrawers } from '../drawers.js';
 import { syncWishlistUI } from '../wishlist-store.js';
+import { isValidEmail } from '../utils/validators.js';
 
 export class LoginPage {
   constructor(options = {}) {
@@ -118,8 +119,7 @@ export class LoginPage {
       this.setError('#login-email', 'Email address is required.');
       return false;
     }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(val)) {
+    if (!isValidEmail(val)) {
       this.setError('#login-email', 'Please enter a valid email address.');
       return false;
     }

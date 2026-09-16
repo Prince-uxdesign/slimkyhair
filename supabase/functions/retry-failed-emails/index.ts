@@ -11,6 +11,7 @@ import { getAdminClient } from '../_shared/supabase-admin.ts';
 import { markEmailFailed, markEmailSent } from '../_shared/idempotency.ts';
 import { sendViaResend } from '../_shared/resend.ts';
 import { renderEmail } from '../_shared/emails/render.ts';
+import { timingSafeEqual } from '../_shared/webhook-verify.ts';
 
 const MAX_ATTEMPTS = 5;
 const BATCH_SIZE = 20;
@@ -21,7 +22,8 @@ Deno.serve(async (req) => {
   }
 
   const cronSecret = Deno.env.get('CRON_SECRET');
-  if (!cronSecret || req.headers.get('x-cron-secret') !== cronSecret) {
+  const suppliedSecret = req.headers.get('x-cron-secret');
+  if (!cronSecret || !suppliedSecret || !timingSafeEqual(suppliedSecret, cronSecret)) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
   }
 

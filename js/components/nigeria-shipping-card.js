@@ -15,20 +15,8 @@ import { OrderStore } from '../payment/order-store.js';
 import { paymentService } from '../payment/payment-service.js';
 import { DemoPaymentUI } from '../payment/demo-payment-ui.js';
 import { emailService } from '../email/email-service.js';
-
-function formatNaira(amount) {
-  return `₦${(Number(amount) || 0).toLocaleString('en-NG')}`;
-}
-
-function escapeHtml(str) {
-  if (str === null || str === undefined) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
+import { formatNaira } from '../cart-store.js';
+import { escapeHtml } from '../utils/html-format.js';
 
 const DELIVERY_STATUS_BY_ORDER_STATUS = {
   paid: { key: 'quote_required', label: 'Quote Required' },
