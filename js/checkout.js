@@ -2153,7 +2153,7 @@ export class CheckoutPage {
               <span class="receipt-ticket-notch-right" aria-hidden="true"></span>
             </div>
 
-            <!-- Ticket Information Grid: 2x2 with consistent font sizes across all items -->
+            <!-- Ticket Information: Stacked vertically with consistent font sizes -->
             <div class="receipt-ticket-body">
               <div class="receipt-info-grid">
                 <div class="receipt-info-item">
@@ -2161,16 +2161,12 @@ export class CheckoutPage {
                   <div class="receipt-info-val" id="receipt-order-ref-val">${orderReference}</div>
                 </div>
                 <div class="receipt-info-item">
-                  <div class="receipt-info-label amount-label">AMOUNT</div>
-                  <div class="receipt-info-val amount" id="receipt-amount-val">${formattedAmount}</div>
+                  <div class="receipt-info-label">AMOUNT</div>
+                  <div class="receipt-info-val" id="receipt-amount-val">${formattedAmount}</div>
                 </div>
                 <div class="receipt-info-item">
-                  <div class="receipt-info-label">PAYMENT REFERENCE</div>
-                  <div class="receipt-info-val" id="receipt-payment-ref-val">${paymentReference}</div>
-                </div>
-                <div class="receipt-info-item">
-                  <div class="receipt-info-label align-right">DATE & TIME</div>
-                  <div class="receipt-info-val align-right" id="receipt-datetime-val">${formattedDateTime}</div>
+                  <div class="receipt-info-label">DATE & TIME</div>
+                  <div class="receipt-info-val" id="receipt-datetime-val">${formattedDateTime}</div>
                 </div>
               </div>
             </div>
@@ -2298,7 +2294,7 @@ export class CheckoutPage {
     });
 
     document.querySelector('#receipt-modal-download-btn')?.addEventListener('click', () => {
-      this.downloadReceipt(order, payment, { orderReference, paymentReference, formattedAmount, formattedDateTime, last4, expiry });
+      this.downloadReceipt(order, payment, { orderReference, formattedAmount, formattedDateTime, last4, expiry });
     });
 
     document.querySelector('#receipt-modal-print-btn')?.addEventListener('click', () => {
@@ -2443,54 +2439,48 @@ export class CheckoutPage {
       ctx.arc(w, perfY, 14 * scale, 0, Math.PI * 2);
       ctx.fill();
 
-      // 5. Details Grid (2x2 with strict font size consistency across labels and values)
+      // 5. Details (Stacked vertically with strict font size consistency)
       const padX = 32 * scale;
       const labelFontSize = 11 * scale;
       const valueFontSize = 13.5 * scale;
       const labelFont = `600 ${labelFontSize}px -apple-system, BlinkMacSystemFont, "DM Sans", sans-serif`;
       const valueFont = `600 ${valueFontSize}px -apple-system, BlinkMacSystemFont, "DM Sans", sans-serif`;
 
-      // Row 1: ORDER REFERENCE (left) & AMOUNT (right)
-      const row1Y = 222 * scale;
       ctx.textAlign = 'left';
+
+      // Item 1: ORDER REFERENCE
+      const item1LabelY = 216 * scale;
+      const item1ValY = 234 * scale;
       ctx.fillStyle = '#64748B';
       ctx.font = labelFont;
-      ctx.fillText('ORDER REFERENCE', padX, row1Y);
-
-      ctx.textAlign = 'right';
-      ctx.fillText('AMOUNT', w - padX, row1Y);
-
-      const val1Y = 244 * scale;
-      ctx.textAlign = 'left';
+      ctx.fillText('ORDER REFERENCE', padX, item1LabelY);
       ctx.fillStyle = '#111827';
       ctx.font = valueFont;
-      ctx.fillText(meta.orderReference, padX, val1Y);
+      ctx.fillText(meta.orderReference, padX, item1ValY);
 
-      ctx.textAlign = 'right';
-      ctx.fillText(meta.formattedAmount, w - padX, val1Y);
-
-      // Row 2: PAYMENT REFERENCE (left) & DATE & TIME (right)
-      const row2Y = 278 * scale;
-      ctx.textAlign = 'left';
+      // Item 2: AMOUNT
+      const item2LabelY = 258 * scale;
+      const item2ValY = 276 * scale;
       ctx.fillStyle = '#64748B';
       ctx.font = labelFont;
-      ctx.fillText('PAYMENT REFERENCE', padX, row2Y);
-
-      ctx.textAlign = 'right';
-      ctx.fillText('DATE & TIME', w - padX, row2Y);
-
-      const val2Y = 298 * scale;
-      ctx.textAlign = 'left';
+      ctx.fillText('AMOUNT', padX, item2LabelY);
       ctx.fillStyle = '#111827';
       ctx.font = valueFont;
-      ctx.fillText(meta.paymentReference, padX, val2Y);
+      ctx.fillText(meta.formattedAmount, padX, item2ValY);
 
-      ctx.textAlign = 'right';
-      ctx.fillText(meta.formattedDateTime, w - padX, val2Y);
+      // Item 3: DATE & TIME
+      const item3LabelY = 300 * scale;
+      const item3ValY = 318 * scale;
+      ctx.fillStyle = '#64748B';
+      ctx.font = labelFont;
+      ctx.fillText('DATE & TIME', padX, item3LabelY);
+      ctx.fillStyle = '#111827';
+      ctx.font = valueFont;
+      ctx.fillText(meta.formattedDateTime, padX, item3ValY);
 
       // 6. Payment Pill Box
-      const pillY = 330 * scale;
-      const pillH = 56 * scale;
+      const pillY = 342 * scale;
+      const pillH = 54 * scale;
       ctx.fillStyle = '#EEF3FA';
       drawRoundRect(ctx, padX, pillY, w - padX * 2, pillH, 12 * scale, true, false);
 
@@ -2507,15 +2497,15 @@ export class CheckoutPage {
 
       ctx.textAlign = 'left';
       ctx.fillStyle = '#111827';
-      ctx.font = `600 ${14 * scale}px -apple-system, BlinkMacSystemFont, "DM Sans", sans-serif`;
+      ctx.font = `600 ${13.5 * scale}px -apple-system, BlinkMacSystemFont, "DM Sans", sans-serif`;
       ctx.fillText(`Mastercard ending in ${meta.last4}`, mcX + 24 * scale, mcY - 2 * scale);
 
       ctx.fillStyle = '#64748B';
-      ctx.font = `${12 * scale}px -apple-system, BlinkMacSystemFont, "DM Sans", sans-serif`;
+      ctx.font = `${11.5 * scale}px -apple-system, BlinkMacSystemFont, "DM Sans", sans-serif`;
       ctx.fillText(`Expiry: ${meta.expiry}`, mcX + 24 * scale, mcY + 14 * scale);
 
       // 7. Lower Dashed Line
-      const lowerDashedY = 416 * scale;
+      const lowerDashedY = 418 * scale;
       ctx.strokeStyle = '#E2E8F0';
       ctx.lineWidth = 2 * scale;
       ctx.setLineDash([6 * scale, 6 * scale]);
