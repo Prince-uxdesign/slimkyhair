@@ -14,6 +14,7 @@ import { OrderStore } from './order-store.js';
 import { clearCart } from '../cart-store.js';
 import { inventoryService } from '../inventory/inventory-service.js';
 import { emailService } from '../email/email-service.js';
+import { paymentService } from './payment-service.js';
 
 const WEBHOOK_LOGS_STORAGE_KEY = 'slimky_webhook_logs';
 const PROCESSED_WEBHOOKS_KEY = 'slimky_processed_webhooks';
@@ -200,6 +201,26 @@ export class WebhookService {
           reason: 'ALREADY_PAID',
           order,
           payment
+        };
+      }
+
+      // AUTHORITATIVE VERIFICATION GATE: never trust the webhook payload's own
+      // amount/currency claims for the actual state transition — re-verify
+      // against the provider directly through the same gate payment-service.js
+      // uses for its own success path, so a webhook-driven and a UI-polling-driven
+      // completion can never diverge on what counts as "actually paid."
+      const verification = await paymentService.verifyPayment(reference);
+      if (!verification.verified) {
+        this.log('error', `Webhook rejected: provider verification failed for reference "${reference}"`, {
+          reference,
+          orderId: order.id,
+          failureReason: verification.failureReason
+        });
+        return {
+          handled: false,
+          status: 'rejected',
+          reason: verification.failureReason || 'VERIFICATION_FAILED',
+          reference
         };
       }
 

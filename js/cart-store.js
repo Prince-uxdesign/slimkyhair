@@ -400,7 +400,7 @@ export function getCartSubtotal(items = getCart()) {
   }
   const total = items.reduce((acc, item) => {
     const qty = parseInt(item.quantity, 10) || 0;
-    const price = parseInt(item.unitPrice || item.priceValue, 10) || 0;
+    const price = Number(item.unitPrice || item.priceValue) || 0;
     return acc + (price * qty);
   }, 0);
 
