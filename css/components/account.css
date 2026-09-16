@@ -795,6 +795,107 @@
   margin: 0;
 }
 
+/* Demo Testing Quick-Fill Card */
+.auth-demo-card {
+  background: var(--color-bg-primary, #FAF8F5);
+  border: 1px solid var(--color-border-subtle, #EAE5DF);
+  border-radius: 6px;
+  padding: 16px 18px;
+  margin-top: 20px;
+  margin-bottom: 22px;
+}
+
+.auth-demo-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.auth-demo-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: var(--bg-sage, #EBEFE9);
+  color: var(--color-sage-dark, #2A3830);
+  border: 1px solid var(--color-sage-muted, #B9C6B5);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.auth-demo-info {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary, #6A625D);
+}
+
+.auth-demo-info strong {
+  color: var(--color-text-primary, #2A2421);
+}
+
+.auth-demo-subtext {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary, #6A625D);
+  margin: 0 0 12px 0;
+  line-height: 1.4;
+}
+
+.auth-demo-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.auth-demo-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 18px;
+  font-family: var(--font-sans, 'DM Sans', sans-serif);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-primary, #2A2421);
+  background: #FFFFFF;
+  border: 1px solid var(--color-border-strong, #3E342F);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all var(--transition-fast, 0.2s ease);
+}
+
+.auth-demo-btn:hover {
+  background: var(--color-brown-deep, #2A2421);
+  color: #FFFFFF;
+  border-color: var(--color-brown-deep, #2A2421);
+}
+
+.auth-demo-btn.is-filled {
+  background: #EAF3EB;
+  color: #1F4D2B;
+  border-color: #A3D4AF;
+}
+
+.auth-error-banner {
+  display: none;
+  background: #FEF3F2;
+  border: 1px solid #FECDCA;
+  color: #B42318;
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-size: 0.875rem;
+  margin-bottom: 20px;
+  line-height: 1.45;
+}
+
+.auth-error-banner.is-visible {
+  display: block;
+}
+
 .auth-form-group {
   margin-bottom: 18px;
   position: relative;

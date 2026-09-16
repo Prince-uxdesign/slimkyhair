@@ -39,6 +39,7 @@ export class LoginPage {
   }
 
   init() {
+    this.bindDemoHelper();
     this.bindPasswordToggle();
     this.bindLiveValidation();
     this.bindFormSubmission();
@@ -48,6 +49,52 @@ export class LoginPage {
     initNavigation();
     initDrawers();
     syncWishlistUI();
+  }
+
+  /**
+   * Bind demo mode credential quick-fill button for QA testing.
+   */
+  bindDemoHelper() {
+    const prefillBtn = document.querySelector('#login-fill-demo-btn');
+    if (!prefillBtn) return;
+
+    prefillBtn.addEventListener('click', () => {
+      // Guarantee demo account exists in localStorage
+      customerService.initDemoCustomer();
+
+      if (this.emailInput) {
+        this.emailInput.value = 'chioma.demo@slimkyhair.com';
+        this.clearError('#login-email');
+      }
+      if (this.passwordInput) {
+        this.passwordInput.value = 'Botanical2026!';
+        this.clearError('#login-password');
+      }
+      if (this.rememberInput) {
+        this.rememberInput.checked = true;
+      }
+      this.clearGeneralError();
+
+      // Visual confirmation feedback on the button
+      const originalHtml = prefillBtn.innerHTML;
+      prefillBtn.innerHTML = `
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        Demo Credentials Filled!
+      `;
+      prefillBtn.classList.add('is-filled');
+
+      // Focus the sign in button for immediate one-click submission
+      if (this.submitBtn) {
+        this.submitBtn.focus();
+      }
+
+      setTimeout(() => {
+        prefillBtn.innerHTML = originalHtml;
+        prefillBtn.classList.remove('is-filled');
+      }, 2500);
+    });
   }
 
   /**
