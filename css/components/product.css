@@ -254,11 +254,45 @@
 
 .pdp-price-wrap {
   display: flex;
-  align-items: baseline;
-  gap: 14px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
   margin-bottom: var(--space-lg);
   padding-bottom: var(--space-md);
   border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.pdp-price-primary-row {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.pdp-currency-reference {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+.pdp-currency-approx {
+  font-weight: 500;
+  background-color: var(--bg-sage, #EBEFE9);
+  color: var(--color-sage-dark, #2A3830);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+}
+
+.pdp-currency-disclaimer {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
 }
 
 .pdp-price {
@@ -1258,5 +1292,12 @@ body.has-overlay-open .pdp-sticky-cta,
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
+  }
+
+  .pdp-currency-reference {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    font-size: 0.75rem;
   }
 }
