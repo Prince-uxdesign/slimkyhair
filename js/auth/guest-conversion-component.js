@@ -134,10 +134,10 @@ export class GuestConversionCard {
         </div>
 
         <div class="conversion-card-actions">
-          <button type="button" class="btn-primary conversion-cta-btn" id="conversion-open-form-btn">
+          <button type="button" class="btn btn-primary conversion-cta-btn" id="conversion-open-form-btn">
             Create Account
           </button>
-          <button type="button" class="btn-text-secondary conversion-secondary-btn" id="conversion-dismiss-btn">
+          <button type="button" class="btn btn-outline conversion-secondary-btn" id="conversion-dismiss-btn">
             Maybe Later
           </button>
         </div>
@@ -274,7 +274,7 @@ export class GuestConversionCard {
           <div class="conversion-card-actions">
             <button 
               type="submit" 
-              class="btn-primary conversion-cta-btn" 
+              class="btn btn-primary conversion-cta-btn" 
               id="conversion-submit-btn"
               ${this.loading ? 'disabled' : ''}
             >
@@ -285,7 +285,7 @@ export class GuestConversionCard {
                 Create Account & Save Order
               `}
             </button>
-            <button type="button" class="btn-text-secondary conversion-secondary-btn" id="conversion-cancel-btn">
+            <button type="button" class="btn btn-outline conversion-secondary-btn" id="conversion-cancel-btn">
               Cancel
             </button>
           </div>

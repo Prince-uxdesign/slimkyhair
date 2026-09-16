@@ -1040,6 +1040,7 @@
 
 .conversion-card-header {
   margin-bottom: 24px;
+  text-align: center;
 }
 
 .conversion-card-badge {
@@ -1113,16 +1114,20 @@
   flex-shrink: 0;
 }
 
-/* Actions */
+/* Actions: Center aligned to match the page consistency */
 .conversion-card-actions {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 16px;
+  flex-wrap: wrap;
+  width: 100%;
 }
 
 .conversion-cta-btn {
-  min-height: 50px;
+  min-height: 48px;
   padding: 0 28px;
+  font-family: var(--font-sans, 'DM Sans', sans-serif);
   font-size: 0.875rem;
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -1137,23 +1142,30 @@
 
 .conversion-secondary-btn {
   min-height: 48px;
-  padding: 0 20px;
+  padding: 0 24px;
+  font-family: var(--font-sans, 'DM Sans', sans-serif);
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--color-text-secondary, #6A625D);
-  background: transparent;
-  border: none;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-primary, #2A2421);
+  background-color: transparent;
+  border: 1px solid var(--color-border-strong, #3E342F);
+  border-radius: var(--radius-xs, 2px);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  text-decoration: underline;
-  text-underline-offset: 4px;
-  transition: color var(--transition-fast);
+  text-decoration: none;
+  transition: background-color var(--transition-fast, 0.2s ease),
+              color var(--transition-fast, 0.2s ease),
+              border-color var(--transition-fast, 0.2s ease);
 }
 
 .conversion-secondary-btn:hover {
-  color: var(--color-text-primary, #2A2421);
+  background-color: var(--color-brown-deep, #2A2421);
+  color: var(--color-text-inverse, #FFFFFF);
+  border-color: var(--color-brown-deep, #2A2421);
 }
 
 /* Form Styles */
@@ -1331,12 +1343,12 @@
 
   .conversion-cta-btn {
     width: 100%;
-    min-height: 50px;
+    min-height: 48px;
   }
 
   .conversion-secondary-btn {
     width: 100%;
-    min-height: 44px;
+    min-height: 48px;
   }
 
   .conversion-success-links .conversion-cta-btn,
