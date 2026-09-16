@@ -12,6 +12,7 @@
 import { OrderStore } from '../payment/order-store.js';
 import { CUSTOMS_IMPORT_DUTIES_NOTICE } from '../payment/payment-model.js';
 import { emailService } from '../email/email-service.js';
+import { escapeHtml } from '../utils/html-format.js';
 
 const CURRENCY_SYMBOLS = { NGN: '₦', USD: '$', GBP: '£', EUR: '€' };
 
@@ -48,15 +49,6 @@ function formatQuoteAmount(amount, currency) {
   return `${symbol}${num.toLocaleString('en-US')}`;
 }
 
-function escapeHtml(str) {
-  if (str === null || str === undefined) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
 
 /**
  * Resolve the separated Product Payment / Shipping status for an order.

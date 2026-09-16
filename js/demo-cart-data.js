@@ -127,14 +127,3 @@ export const DEMO_PRODUCTS = [
     ]
   }
 ];
-
-/**
- * Retrieve demo product by ID or slug
- * @param {string} idOrSlug 
- * @returns {Object|null}
- */
-export function getDemoProduct(idOrSlug) {
-  if (!idOrSlug) return null;
-  const target = String(idOrSlug).toLowerCase().trim();
-  return DEMO_PRODUCTS.find(p => p.id.toLowerCase() === target || p.slug.toLowerCase() === target) || null;
-}

@@ -25,9 +25,6 @@ import { CATALOG_PRODUCTS } from './catalog-data.js';
 import { DEMO_PRODUCTS } from './demo-cart-data.js';
 import {
   getDevValidationScenario,
-  fetchAuthoritativeProductCheck,
-  setDevValidationScenario,
-  clearDevValidationScenario,
   VALIDATION_SCENARIOS
 } from './cart-validation-mock.js';
 import { inventoryService } from './inventory/inventory-service.js';
@@ -414,37 +411,6 @@ export function getCartSubtotal(items = getCart()) {
 }
 
 /**
- * Check whether a product (and optional variant) exists in the cart.
- * Supports checking by productId, variantId, SKU, or composite key.
- * 
- * @param {string} productId 
- * @param {string|null} [variantId] 
- * @returns {boolean}
- */
-export function hasItem(productId, variantId = null) {
-  if (!productId) return false;
-  const cleanPid = String(productId).toLowerCase().trim();
-  const cart = getCart();
-
-  return cart.some(item => {
-    const itemPid = String(item.productId || '').toLowerCase().trim();
-    const itemId = String(item.id || '').toLowerCase().trim();
-
-    if (itemId === cleanPid) return true;
-    if (itemPid !== cleanPid) return false;
-    if (!variantId) return true;
-
-    const cleanVar = String(variantId).toLowerCase().trim();
-    return (
-      (item.variantId && String(item.variantId).toLowerCase().trim() === cleanVar) ||
-      (item.sku && String(item.sku).toLowerCase().trim() === cleanVar) ||
-      (item.variantName && String(item.variantName).toLowerCase().trim() === cleanVar) ||
-      (itemId === `${itemPid}:::${cleanVar}`)
-    );
-  });
-}
-
-/**
  * Retrieve a specific cart item by key, SKU, or product ID
  * @param {string} itemKeyOrId 
  * @returns {Object|null}
@@ -634,16 +600,6 @@ export function setQuantity(itemKeyOrId, newQuantity) {
 }
 
 /**
- * Standard updateCartQuantity alias for backwards compatibility
- * @param {string} itemId 
- * @param {number} newQuantity 
- * @returns {Array}
- */
-export function updateCartQuantity(itemId, newQuantity) {
-  return setQuantity(itemId, newQuantity);
-}
-
-/**
  * Increase the quantity of an existing item by step (default 1)
  * Respects available stock limit.
  * 
@@ -684,34 +640,6 @@ export function removeItem(itemKeyOrId) {
   if (!resolved) return cart;
   const filtered = cart.filter(i => i.id !== resolved.id);
   return saveCart(filtered);
-}
-
-/**
- * Standard removeFromCart alias for backwards compatibility
- * @param {string} itemId 
- * @returns {Array}
- */
-export function removeFromCart(itemId) {
-  return removeItem(itemId);
-}
-
-/**
- * Update an existing cart item's fields (e.g. quantity or variant)
- * @param {string} itemKeyOrId 
- * @param {Object} updates 
- * @returns {Array}
- */
-export function updateItem(itemKeyOrId, updates = {}) {
-  const cart = getCart();
-  const resolved = getItem(itemKeyOrId);
-  if (!resolved) return cart;
-  const index = cart.findIndex(i => i.id === resolved.id);
-  if (index === -1) return cart;
-
-  const current = cart[index];
-  const merged = { ...current, ...updates };
-  cart[index] = normalizeCartItem(merged);
-  return saveCart(cart);
 }
 
 /**

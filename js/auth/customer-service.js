@@ -11,6 +11,7 @@
 
 import { OrderStore } from '../payment/order-store.js';
 import { emailService } from '../email/email-service.js';
+import { isValidEmail } from '../utils/validators.js';
 
 const CUSTOMERS_STORAGE_KEY = 'slimky_customers';
 const ACTIVE_SESSION_STORAGE_KEY = 'slimky_active_session';
@@ -362,8 +363,7 @@ export class CustomerService {
       throw new Error('Email address is required to sign in.');
     }
     const normEmail = email.trim().toLowerCase();
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(normEmail)) {
+    if (!isValidEmail(normEmail)) {
       throw new Error('Please enter a valid email address.');
     }
     if (!password || !password.trim()) {
@@ -454,6 +454,16 @@ export class CustomerService {
    * Empties active session wishlist so customer items never leak to guest or subsequent user.
    */
   logoutCustomer() {
+    // Invalidate the token in the session registry too, not just the active-session
+    // pointer — otherwise a leaked/copied token still passes getCustomerOrders() /
+    // getOrderDetails() session lookups after "logout" (those check the registry
+    // directly, not just the active-session pointer cleared below).
+    const activeSession = readSessionFromStorage();
+    if (activeSession && activeSession.token) {
+      const sessions = readStorage(SESSIONS_STORAGE_KEY, {});
+      delete sessions[activeSession.token];
+      writeStorage(SESSIONS_STORAGE_KEY, sessions);
+    }
     clearActiveSession();
     // Milestone C19.8: Clear active session wishlist so customer's items never leak to guest or subsequent customer
     if (typeof localStorage !== 'undefined') {
@@ -523,8 +533,7 @@ export class CustomerService {
     }
 
     const normEmail = email.trim().toLowerCase();
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(normEmail)) {
+    if (!isValidEmail(normEmail)) {
       throw new Error('Please enter a valid email address.');
     }
 

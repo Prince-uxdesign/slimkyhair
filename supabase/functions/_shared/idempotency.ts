@@ -51,6 +51,30 @@ export async function reserveIdempotencyKey(
   return { reserved: true, id: data.id as number };
 }
 
+/**
+ * Abuse guard for the anon-callable send-transactional-email endpoint: since
+ * that function trusts the client-supplied payload (orders aren't
+ * server-side yet, see its header comment), anyone with the public anon key
+ * could otherwise spam arbitrary recipients using the store's sending
+ * domain. Counting recent email_log rows for the same recipient re-uses
+ * data already recorded for idempotency, so this needs no new table.
+ */
+export async function countRecentEmailsForRecipient(
+  admin: SupabaseClient,
+  recipient: string,
+  windowMinutes: number,
+): Promise<number> {
+  const since = new Date(Date.now() - windowMinutes * 60 * 1000).toISOString();
+  const { count, error } = await admin
+    .from('email_log')
+    .select('id', { count: 'exact', head: true })
+    .eq('recipient', recipient)
+    .gte('created_at', since);
+
+  if (error) throw error;
+  return count ?? 0;
+}
+
 export async function markEmailSent(admin: SupabaseClient, id: number, providerMessageId: string): Promise<void> {
   const { error } = await admin.rpc('mark_email_log_sent', {
     p_id: id,

@@ -15,10 +15,25 @@ import { customerService } from './auth/customer-service.js';
 const STORAGE_KEY = 'slimky_hair_wishlist';
 
 /**
- * Retrieve raw list of saved product IDs from localStorage
+ * Retrieve the list of saved product IDs.
+ * While a customer is authenticated, this always reads their own
+ * session-scoped wishlist (`customerService.getCustomerWishlist`) rather
+ * than the shared guest key below — the guest key is a "current browser tab"
+ * scratch space only, and must never be treated as authoritative once a
+ * specific customer is signed in, or one customer's items could bleed into
+ * another customer's view on a shared device.
  * @returns {string[]} Array of product ID strings
  */
 export function getWishlistIds() {
+  try {
+    const customer = customerService.getCurrentCustomer();
+    if (customer && customer.id) {
+      return customerService.getCustomerWishlist(customer.id);
+    }
+  } catch (err) {
+    console.warn('[WishlistStore] Could not read account wishlist:', err);
+  }
+
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
@@ -31,23 +46,28 @@ export function getWishlistIds() {
 }
 
 /**
- * Save array of product IDs to localStorage and dispatch update event.
- * If a customer is authenticated, also syncs to their customer account wishlist.
+ * Save array of product IDs and dispatch an update event.
+ * If a customer is authenticated, this writes ONLY to their own
+ * session-scoped wishlist (never the shared guest key — see getWishlistIds).
+ * Guests write to the shared guest key, which is later merged into the
+ * customer's own store on login (see customer-service.js loginCustomer).
  * @param {string[]} ids
  */
 function saveWishlistIds(ids) {
   try {
     const unique = Array.from(new Set(ids.filter(Boolean)));
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(unique));
-    
-    // Milestone C19.8: If customer is authenticated, persist to account store
+
+    let customer = null;
     try {
-      const customer = customerService.getCurrentCustomer();
-      if (customer && customer.id) {
-        customerService.saveCustomerWishlist(customer.id, unique);
-      }
+      customer = customerService.getCurrentCustomer();
     } catch (e) {
       console.warn('[WishlistStore] Account sync notice:', e);
+    }
+
+    if (customer && customer.id) {
+      customerService.saveCustomerWishlist(customer.id, unique);
+    } else {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(unique));
     }
 
     // Dispatch reactive event for all active listeners
@@ -61,7 +81,7 @@ function saveWishlistIds(ids) {
     }
     return unique;
   } catch (err) {
-    console.warn('[WishlistStore] Could not write to localStorage:', err);
+    console.warn('[WishlistStore] Could not write wishlist:', err);
     return ids;
   }
 }

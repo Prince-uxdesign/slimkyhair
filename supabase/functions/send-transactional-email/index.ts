@@ -26,7 +26,7 @@
  */
 import { corsHeaders, handlePreflight } from '../_shared/cors.ts';
 import { getAdminClient } from '../_shared/supabase-admin.ts';
-import { markEmailFailed, markEmailSent, reserveIdempotencyKey } from '../_shared/idempotency.ts';
+import { countRecentEmailsForRecipient, markEmailFailed, markEmailSent, reserveIdempotencyKey } from '../_shared/idempotency.ts';
 import { sendViaResend } from '../_shared/resend.ts';
 import { KNOWN_EMAIL_TYPES, renderEmail } from '../_shared/emails/render.ts';
 
@@ -80,6 +80,18 @@ Deno.serve(async (req) => {
   }
 
   const admin = getAdminClient();
+
+  // Abuse guard: this endpoint only requires the public anon key (verify_jwt
+  // just checks for *a* JWT, not ownership of the order), so without a limit
+  // any caller could spam an arbitrary recipient using the store's sending
+  // domain. A real order/customer only ever generates a handful of emails,
+  // so this ceiling is well above legitimate traffic.
+  const RATE_LIMIT_WINDOW_MINUTES = 60;
+  const RATE_LIMIT_MAX_PER_RECIPIENT = 15;
+  const recentCount = await countRecentEmailsForRecipient(admin, recipient, RATE_LIMIT_WINDOW_MINUTES);
+  if (recentCount >= RATE_LIMIT_MAX_PER_RECIPIENT) {
+    return jsonResponse({ error: 'Too many emails sent to this recipient recently. Please try again later.' }, 429);
+  }
 
   // Reserve the idempotency key BEFORE calling Resend. If reservation fails
   // because the key already exists, this exact email was already sent (or is

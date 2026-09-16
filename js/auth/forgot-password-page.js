@@ -7,6 +7,7 @@ import { customerService } from './customer-service.js';
 import { initNavigation } from '../navigation.js';
 import { initDrawers } from '../drawers.js';
 import { syncWishlistUI } from '../wishlist-store.js';
+import { isValidEmail } from '../utils/validators.js';
 
 export class ForgotPasswordPage {
   constructor(options = {}) {
@@ -53,14 +54,13 @@ export class ForgotPasswordPage {
   validateEmail() {
     if (!this.emailInput) return false;
     const value = this.emailInput.value.trim();
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!value) {
       this.showFieldError(this.emailInput, this.emailError, 'Please enter your email address.');
       return false;
     }
 
-    if (!emailRegex.test(value)) {
+    if (!isValidEmail(value)) {
       this.showFieldError(this.emailInput, this.emailError, 'Please enter a valid email address (e.g., name@example.com).');
       return false;
     }

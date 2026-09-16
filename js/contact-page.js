@@ -11,6 +11,8 @@
  * - Zero fake success screens or automated API simulation
  */
 
+import { isValidEmail } from './utils/validators.js';
+
 export const SLIMKY_WHATSAPP_NUMBER = '2348169104565';
 export const SLIMKY_DISPLAY_PHONE = '+234 816 910 4565';
 export const SLIMKY_TEL_URI = 'tel:+2348169104565';
@@ -92,7 +94,6 @@ if (typeof document !== 'undefined') {
   const errorBanner = document.getElementById('contact-error-banner');
 
   // Validation patterns
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   const phoneRegex = /^[\d\s()+\-]{7,20}$/;
 
   /**
@@ -138,7 +139,7 @@ if (typeof document !== 'undefined') {
       if (!val) {
         return validateField(emailInput, true, '');
       }
-      return validateField(emailInput, emailRegex.test(val), 'Please enter a valid email address (or leave blank).');
+      return validateField(emailInput, isValidEmail(val), 'Please enter a valid email address (or leave blank).');
     }
     if (field === phoneInput) {
       const val = phoneInput.value.trim();

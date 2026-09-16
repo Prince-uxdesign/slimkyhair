@@ -1032,6 +1032,30 @@ export class PaymentService {
         if (providerStatus.status === PAYMENT_STATUS.SUCCESSFUL) {
           const verification = await this.verifyPayment(payment.providerReference);
           if (verification.verified) {
+            // ATOMIC STOCK DEDUCTION (idempotent by order.id — see Milestone
+            // C18): this recovery path can reach a verified-successful
+            // payment via a route that never passed through processPayment's
+            // own deduction step (e.g. a stale in-memory provider status
+            // surviving an SPA navigation), so deduct here too rather than
+            // assuming it already happened.
+            const stockDeduction = inventoryService.deductStock(order.id, order.items);
+            if (!stockDeduction.success) {
+              const updatedPayment = OrderStore.updatePaymentStatus(payment.id, PAYMENT_STATUS.FAILED, {
+                failureReason: 'Inventory sold out during processing. Transaction reversed safely.'
+              });
+              const updatedOrder = OrderStore.updateOrderStatus(order.id, ORDER_STATUS.PAYMENT_FAILED, {
+                paymentStatus: PAYMENT_STATUS.FAILED,
+                pricing: { ...order.pricing, totalPaid: 0 }
+              });
+              return {
+                found: true,
+                status: PAYMENT_LIFECYCLE_STATES.FAILED,
+                order: updatedOrder,
+                payment: updatedPayment,
+                failureReason: 'Inventory unavailable. Your card was not charged.'
+              };
+            }
+
             // Both flows require a manual shipping quote before dispatch (Milestone C20.10)
             const targetOrderStatus = ORDER_STATUS.SHIPPING_QUOTE_REQUIRED;
             order.orderStatus = targetOrderStatus;
