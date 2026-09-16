@@ -50,6 +50,7 @@ import { OrderStore } from './payment/order-store.js';
 import { webhookService } from './payment/webhook-service.js';
 import { customerService } from './auth/customer-service.js';
 import { GuestConversionCard } from './auth/guest-conversion-component.js';
+import { renderCheckoutCurrencyIndicatorHTML, getApproximateForeignCurrencies } from './utils/currency-converter.js';
 
 if (typeof window !== 'undefined') {
   window.paymentService = paymentService;
@@ -133,6 +134,7 @@ export class CheckoutPage {
     this.shippingNoteEl = document.querySelector('#checkout-shipping-note');
     this.totalLabelEl = document.querySelector('#checkout-total-label');
     this.totalEl = document.querySelector('#checkout-total');
+    this.currencyIndicatorEl = document.querySelector('#checkout-currency-indicator');
 
     // Form & Flow Selection
     this.form = document.querySelector('#checkout-form');
@@ -269,6 +271,7 @@ export class CheckoutPage {
       this.handleCountryChange();
       this.clearFieldError('country');
       this.updateState(FORM_STATES.EDITING);
+      this.render();
     });
 
     // Mobile collapsible summary toggle
@@ -891,6 +894,23 @@ export class CheckoutPage {
       this.totalLabelEl.textContent = 'Product Payment Total';
     }
 
+    // Dynamic International Currency Indicator (approx. USD/GBP display)
+    if (this.currencyIndicatorEl) {
+      if (!isNigeria && !isBlank) {
+        const cart = getCart();
+        const pricing = calculateOrderPricing(cart, { isNigeria: false });
+        if (pricing && pricing.productPaymentTotal > 0) {
+          this.currencyIndicatorEl.style.display = 'block';
+          this.currencyIndicatorEl.innerHTML = renderCheckoutCurrencyIndicatorHTML(pricing.productPaymentTotal, true);
+        } else {
+          this.currencyIndicatorEl.style.display = 'none';
+        }
+      } else {
+        this.currencyIndicatorEl.style.display = 'none';
+        this.currencyIndicatorEl.innerHTML = '';
+      }
+    }
+
     // Clear validation errors in inactive fields
     if (isNigeria) {
       this.clearFieldError('intl-state');
@@ -939,6 +959,17 @@ export class CheckoutPage {
     if (this.subtotalEl) this.subtotalEl.textContent = pricing.subtotalFormatted;
     if (this.totalLabelEl) this.totalLabelEl.textContent = pricing.totalLabel;
     if (this.totalEl) this.totalEl.textContent = pricing.productPaymentTotalFormatted;
+
+    // International Currency Indicator update
+    if (this.currencyIndicatorEl) {
+      if (!isNigeria && pricing && pricing.productPaymentTotal > 0) {
+        this.currencyIndicatorEl.style.display = 'block';
+        this.currencyIndicatorEl.innerHTML = renderCheckoutCurrencyIndicatorHTML(pricing.productPaymentTotal, true);
+      } else {
+        this.currencyIndicatorEl.style.display = 'none';
+        this.currencyIndicatorEl.innerHTML = '';
+      }
+    }
 
     // Mirror the live total + submit state into the mobile sticky CTA.
     this.syncStickyCTA?.();
@@ -1621,7 +1652,7 @@ export class CheckoutPage {
                 International shipping is not estimated online. To ensure accurate courier rates, delivery follows our standard 4-step international flow:
               </p>
               <ol style="padding-left: 20px; margin: 0; line-height: 1.6; font-size: 0.875rem;">
-                <li style="margin-bottom: 4px;"><strong>Product Payment First:</strong> You pay for your ordered products online (${session.pricing.productPaymentTotalFormatted}).</li>
+                <li style="margin-bottom: 4px;"><strong>Product Payment First:</strong> You pay for your ordered products online (${session.pricing.productPaymentTotalFormatted}${!isNigeria ? ` · approx. ${getApproximateForeignCurrencies(session.pricing.productPaymentTotal).usdFormatted} / ${getApproximateForeignCurrencies(session.pricing.productPaymentTotal).gbpFormatted}` : ''}).</li>
                 <li style="margin-bottom: 4px;"><strong>Shipping Quote Obtained by Slimky:</strong> Our logistics team packages and weighs your order to obtain the actual courier rate (e.g. DHL Express) for ${destinationCountry}.</li>
                 <li style="margin-bottom: 4px;"><strong>Quote Sent to You:</strong> Slimky sends the official shipping quote directly to your Phone / WhatsApp (${session.customer.phone}) and email.</li>
                 <li><strong>Acceptance & Shipping Payment:</strong> You accept or decline the quote. The shipping payment is handled separately prior to dispatch.</li>
@@ -1642,7 +1673,7 @@ export class CheckoutPage {
             </div>
             <h3 class="checkout-payment-title" style="font-size: 1.25rem; margin-bottom: 6px;">Product Payment · Slimky DemoPay (Test Mode)</h3>
             <p class="checkout-payment-text" style="font-size: 0.875rem; line-height: 1.5; margin-bottom: 20px; max-width: 440px;">
-              Your order information is verified and staged for <strong>${session.pricing.productPaymentTotalFormatted}</strong>.
+              Your order information is verified and staged for <strong>${session.pricing.productPaymentTotalFormatted}</strong>${!isNigeria ? ` <span style="display:block; font-size:0.75rem; color:var(--color-text-secondary); margin-top:4px;">(${getApproximateForeignCurrencies(session.pricing.productPaymentTotal).combinedFormatted} · Charged in NGN; approximate exchange rates depend on your card issuer)</span>` : ''}.
               You can now test complete payment approval, card decline, or failure simulation using our local demo gateway.
             </p>
 

@@ -897,6 +897,60 @@
   color: var(--color-text-primary);
 }
 
+/* International Currency Indicator (Checkout Order Summary) */
+.checkout-currency-indicator {
+  margin: -10px 0 16px 0;
+}
+
+.checkout-currency-box {
+  background-color: var(--bg-secondary, #F4F1EC);
+  border: 1px solid var(--color-border-subtle, #EAE5DF);
+  border-radius: var(--radius-xs, 4px);
+  padding: 12px 14px;
+}
+
+.checkout-currency-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.checkout-currency-tag {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-sage-dark, #2A3830);
+  background: var(--bg-sage, #EBEFE9);
+  padding: 2px 7px;
+  border-radius: 3px;
+}
+
+.checkout-currency-approx {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #2A2421);
+  font-family: var(--font-sans);
+}
+
+.checkout-currency-note {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary, #6A625D);
+  line-height: 1.45;
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .checkout-currency-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
+
 /* Primary Submit CTA */
 .checkout-submit-cta {
   display: flex;

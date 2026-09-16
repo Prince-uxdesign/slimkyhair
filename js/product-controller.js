@@ -11,6 +11,7 @@ import { isInWishlist, toggleWishlist, syncWishlistUI } from './wishlist-store.j
 import { addToCart, openCartDrawer } from './cart-store.js';
 import { inventoryService } from './inventory/inventory-service.js';
 import { applyProductSEO } from './seo.js';
+import { getApproximateForeignCurrencies } from './utils/currency-converter.js';
 
 export class ProductController {
   constructor(options = {}) {
@@ -247,6 +248,28 @@ export class ProductController {
     // Price
     const priceEl = document.querySelector('#pdp-price');
     if (priceEl) priceEl.textContent = v.priceFormatted;
+
+    // International Currency Indicator (approximate USD / GBP reference)
+    let currencyRefEl = document.querySelector('#pdp-currency-reference');
+    if (!currencyRefEl) {
+      const priceWrap = document.querySelector('.pdp-price-wrap');
+      if (priceWrap) {
+        currencyRefEl = document.createElement('div');
+        currencyRefEl.id = 'pdp-currency-reference';
+        currencyRefEl.className = 'pdp-currency-reference';
+        currencyRefEl.setAttribute('role', 'note');
+        currencyRefEl.setAttribute('aria-label', 'International currency estimate');
+        priceWrap.appendChild(currencyRefEl);
+      }
+    }
+    const variantPrice = v.priceValue || v.price || (typeof v.priceFormatted === 'string' ? parseInt(v.priceFormatted.replace(/[^0-9]/g, ''), 10) : 0);
+    if (currencyRefEl && variantPrice) {
+      const info = getApproximateForeignCurrencies(variantPrice);
+      currencyRefEl.innerHTML = `
+        <span class="pdp-currency-approx">${info.combinedFormatted}</span>
+        <span class="pdp-currency-disclaimer">(${info.disclaimer})</span>
+      `;
+    }
 
     // Stock
     const stockEl = document.querySelector('#pdp-stock-status');
