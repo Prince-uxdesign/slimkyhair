@@ -25,6 +25,7 @@ export class DemoPaymentUI {
   }
 
   initDOM() {
+    if (typeof document === 'undefined') return;
     let backdrop = document.querySelector('#demopay-modal-backdrop');
     if (!backdrop) {
       backdrop = document.createElement('div');
@@ -639,5 +640,5 @@ export class DemoPaymentUI {
   }
 }
 
-export const demoPaymentUI = new DemoPaymentUI();
+export const demoPaymentUI = typeof document !== 'undefined' ? new DemoPaymentUI() : null;
 

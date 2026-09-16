@@ -256,7 +256,7 @@ let uiInitialised = false;
 let els = {};
 
 function buildUI() {
-  if (uiInitialised || typeof document === 'undefined') return;
+  if (uiInitialised || typeof document === 'undefined' || typeof document.createElement !== 'function') return;
   uiInitialised = true;
 
   const banner = document.createElement('div');

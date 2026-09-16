@@ -32,6 +32,7 @@ Disallow: /payment/
 Disallow: /admin/
 Disallow: /cart/
 Disallow: /order-confirmation/
+Disallow: /track-order/
 Disallow: /*forgot-password*
 Disallow: /*reset-password*
 
