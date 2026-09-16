@@ -2094,9 +2094,9 @@ export class CheckoutPage {
     const mins = String(orderDate.getMinutes()).padStart(2, '0');
     const formattedDateTime = `${day} ${month}, ${year} | ${hours}:${mins}`;
 
-    // Format clean numeric ticket ID inspired by the design
-    const rawId = (order.id || '').replace(/\D/g, '');
-    const ticketId = rawId.length >= 8 ? rawId.padStart(16, '0').slice(-16) : (order.id ? order.id.replace('ORD-', '') : '0120077398910288');
+    // Real Order Reference & Payment Reference for client transaction
+    const orderReference = order.orderNumber || order.orderReference || order.id || 'SLM-202609-0001';
+    const paymentReference = payment?.providerReference || payment?.reference || payment?.id || order.paymentReference || (order.id ? `PAY-${order.id.replace(/\D/g, '').slice(-8)}` : 'PAY-202609-8841');
     const formattedAmount = `${formatNaira(order.pricing.productPaymentTotal)}.00`;
     const last4 = payment?.last4 || '4567';
     const expiry = payment?.expiry || '10/27';
@@ -2153,20 +2153,24 @@ export class CheckoutPage {
               <span class="receipt-ticket-notch-right" aria-hidden="true"></span>
             </div>
 
-            <!-- Ticket Information Grid -->
+            <!-- Ticket Information Grid: 2x2 with consistent font sizes across all items -->
             <div class="receipt-ticket-body">
               <div class="receipt-info-grid">
                 <div class="receipt-info-item">
-                  <div class="receipt-info-label">TICKET ID</div>
-                  <div class="receipt-info-val" id="receipt-ticket-id-val">${ticketId}</div>
+                  <div class="receipt-info-label">ORDER REFERENCE</div>
+                  <div class="receipt-info-val" id="receipt-order-ref-val">${orderReference}</div>
                 </div>
                 <div class="receipt-info-item">
                   <div class="receipt-info-label amount-label">AMOUNT</div>
                   <div class="receipt-info-val amount" id="receipt-amount-val">${formattedAmount}</div>
                 </div>
-                <div class="receipt-info-item full-width" style="margin-top: 6px;">
-                  <div class="receipt-info-label">DATE & TIME</div>
-                  <div class="receipt-info-val" id="receipt-datetime-val">${formattedDateTime}</div>
+                <div class="receipt-info-item">
+                  <div class="receipt-info-label">PAYMENT REFERENCE</div>
+                  <div class="receipt-info-val" id="receipt-payment-ref-val">${paymentReference}</div>
+                </div>
+                <div class="receipt-info-item">
+                  <div class="receipt-info-label align-right">DATE & TIME</div>
+                  <div class="receipt-info-val align-right" id="receipt-datetime-val">${formattedDateTime}</div>
                 </div>
               </div>
             </div>
@@ -2294,7 +2298,7 @@ export class CheckoutPage {
     });
 
     document.querySelector('#receipt-modal-download-btn')?.addEventListener('click', () => {
-      this.downloadReceipt(order, payment, { ticketId, formattedAmount, formattedDateTime, last4, expiry });
+      this.downloadReceipt(order, payment, { orderReference, paymentReference, formattedAmount, formattedDateTime, last4, expiry });
     });
 
     document.querySelector('#receipt-modal-print-btn')?.addEventListener('click', () => {
@@ -2439,34 +2443,50 @@ export class CheckoutPage {
       ctx.arc(w, perfY, 14 * scale, 0, Math.PI * 2);
       ctx.fill();
 
-      // 5. Details Grid
+      // 5. Details Grid (2x2 with strict font size consistency across labels and values)
       const padX = 32 * scale;
+      const labelFontSize = 11 * scale;
+      const valueFontSize = 13.5 * scale;
+      const labelFont = `600 ${labelFontSize}px -apple-system, BlinkMacSystemFont, "DM Sans", sans-serif`;
+      const valueFont = `600 ${valueFontSize}px -apple-system, BlinkMacSystemFont, "DM Sans", sans-serif`;
+
+      // Row 1: ORDER REFERENCE (left) & AMOUNT (right)
+      const row1Y = 222 * scale;
       ctx.textAlign = 'left';
       ctx.fillStyle = '#64748B';
-      ctx.font = `600 ${12 * scale}px -apple-system, BlinkMacSystemFont, "DM Sans", sans-serif`;
-      ctx.fillText('TICKET ID', padX, 226 * scale);
-
-      ctx.fillStyle = '#111827';
-      ctx.font = `bold ${16 * scale}px monospace, -apple-system, sans-serif`;
-      ctx.fillText(meta.ticketId, padX, 248 * scale);
+      ctx.font = labelFont;
+      ctx.fillText('ORDER REFERENCE', padX, row1Y);
 
       ctx.textAlign = 'right';
-      ctx.fillStyle = '#64748B';
-      ctx.font = `600 ${12 * scale}px -apple-system, BlinkMacSystemFont, "DM Sans", sans-serif`;
-      ctx.fillText('AMOUNT', w - padX, 226 * scale);
+      ctx.fillText('AMOUNT', w - padX, row1Y);
 
+      const val1Y = 244 * scale;
+      ctx.textAlign = 'left';
       ctx.fillStyle = '#111827';
-      ctx.font = `bold ${18 * scale}px -apple-system, BlinkMacSystemFont, "DM Sans", sans-serif`;
-      ctx.fillText(meta.formattedAmount, w - padX, 248 * scale);
+      ctx.font = valueFont;
+      ctx.fillText(meta.orderReference, padX, val1Y);
 
+      ctx.textAlign = 'right';
+      ctx.fillText(meta.formattedAmount, w - padX, val1Y);
+
+      // Row 2: PAYMENT REFERENCE (left) & DATE & TIME (right)
+      const row2Y = 278 * scale;
       ctx.textAlign = 'left';
       ctx.fillStyle = '#64748B';
-      ctx.font = `600 ${12 * scale}px -apple-system, BlinkMacSystemFont, "DM Sans", sans-serif`;
-      ctx.fillText('DATE & TIME', padX, 282 * scale);
+      ctx.font = labelFont;
+      ctx.fillText('PAYMENT REFERENCE', padX, row2Y);
 
+      ctx.textAlign = 'right';
+      ctx.fillText('DATE & TIME', w - padX, row2Y);
+
+      const val2Y = 298 * scale;
+      ctx.textAlign = 'left';
       ctx.fillStyle = '#111827';
-      ctx.font = `bold ${14 * scale}px -apple-system, BlinkMacSystemFont, "DM Sans", sans-serif`;
-      ctx.fillText(meta.formattedDateTime, padX, 304 * scale);
+      ctx.font = valueFont;
+      ctx.fillText(meta.paymentReference, padX, val2Y);
+
+      ctx.textAlign = 'right';
+      ctx.fillText(meta.formattedDateTime, w - padX, val2Y);
 
       // 6. Payment Pill Box
       const pillY = 330 * scale;
@@ -2537,7 +2557,7 @@ export class CheckoutPage {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `Slimky_Receipt_${order.id || 'order'}.png`;
+        a.download = `Slimky_Receipt_${meta.orderReference || order.orderNumber || order.id || 'order'}.png`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

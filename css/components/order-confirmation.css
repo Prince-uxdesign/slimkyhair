@@ -789,7 +789,13 @@
 .receipt-info-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 16px 20px;
+}
+
+.receipt-info-item {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .receipt-info-item.full-width {
@@ -797,29 +803,36 @@
 }
 
 .receipt-info-label {
+  font-family: var(--font-sans, 'DM Sans', sans-serif);
   font-size: 0.75rem;
   font-weight: 600;
   color: #64748B;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 4px;
+  line-height: 1.2;
 }
 
 .receipt-info-val {
+  font-family: var(--font-sans, 'DM Sans', sans-serif);
   font-size: 0.9375rem;
-  font-weight: 700;
+  font-weight: 600;
   color: #111827;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
+  line-height: 1.35;
+  word-break: break-word;
 }
 
-.receipt-info-val.amount {
-  font-size: 1.125rem;
-  font-weight: 700;
+.receipt-info-val.amount,
+.receipt-info-val.align-right {
+  font-size: 0.9375rem; /* Strict uniform font size with other values */
+  font-weight: 600;
   color: #111827;
   text-align: right;
 }
 
-.receipt-info-label.amount-label {
+.receipt-info-label.amount-label,
+.receipt-info-label.align-right {
   text-align: right;
 }
 
@@ -958,6 +971,23 @@
 
 .receipt-print-btn:hover {
   background-color: #F9FAFB;
+}
+
+@media (max-width: 480px) {
+  .receipt-ticket-body {
+    padding: 0 20px;
+  }
+  .receipt-info-grid {
+    gap: 14px 12px;
+  }
+  .receipt-info-label {
+    font-size: 0.6875rem;
+  }
+  .receipt-info-val,
+  .receipt-info-val.amount,
+  .receipt-info-val.align-right {
+    font-size: 0.875rem;
+  }
 }
 
 /* Print Styles */
