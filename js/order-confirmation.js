@@ -247,7 +247,7 @@ export class OrderConfirmationPage {
     const shippingNotice = isNigeria
       ? {
           title: 'Nigeria delivery — fee calculated separately',
-          body: `Your product payment is complete. Delivery fee will be calculated separately. Our logistics team will contact you on ${safePhone || 'your phone / WhatsApp'} with the actual delivery fee before dispatch.`
+          body: `Your product payment is complete. Delivery fee will be calculated separately. Our logistics team will email ${safeEmail || 'you'} a delivery-fee quote to review and pay directly on this page before dispatch.`
         }
       : {
           title: 'International shipping — quote required',
@@ -257,7 +257,7 @@ export class OrderConfirmationPage {
     const nextSteps = isNigeria
       ? [
           { t: 'Check your email', d: `Your receipt for order ${safeOrderNumber} is on its way to ${safeEmail || 'your inbox'}.` },
-          { t: 'Expect our delivery-fee call', d: 'Our logistics team will contact you with the actual delivery fee before dispatch.' },
+          { t: 'Watch for your delivery-fee quote', d: 'We will email your delivery fee as soon as it is confirmed — accept and pay it right here on this page.' },
           { t: 'Track progress here', d: 'Revisit this receipt anytime with your secure link to see delivery updates.' }
         ]
       : [
@@ -401,11 +401,17 @@ export class OrderConfirmationPage {
           </div>
         </div>
 
-        <!-- Explicit logistics notice (verbatim C20.8 copy, mobile stacked card) -->
-        <div class="oc-notice-box ${isNigeria ? 'is-nigeria' : 'is-international'}" id="confirmed-shipping-notice" role="note" aria-label="${escapeHtml(shippingNotice.title)}">
-          <div class="oc-notice-title">${escapeHtml(shippingNotice.title)}</div>
-          <p class="oc-notice-body">${shippingNotice.body}</p>
-        </div>
+        <!-- Explicit logistics notice (verbatim C20.8 copy, mobile stacked card).
+             Nigeria orders skip this static box: the state-aware status rows +
+             NigeriaShippingCard below already cover the full quote/payment
+             lifecycle accurately, so a second static notice would go stale
+             (e.g. still say "fee calculated separately" after it's been paid). -->
+        ${!isNigeria ? `
+          <div class="oc-notice-box is-international" id="confirmed-shipping-notice" role="note" aria-label="${escapeHtml(shippingNotice.title)}">
+            <div class="oc-notice-title">${escapeHtml(shippingNotice.title)}</div>
+            <p class="oc-notice-body">${shippingNotice.body}</p>
+          </div>
+        ` : ''}
 
         <!-- Specific Shipping Messages (Nigeria vs International) -->
         ${isNigeria ? `

@@ -95,6 +95,7 @@ const BASE_STYLES = `
   .items-table td { padding: 10px 0; font-family: ${FONT_SANS}; font-size: 14px; border-bottom: 1px solid ${COLORS.borderSoft};
                      color: ${COLORS.ink}; vertical-align: top; word-break: break-word; }
   .order-number { font-family: 'SFMono-Regular', Consolas, monospace; font-weight: 600; word-break: break-all; overflow-wrap: anywhere; }
+  .kv-table { table-layout: fixed; width: 100%; }
 
   /* Mobile-first breakpoints: 320px / 360px / 390px / 430px before desktop widths */
   @media only screen and (max-width: 480px) {
@@ -104,10 +105,19 @@ const BASE_STYLES = `
     .footer { padding: 20px 16px !important; }
     .btn { display: block !important; width: 100% !important; box-sizing: border-box; text-align: center; }
     .items-table thead { display: none; }
-    .items-table td { display: block; width: 100% !important; box-sizing: border-box; border-bottom: none; padding: 4px 0; }
+    .items-table td { display: block; width: 100% !important; box-sizing: border-box; border-bottom: none; padding: 4px 0; text-align: left !important; }
     .items-table tr { display: block; padding: 12px 0; border-bottom: 1px solid ${COLORS.borderSoft}; }
     .items-table tr:last-child { border-bottom: none; }
-    .summary-row td { display: flex !important; justify-content: space-between; width: 100% !important; }
+    /* Key-value tables (order meta, quote/tracking facts): stack label above
+       value instead of squeezing both into narrow fixed columns. Only tr/td
+       are overridden to block (matching .items-table below) — forcing the
+       <table> element itself to display:block causes a rendering engine
+       quirk where it reverts to its intrinsic (colgroup-based) column
+       widths instead of respecting width:100%. */
+    .kv-table tr, .kv-table td { display: block !important; width: 100% !important; box-sizing: border-box; }
+    .kv-table td { text-align: left !important; padding: 2px 0 !important; }
+    .kv-table tr { padding-bottom: 10px; }
+    .kv-table tr:last-child { padding-bottom: 0; }
   }
 `;
 

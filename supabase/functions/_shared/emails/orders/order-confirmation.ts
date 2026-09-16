@@ -17,7 +17,7 @@ export function renderOrderConfirmation(order: OrderPayload) {
   const subject = `Order Confirmed · ${ref} · Slimky Hair`;
 
   const shippingNotice = nigeria
-    ? `Delivery fee is calculated separately. Our logistics team will contact you via WhatsApp / Phone at <strong>${escapeHtml(order.customer.phone || '')}</strong> with the delivery fee for ${escapeHtml(order.delivery.state || order.delivery.city)} before dispatch.`
+    ? `Delivery fee is calculated separately. Our logistics team will review your order for ${escapeHtml(order.delivery.state || order.delivery.city)} and email <strong>${escapeHtml(order.customer.email)}</strong> a shipping quote you can review and pay directly from your order page.`
     : `Shipping quote required. Slimky logistics will calculate international courier rates based on package weight and send the official quote to <strong>${escapeHtml(order.customer.email)}</strong>.`;
 
   const bodyHtml = `

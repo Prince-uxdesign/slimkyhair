@@ -425,6 +425,15 @@ class AccountOrdersController {
           <div id="shipping-quote-card-mount"></div>
         </div>
       ` : ''}
+
+      <!-- C20.10: Separated Product Payment / Delivery status + Quote & Pay Card (Nigeria) -->
+      ${!isInternational ? `
+        <div class="order-detail-card" style="margin-bottom: 24px;">
+          <h3 class="order-detail-card-title">Delivery Status</h3>
+          ${renderNigeriaStatusRows(order)}
+          <div id="ng-shipping-card-mount"></div>
+        </div>
+      ` : ''}
     `;
 
     document.querySelector('#btn-back-to-orders')?.addEventListener('click', () => {
@@ -439,6 +448,16 @@ class AccountOrdersController {
         onUpdate: (updatedOrder) => this.renderOrderDetail(updatedOrder.id)
       });
       quoteCard.render();
+    }
+
+    const ngShippingMount = this.appMount.querySelector('#ng-shipping-card-mount');
+    if (ngShippingMount) {
+      const ngCard = new NigeriaShippingCard({
+        mountElement: ngShippingMount,
+        order,
+        onUpdate: (updatedOrder) => this.renderOrderDetail(updatedOrder.id)
+      });
+      ngCard.render();
     }
   }
 

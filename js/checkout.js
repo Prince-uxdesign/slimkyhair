@@ -883,7 +883,7 @@ export class CheckoutPage {
 
     if (this.shippingNoteEl) {
       this.shippingNoteEl.textContent = isNigeria
-        ? 'The product total is what you will pay through the product payment flow. After payment is verified, Slimky will contact you directly with the delivery fee.'
+        ? 'The product total is what you will pay through the product payment flow. After payment is verified, Slimky will email you a delivery fee quote to review and pay directly from your order page.'
         : 'Shipping quote required. The customer pays for the products first. The shipping amount is handled separately after Slimky obtains the actual shipping quote.';
     }
 
@@ -1611,7 +1611,7 @@ export class CheckoutPage {
             <div class="checkout-shipping-separate-alert">
               <strong class="checkout-shipping-alert-title">Shipping Fee Notice (Calculated Separately)</strong>
               <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
-                The product total above (<strong style="display: inline; font-weight: 700; white-space: nowrap;">${session.pricing.productPaymentTotalFormatted}</strong>) is what you will pay through the product payment flow. Slimky does not add automated or estimated shipping fees online. After payment is verified, our logistics team contacts you directly via Phone / WhatsApp with your exact delivery fee based on your location in ${session.delivery.state}.
+                The product total above (<strong style="display: inline; font-weight: 700; white-space: nowrap;">${session.pricing.productPaymentTotalFormatted}</strong>) is what you will pay through the product payment flow. Slimky does not add automated or estimated shipping fees online. After payment is verified, our logistics team reviews your order and emails you an exact delivery fee quote for your location in ${session.delivery.state}, which you review and pay directly from your order page.
               </p>
             </div>
           ` : `
@@ -1973,9 +1973,9 @@ export class CheckoutPage {
           <!-- 3. Callout Box (Logistics & Delivery Fee Follow-Up) -->
           ${isNigeria ? `
             <div class="checkout-confirmed-callout">
-              <span class="checkout-confirmed-callout-title">Logistics & Delivery Fee Follow-Up</span>
+              <span class="checkout-confirmed-callout-title">Delivery Fee Follow-Up</span>
               <div>
-                Your product order is placed. Our logistics team will contact you directly on <strong>${order.customer.phone}</strong> (via WhatsApp / Phone call) with your delivery fee for ${order.delivery.state} before dispatch.
+                Your product order is placed. Delivery fees for Nigeria are calculated separately — our logistics team will review your order for ${order.delivery.state} and email <strong>${order.customer.email}</strong> a shipping quote you can review and pay directly from your order page.
               </div>
             </div>
           ` : `

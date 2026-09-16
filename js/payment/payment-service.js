@@ -406,11 +406,12 @@ export class PaymentService {
           verifiedAt: verification.verifiedAt || new Date().toISOString()
         });
 
-        // Decoupled Status Invariant (Milestones C20.7 & C20.8):
-        // International flow: product paid, requires international shipping quotation.
-        // Nigeria flow: product paid, orderStatus marked 'paid'.
-        const isInternational = order.flow === 'international_checkout' || order.flow === 'international';
-        const targetOrderStatus = isInternational ? ORDER_STATUS.SHIPPING_QUOTE_REQUIRED : ORDER_STATUS.PAID;
+        // Decoupled Status Invariant (Milestones C20.7 - C20.10):
+        // Both flows now require a manual shipping quote before dispatch — the
+        // product payment settles here, but delivery/shipping fee is always
+        // calculated and paid separately. Never lands in PAID; goes straight
+        // to SHIPPING_QUOTE_REQUIRED for Nigeria and international alike.
+        const targetOrderStatus = ORDER_STATUS.SHIPPING_QUOTE_REQUIRED;
         order.pricing.totalPaid = order.pricing.productPaymentTotal;
         order.totalPaid = order.pricing.productPaymentTotal;
 

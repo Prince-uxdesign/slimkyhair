@@ -10,6 +10,7 @@ export const ORDER_STATUS_CONFIG = {
   shipping_quote_required: { label: 'Shipping Quote Required', class: 'status-quote' },
   shipping_quote_sent: { label: 'Shipping Quote Sent', class: 'status-quote' },
   shipping_payment_pending: { label: 'Shipping Payment Pending', class: 'status-pending' },
+  shipping_payment_confirmed: { label: 'Shipping Paid', class: 'status-paid' },
   ready_for_dispatch: { label: 'Ready for Dispatch', class: 'status-paid' },
   shipped: { label: 'Shipped', class: 'status-paid' },
   delivered: { label: 'Delivered', class: 'status-paid' },
@@ -133,14 +134,40 @@ export function getOrderShippingNotice(order) {
     (order.delivery?.country || '').toLowerCase() === 'nigeria';
 
   if (isNigeria) {
-    const hasShippingFee = !!(order.pricing?.shippingFee && order.pricing.shippingFee > 0);
+    const status = order.orderStatus;
+    const quote = order.shippingQuote;
+
+    if (status === 'shipping_quote_sent' && quote?.amount) {
+      return {
+        title: 'Nigeria Domestic Dispatch',
+        description: `A delivery fee of ${formatOrderNaira(quote.amount)} via ${quote.provider || 'your assigned courier'} is ready for your review and payment.`,
+        badge: 'Quote Sent',
+        isSeparate: true
+      };
+    }
+    if (status === 'shipping_payment_pending') {
+      return {
+        title: 'Nigeria Domestic Dispatch',
+        description: `Delivery fee of ${formatOrderNaira(quote?.amount || 0)} accepted. Complete your shipping payment to proceed to dispatch.`,
+        badge: 'Payment Pending',
+        isSeparate: true
+      };
+    }
+    if (['shipping_payment_confirmed', 'ready_for_dispatch', 'shipped', 'delivered'].includes(status)) {
+      const paidAmount = order.shippingPayment?.amount || quote?.amount || 0;
+      return {
+        title: 'Nigeria Domestic Dispatch',
+        description: `Delivery fee of ${formatOrderNaira(paidAmount)} paid in full.`,
+        badge: 'Shipping Paid',
+        isSeparate: false
+      };
+    }
+
     return {
       title: 'Nigeria Domestic Dispatch',
-      description: hasShippingFee 
-        ? `Delivery fee of ${formatOrderNaira(order.pricing.shippingFee)} included in payment total.`
-        : 'Courier delivery fee may be separate or collected upon delivery coordination depending on local dispatch route.',
-      badge: 'Domestic',
-      isSeparate: !hasShippingFee
+      description: 'Your delivery fee is calculated separately. We will send you a shipping quote shortly.',
+      badge: 'Quote Required',
+      isSeparate: true
     };
   } else {
     const destinationCountry = order.delivery?.country || 'International Destination';

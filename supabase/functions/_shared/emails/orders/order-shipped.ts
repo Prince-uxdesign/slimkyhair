@@ -12,7 +12,7 @@ export function renderOrderShipped({ order, tracking }: { order: OrderPayload; t
     ${heading('Your Order Has Shipped')}
     ${paragraph(`Dear ${escapeHtml(customerName)}, your order <strong>${escapeHtml(ref)}</strong> is now on its way to you.`)}
     <div class="card">
-      <table role="presentation" width="100%" style="table-layout: fixed; width: 100%; font-size: 13px; line-height: 1.7;"><colgroup><col style="width: 40%;"><col style="width: 60%;"></colgroup>
+      <table role="presentation" class="kv-table" width="100%" style="font-size: 13px; line-height: 1.7;"><colgroup><col style="width: 40%;"><col style="width: 60%;"></colgroup>
         <tr><td>Shipping Carrier:</td><td align="right" style="word-break: break-word; overflow-wrap: anywhere;">${escapeHtml(carrier)}</td></tr>
         <tr>
           <td>Tracking Number:</td>

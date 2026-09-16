@@ -74,18 +74,18 @@ export interface OrderSummaryFields {
 
 export function renderOrderSummary({ subtotal, shippingStatusLabel, totalPaid, currency = 'NGN' }: OrderSummaryFields): string {
   return `
-    <table role="presentation" width="100%" style="table-layout: fixed; width: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    <table role="presentation" class="kv-table" width="100%" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
            font-size: 13px; line-height: 1.6; border-top: 1px solid ${COLORS.border}; padding-top: 12px;">
       <colgroup><col style="width: 44%;"><col style="width: 56%;"></colgroup>
-      <tr class="summary-row">
+      <tr>
         <td>Product Subtotal:</td>
         <td align="right" style="font-weight: 500; word-break: break-word; overflow-wrap: anywhere;">${formatCurrency(subtotal, currency)}</td>
       </tr>
-      <tr class="summary-row">
+      <tr>
         <td>Shipping Status:</td>
         <td align="right" style="color: ${COLORS.inkSoft ?? '#4A423D'}; word-break: break-word; overflow-wrap: anywhere;">${escapeHtml(shippingStatusLabel)}</td>
       </tr>
-      <tr class="summary-row">
+      <tr>
         <td style="font-size: 15px; font-weight: 600; padding-top: 8px;">Total Paid:</td>
         <td align="right" style="font-size: 18px; font-weight: 600; color: ${COLORS.ink}; padding-top: 8px; word-break: break-word; overflow-wrap: anywhere;">
           ${formatCurrency(totalPaid, currency)}
@@ -103,7 +103,7 @@ export interface OrderMetaFields {
 
 export function renderOrderMetaCard({ orderNumber, orderDate, paymentStatusLabel, customerEmail }: OrderMetaFields): string {
   return `
-    <table role="presentation" width="100%" style="table-layout: fixed; width: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    <table role="presentation" class="kv-table" width="100%" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
            font-size: 13px; line-height: 1.7;">
       <colgroup><col style="width: 40%;"><col style="width: 60%;"></colgroup>
       <tr>
