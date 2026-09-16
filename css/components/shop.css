@@ -541,41 +541,6 @@
   gap: clamp(1rem, 2vw, 1.75rem);
 }
 
-/* Fallback card variant info & stock dot */
-.product-card-variant-info {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--space-xs);
-}
-
-.product-card-stock-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.product-card-stock-dot.stock-in {
-  background-color: #4A5D4E;
-}
-
-.product-card-stock-dot.stock-low {
-  background-color: #C27D38;
-}
-
-.product-card-stock-dot.stock-out {
-  background-color: #8F3B3B;
-}
-
-.product-card-wishlist.is-active {
-  color: #8F3B3B !important;
-}
-
-.product-card-wishlist.is-active svg {
-  fill: #8F3B3B !important;
-}
-
 /* Star Icons in cards */
 .star-icon {
   width: 14px;

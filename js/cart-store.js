@@ -22,7 +22,6 @@
  */
 
 import { CATALOG_PRODUCTS } from './catalog-data.js';
-import { DEMO_PRODUCTS } from './demo-cart-data.js';
 import {
   getDevValidationScenario,
   VALIDATION_SCENARIOS
@@ -33,8 +32,8 @@ import { trapOnElement, releaseTrapOnElement } from './focus-trap.js';
 export const STORAGE_KEY = 'slimky_hair_cart';
 export const FREE_SHIPPING_THRESHOLD = 50000; // ₦50,000
 
-// Combine production and isolated demo products for canonical lookup
-const ALL_CATALOG_SOURCES = [...CATALOG_PRODUCTS, ...DEMO_PRODUCTS];
+// Single canonical catalog product source of truth
+const ALL_CATALOG_SOURCES = CATALOG_PRODUCTS;
 
 /**
  * Generate a unique cart item identifier from product ID and variant ID.
@@ -627,6 +626,16 @@ export function decreaseQuantity(itemKeyOrId, step = 1) {
   if (!item) return getCart();
   const nextQty = item.quantity - Math.max(1, parseInt(step, 10) || 1);
   return setQuantity(itemKeyOrId, nextQty);
+}
+
+
+/**
+ * Check whether an item exists in the cart.
+ * @param {string} itemKeyOrId
+ * @returns {boolean}
+ */
+export function hasItem(itemKeyOrId) {
+  return !!getItem(itemKeyOrId);
 }
 
 /**

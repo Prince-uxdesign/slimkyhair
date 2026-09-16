@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Track Your Order | Slimky Hair</title>
+  <meta name="description" content="Track your Slimky Hair order status, delivery progress, and shipping quotes with your order reference and email.">
+  <link rel="canonical" href="https://slimkyhair.com/track-order/">
+  
+  <meta property="og:site_name" content="Slimky Hair">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" content="Track Your Order | Slimky Hair">
+  <meta property="og:description" content="Track your Slimky Hair order status, delivery progress, and shipping quotes with your order reference and email.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://slimkyhair.com/track-order/">
+  <meta property="og:image" content="https://slimkyhair.com/assets/og/og-default.jpg">
+  <meta property="og:image:secure_url" content="https://slimkyhair.com/assets/og/og-default.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Slimky Hair — Botanical Hair Science">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Track Your Order | Slimky Hair">
+  <meta name="twitter:description" content="Track your Slimky Hair order status, delivery progress, and shipping quotes with your order reference and email.">
+  <meta name="twitter:image" content="https://slimkyhair.com/assets/og/og-default.jpg">
+  <meta name="twitter:image:alt" content="Slimky Hair — Botanical Hair Science">
+
+  <!-- Favicon -->
+  <link rel="icon" href="favicon.ico">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+  <!-- Drawer Backdrop -->
+  <div class="drawer-backdrop" aria-hidden="true"></div>
+
+  <!-- Global Announcement Bar -->
+  <div class="announcement-bar" role="region" aria-label="Announcement">
+    <div class="container announcement-inner">
+      <span>Complimentary shipping across Nigeria on curated botanical orders above ₦50,000</span>
+    </div>
+  </div>
+
+  <!-- Global Header -->
+  <header class="site-header" id="site-header">
+    <div class="container header-inner">
+      
+      <!-- Brand Wordmark -->
+      <a href="./" class="header-brand" aria-label="Slimky Hair Home">
+        <span class="brand-title">SLIMKY HAIR</span>
+        <span class="brand-subtitle">Botanical Hair Science</span>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <nav class="nav-desktop" aria-label="Primary Navigation">
+        <a href="./" class="nav-link">Home</a>
+        <a href="shop/" class="nav-link">Shop</a>
+        <a href="about/" class="nav-link">About</a>
+        <a href="faq/" class="nav-link">FAQ</a>
+        <a href="track-order/" class="nav-link active" aria-current="page">Track Order</a>
+        <a href="contact/" class="nav-link">Contact</a>
+      </nav>
+
+      <!-- Utility Header Actions -->
+      <div class="header-actions">
+        <!-- Search Link -->
+        <a href="search/" class="btn-icon" aria-label="Search Formulations">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+          </svg>
+        </a>
+
+        <!-- Wishlist Link -->
+        <a href="wishlist/" class="btn-icon" aria-label="Wishlist">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+          </svg>
+          <span class="btn-icon-badge wishlist-count-badge" style="display: none;">0</span>
+        </a>
+
+        <!-- Cart Trigger -->
+        <button type="button" class="btn-icon trigger-cart" aria-label="Shopping Bag">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
+            <path d="M3 6h18"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          <span class="btn-icon-badge cart-count-val">0</span>
+        </button>
+
+        <!-- Mobile Hamburger Menu Button -->
+        <button type="button" class="btn-icon mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Open Navigation Menu" aria-expanded="false" aria-controls="mobile-drawer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <line x1="4" x2="20" y1="12" y2="12"/>
+            <line x1="4" x2="20" y1="6" y2="6"/>
+            <line x1="4" x2="20" y1="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <aside class="drawer drawer-left" id="mobile-drawer" aria-label="Mobile Navigation" aria-hidden="true">
+    <div class="drawer-header">
+      <div class="header-brand">
+        <span class="brand-title" style="font-size: 1.5rem;">SLIMKY HAIR</span>
+        <span class="brand-subtitle">African Botanical Science</span>
+      </div>
+      <button type="button" class="btn-icon" id="mobile-drawer-close" aria-label="Close Navigation">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M18 6 6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="drawer-body">
+      <nav class="mobile-nav-list">
+        <a href="./" class="mobile-nav-link">
+          <span>Home</span>
+          <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+        <a href="shop/" class="mobile-nav-link">
+          <span>Shop All</span>
+          <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+        <a href="track-order/" class="mobile-nav-link" style="color: var(--color-sage-dark); font-weight: 600;">
+          <span>Track Order</span>
+          <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+        <a href="about/" class="mobile-nav-link">
+          <span>Our Story & Science</span>
+          <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+        <a href="faq/" class="mobile-nav-link">
+          <span>Frequently Asked Questions</span>
+          <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+        <a href="contact/" class="mobile-nav-link">
+          <span>Concierge & Contact</span>
+          <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+      </nav>
+
+      <div class="mobile-nav-meta">
+        <a href="account/login/" class="mobile-nav-meta-link">
+          <svg style="width: 16px; height: 16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Account Sign In
+        </a>
+        <a href="wishlist/" class="mobile-nav-meta-link">
+          <svg style="width: 16px; height: 16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+          Saved Wishlist
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Cart Drawer Container -->
+  <aside class="drawer drawer-right" id="cart-drawer" aria-label="Shopping Bag Drawer" aria-hidden="true">
+    <div class="drawer-header">
+      <div class="drawer-title-wrap">
+        <h2 class="drawer-title">Your Shopping Bag</h2>
+        <span class="drawer-count cart-count-val">0</span>
+      </div>
+      <button type="button" class="btn-icon" id="cart-drawer-close" aria-label="Close Shopping Bag">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="drawer-body" id="cart-drawer-body"></div>
+    <div class="drawer-footer" id="cart-drawer-footer"></div>
+  </aside>
+
+  <!-- Main Content Landmark -->
+  <main class="track-order-main" id="main-content">
+    <div class="container track-order-container">
+      
+      <!-- Breadcrumbs -->
+      <nav aria-label="Breadcrumbs" class="checkout-breadcrumbs" style="margin-bottom: 24px;">
+        <a href="./">Home</a>
+        <span class="checkout-breadcrumbs-sep">/</span>
+        <span class="checkout-breadcrumbs-current">Track Order</span>
+      </nav>
+
+      <!-- Hero Header -->
+      <div class="track-order-hero">
+        <span class="track-order-eyebrow">Client Logistics Concierge</span>
+        <h1 class="track-order-title">Track Your Order</h1>
+        <p class="track-order-subtitle">
+          Enter your order reference number and the email address used during checkout to inspect preparation status, dispatch updates, and delivery notes.
+        </p>
+      </div>
+
+      <!-- Order Lookup Card -->
+      <div class="track-order-card">
+        <form class="track-order-form" id="track-order-form" novalidate>
+          <div class="track-order-form-grid">
+            <div class="track-order-field">
+              <label for="track-order-ref" class="track-order-label">Order Reference / Number *</label>
+              <input type="text" 
+                     id="track-order-ref" 
+                     name="orderRef" 
+                     class="track-order-input" 
+                     placeholder="e.g. SLM-202609-8492" 
+                     required 
+                     autocomplete="off" 
+                     aria-describedby="track-order-ref-hint">
+              <span id="track-order-ref-hint" class="track-order-hint">Found in your order confirmation screen or receipt.</span>
+            </div>
+
+            <div class="track-order-field">
+              <label for="track-order-email" class="track-order-label">Checkout Email Address *</label>
+              <input type="email" 
+                     id="track-order-email" 
+                     name="email" 
+                     class="track-order-input" 
+                     placeholder="e.g. yourname@example.com" 
+                     required 
+                     autocomplete="email" 
+                     aria-describedby="track-order-email-hint">
+              <span id="track-order-email-hint" class="track-order-hint">Must match the email address placed on the order.</span>
+            </div>
+          </div>
+
+          <button type="submit" class="track-order-btn" id="track-order-submit-btn">
+            <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.35-4.35"/>
+            </svg>
+            <span>Track Order</span>
+          </button>
+        </form>
+
+        <!-- Feedback & Error Mount -->
+        <div id="track-order-feedback" aria-live="polite"></div>
+
+        <!-- Result Container Mount -->
+        <div id="track-order-result"></div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="site-footer" id="contact">
+    <div class="container">
+      <div class="footer-grid">
+        
+        <!-- Brand Column -->
+        <div class="footer-col-brand">
+          <div class="footer-brand-title">Slimky Hair</div>
+          <div class="footer-brand-sub">Botanical Hair Science</div>
+          <p class="footer-brand-desc">
+            Thoughtfully formulated hair care grounded in African botanical heritage and clinical efficacy. Dedicated to nourishing healthy roots and flourishing natural textures worldwide.
+          </p>
+        </div>
+
+        <!-- Shop Column -->
+        <div class="footer-col">
+          <h3 class="footer-heading">Shop</h3>
+          <ul class="footer-links">
+            <li><a href="shop/" class="footer-link">Shop All</a></li>
+            <li><a href="category/hair-oils/" class="footer-link">Hair Oils</a></li>
+            <li><a href="category/shampoo/" class="footer-link">Shampoo</a></li>
+            <li><a href="category/conditioners/" class="footer-link">Conditioners</a></li>
+            <li><a href="category/hair-masks/" class="footer-link">Treatments</a></li>
+            <li><a href="category/styling-products/" class="footer-link">Styling</a></li>
+          </ul>
+        </div>
+
+        <!-- Customer Care Column -->
+        <div class="footer-col">
+          <h3 class="footer-heading">Customer Care</h3>
+          <ul class="footer-links">
+            <li><a href="track-order/" class="footer-link" style="color: var(--color-sage-light, #C2D1BF); font-weight: 600;">Track Order</a></li>
+            <li><a href="faq/" class="footer-link">FAQ</a></li>
+            <li><a href="mailto:care@slimkyhair.com" class="footer-link">Contact</a></li>
+            <li><a href="shipping/" class="footer-link">Shipping</a></li>
+            <li><a href="returns/" class="footer-link">Returns &amp; Refunds</a></li>
+          </ul>
+        </div>
+
+        <!-- Legal Column -->
+        <div class="footer-col">
+          <h3 class="footer-heading">Legal</h3>
+          <ul class="footer-links">
+            <li><a href="privacy/" target="_blank" rel="noopener noreferrer" class="footer-link">Privacy Policy</a></li>
+            <li><a href="terms/" target="_blank" rel="noopener noreferrer" class="footer-link">Terms &amp; Conditions</a></li>
+            <li><a href="cookies/" target="_blank" rel="noopener noreferrer" class="footer-link">Cookie Policy</a></li>
+            <li><a href="about/" class="footer-link">About Slimky Hair</a></li>
+          </ul>
+        </div>
+
+        <!-- Connect Column -->
+        <div class="footer-col">
+          <h3 class="footer-heading">Connect</h3>
+          <ul class="footer-links footer-socials">
+            <li>
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="footer-social-link" aria-label="Follow Slimky Hair on Instagram">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                <span>Instagram</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="footer-social-link" aria-label="Follow Slimky Hair on Facebook">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                <span>Facebook</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="footer-social-link" aria-label="Follow Slimky Hair on TikTok">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
+                <span>TikTok</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://wa.me" target="_blank" rel="noopener noreferrer" class="footer-social-link" aria-label="Chat with Slimky Hair on WhatsApp">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                <span>WhatsApp</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Bottom Bar -->
+      <div class="footer-bottom">
+        <div class="footer-copyright">
+          &copy; 2026 Slimky Hair Laboratories Ltd. All rights reserved. Thoughtfully formulated with botanical precision.
+        </div>
+        <div class="footer-legal-links">
+          <a href="privacy/" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+          <a href="terms/" target="_blank" rel="noopener noreferrer">Terms &amp; Conditions</a>
+          <a href="cookies/" target="_blank" rel="noopener noreferrer">Cookie Policy</a>
+          <a href="contact/">Accessibility</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Controller Script -->
+  <script type="module">
+    import { TrackOrderController } from './js/track-order-page.js';
+    document.addEventListener('DOMContentLoaded', () => {
+      new TrackOrderController({ rootPrefix: '' });
+    });
+  </script>
+</body>
+</html>

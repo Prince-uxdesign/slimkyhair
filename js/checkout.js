@@ -1785,11 +1785,10 @@ export class CheckoutPage {
   }
 
   handlePaymentRetry({ order, payment }) {
-    console.log('[Checkout] DemoPay Retry Attempt initialized for order:', order.id);
+    // Retry preserves order reference and increments attempts
   }
 
   handlePaymentCancel() {
-    console.log('[Checkout] DemoPay Cancelled by customer');
     // Ensure form view is visible and editable; shopping bag and customer inputs remain intact
     if (this.layoutContainer) this.layoutContainer.style.removeProperty('display');
     this.updateState(FORM_STATES.EDITING);

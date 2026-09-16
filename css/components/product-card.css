@@ -87,6 +87,15 @@
   stroke-width: 1.75;
 }
 
+.product-card-wishlist.is-active {
+  color: #8F3B3B;
+  background-color: var(--bg-surface);
+}
+
+.product-card-wishlist.is-active svg {
+  fill: currentColor;
+}
+
 /* Quick Add Action Container */
 .product-card-quickadd {
   margin-top: var(--space-sm);

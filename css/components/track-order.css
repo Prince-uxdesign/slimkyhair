@@ -1,0 +1,597 @@
+/**
+ * Track Order Page Styles - Slimky Hair
+ * Responsive, accessible, botanical luxury styling for Guest & Client Order Lookup
+ * 
+ * Strict solid color palette - Zero gradients.
+ */
+
+.track-order-main {
+  min-height: 75vh;
+  padding: 40px 0 80px 0;
+  background-color: var(--color-bg-primary, #FAF8F5);
+}
+
+.track-order-container {
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+/* Hero & Editorial Intro */
+.track-order-hero {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.track-order-eyebrow {
+  display: inline-block;
+  font-family: var(--font-sans, 'DM Sans', sans-serif);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-sage-dark, #2A3830);
+  background: var(--bg-sage, #EBEFE9);
+  padding: 4px 14px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+}
+
+.track-order-title {
+  font-family: var(--font-serif, 'Cormorant Garamond', Georgia, serif);
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 400;
+  color: var(--color-text-primary, #2A2421);
+  margin: 0 0 12px 0;
+  line-height: 1.15;
+}
+
+.track-order-subtitle {
+  font-size: 1rem;
+  color: var(--color-text-secondary, #6A625D);
+  max-width: 540px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Card Container */
+.track-order-card {
+  background: #FFFFFF;
+  border: 1px solid var(--color-border-subtle, #EAE5DF);
+  border-radius: 6px;
+  padding: 36px 32px;
+  box-shadow: 0 4px 20px rgba(42, 36, 33, 0.04);
+}
+
+/* Form Styles */
+.track-order-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.track-order-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.track-order-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.track-order-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #2A2421);
+  letter-spacing: 0.02em;
+}
+
+.track-order-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  font-family: var(--font-sans, 'DM Sans', sans-serif);
+  font-size: 0.9375rem;
+  color: var(--color-text-primary, #2A2421);
+  background: #FFFFFF;
+  border: 1px solid var(--color-border-subtle, #EAE5DF);
+  border-radius: 4px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.track-order-input:focus {
+  outline: none;
+  border-color: var(--color-sage-dark, #2A3830);
+  box-shadow: 0 0 0 3px rgba(42, 56, 48, 0.1);
+}
+
+.track-order-input::placeholder {
+  color: #9C948E;
+}
+
+.track-order-hint {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary, #6A625D);
+  line-height: 1.4;
+}
+
+.track-order-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 50px;
+  padding: 0 32px;
+  font-family: var(--font-sans, 'DM Sans', sans-serif);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: #FFFFFF;
+  background: var(--color-sage-dark, #2A3830);
+  border: 1px solid var(--color-sage-dark, #2A3830);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+  width: 100%;
+}
+
+.track-order-btn:hover:not(:disabled) {
+  background: #1F2B24;
+}
+
+.track-order-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Feedback / Alert Banners */
+.track-order-alert {
+  padding: 14px 18px;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.track-order-alert-error {
+  background: #FDF2F2;
+  border: 1px solid #F5C6CB;
+  color: #8F3B3B;
+}
+
+.track-order-alert-info {
+  background: var(--bg-sage, #EBEFE9);
+  border: 1px solid var(--color-sage-muted, #B9C6B5);
+  color: var(--color-sage-dark, #2A3830);
+}
+
+/* Result Section */
+.track-order-result {
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Header & Status Bar in Result */
+.track-result-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--color-border-subtle, #EAE5DF);
+  flex-wrap: wrap;
+}
+
+.track-result-number {
+  font-family: var(--font-serif, 'Cormorant Garamond', Georgia, serif);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #2A2421);
+  margin: 0 0 4px 0;
+}
+
+.track-result-date {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary, #6A625D);
+}
+
+.track-result-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Visual Timeline Tracker */
+.track-timeline-wrap {
+  padding: 24px 0 16px 0;
+}
+
+.track-timeline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  position: relative;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Connector Line behind steps */
+.track-timeline::before {
+  content: '';
+  position: absolute;
+  top: 16px;
+  left: 30px;
+  right: 30px;
+  height: 2px;
+  background: var(--color-border-subtle, #EAE5DF);
+  z-index: 1;
+}
+
+.track-timeline-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  padding: 0 4px;
+}
+
+.track-timeline-node {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 2px solid var(--color-border-subtle, #EAE5DF);
+  color: var(--color-text-secondary, #6A625D);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+}
+
+.track-timeline-step.is-done .track-timeline-node {
+  background: var(--color-sage-dark, #2A3830);
+  border-color: var(--color-sage-dark, #2A3830);
+  color: #FFFFFF;
+}
+
+.track-timeline-step.is-current .track-timeline-node {
+  background: #FFFFFF;
+  border-color: var(--color-sage-dark, #2A3830);
+  color: var(--color-sage-dark, #2A3830);
+  box-shadow: 0 0 0 4px rgba(42, 56, 48, 0.15);
+}
+
+.track-timeline-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #2A2421);
+  line-height: 1.3;
+}
+
+.track-timeline-step:not(.is-done):not(.is-current) .track-timeline-label {
+  color: #9C948E;
+}
+
+.track-timeline-sub {
+  font-size: 0.6875rem;
+  color: var(--color-text-secondary, #6A625D);
+  margin-top: 2px;
+}
+
+/* Shipping Notice Box */
+.track-shipping-box {
+  background: var(--color-bg-primary, #FAF8F5);
+  border: 1px solid var(--color-border-subtle, #EAE5DF);
+  border-radius: 6px;
+  padding: 20px;
+}
+
+.track-shipping-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.track-shipping-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #2A2421);
+  margin: 0;
+}
+
+.track-shipping-desc {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6A625D);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Item List */
+.track-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px 0;
+  border-top: 1px solid var(--color-border-subtle, #EAE5DF);
+  border-bottom: 1px solid var(--color-border-subtle, #EAE5DF);
+}
+
+.track-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.track-item-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.track-item-thumb {
+  width: 56px;
+  height: 56px;
+  border-radius: 4px;
+  background: var(--color-bg-primary, #FAF8F5);
+  border: 1px solid var(--color-border-subtle, #EAE5DF);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.track-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.track-item-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #2A2421);
+}
+
+.track-item-variant {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary, #6A625D);
+}
+
+.track-item-price {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #2A2421);
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Pricing Breakdown */
+.track-pricing-table {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 0;
+}
+
+.track-pricing-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6A625D);
+}
+
+.track-pricing-row.is-total {
+  padding-top: 10px;
+  border-top: 1px solid var(--color-border-subtle, #EAE5DF);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #2A2421);
+}
+
+.track-pricing-val {
+  font-weight: 600;
+  color: var(--color-text-primary, #2A2421);
+}
+
+/* Delivery & Customer Info */
+.track-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding-top: 16px;
+}
+
+.track-detail-col {
+  background: var(--color-bg-primary, #FAF8F5);
+  border: 1px solid var(--color-border-subtle, #EAE5DF);
+  border-radius: 4px;
+  padding: 16px;
+}
+
+.track-detail-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-secondary, #6A625D);
+  margin-bottom: 6px;
+}
+
+.track-detail-text {
+  font-size: 0.875rem;
+  color: var(--color-text-primary, #2A2421);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Assistance Footer */
+.track-help-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px;
+  background: #FFFFFF;
+  border: 1px solid var(--color-border-subtle, #EAE5DF);
+  border-radius: 6px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.track-help-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #2A2421);
+  margin: 0 0 2px 0;
+}
+
+.track-help-sub {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary, #6A625D);
+  margin: 0;
+}
+
+.track-whatsapp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #25D366;
+  color: #FFFFFF;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.track-whatsapp-btn:hover {
+  opacity: 0.9;
+}
+
+/* ==========================================================================
+   RESPONSIVE LOGIC: MOBILE & TABLET OPTIMIZATIONS
+   ========================================================================== */
+
+/* Tablet (max-width: 768px) */
+@media (max-width: 768px) {
+  .track-order-card {
+    padding: 28px 20px;
+  }
+
+  .track-order-hero {
+    margin-bottom: 24px;
+  }
+
+  .track-details-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .track-timeline::before {
+    left: 20px;
+    right: 20px;
+  }
+
+  .track-timeline-label {
+    font-size: 0.6875rem;
+  }
+}
+
+/* Mobile (max-width: 600px) */
+@media (max-width: 600px) {
+  .track-order-main {
+    padding: 24px 0 60px 0;
+  }
+
+  .track-order-card {
+    padding: 22px 16px;
+    border-radius: 4px;
+  }
+
+  .track-order-form-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .track-result-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .track-result-number {
+    font-size: 1.25rem;
+  }
+
+  /* Compact responsive timeline on mobile */
+  .track-timeline {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+    padding-left: 12px;
+  }
+
+  .track-timeline::before {
+    top: 10px;
+    bottom: 10px;
+    left: 28px;
+    right: auto;
+    width: 2px;
+    height: auto;
+  }
+
+  .track-timeline-step {
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    gap: 12px;
+    padding: 0;
+    width: 100%;
+  }
+
+  .track-timeline-node {
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+
+  .track-timeline-step-text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .track-item-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .track-item-price {
+    align-self: flex-end;
+  }
+
+  .track-help-bar {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .track-whatsapp-btn {
+    justify-content: center;
+  }
+}
