@@ -643,65 +643,24 @@
 /* ==========================================================================
    Authenticated Customer Navigation & Logged-In Indicator
    ========================================================================== */
-.nav-account-wrapper {
+.nav-account-link {
   position: relative;
-  display: inline-flex;
-  align-items: center;
-}
-
-/* Desktop Avatar & Greeting Pill */
-.nav-account-link.is-authenticated {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 12px 4px 5px;
-  border-radius: var(--radius-full, 9999px);
-  background-color: rgba(184, 150, 126, 0.12);
-  border: 1px solid rgba(184, 150, 126, 0.35);
   text-decoration: none;
-  color: var(--color-text-primary, #2C1E18);
-  transition: background-color var(--transition-fast, 150ms), border-color var(--transition-fast, 150ms), box-shadow var(--transition-fast, 150ms);
-  min-height: 38px;
-  cursor: pointer;
 }
 
-.nav-account-link.is-authenticated:hover,
-.nav-account-link.is-authenticated:focus-visible {
-  background-color: rgba(184, 150, 126, 0.22);
-  border-color: var(--color-brown-deep, #2C1E18);
-  box-shadow: 0 2px 8px rgba(44, 30, 24, 0.08);
-}
-
-/* Avatar Circle */
-.nav-account-avatar-circle {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: var(--color-brown-deep, #2C1E18);
-  color: #FAF8F5;
-  font-family: var(--font-sans);
-  font-size: 0.6875rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  flex-shrink: 0;
-  letter-spacing: 0.5px;
-}
-
-/* Vibrant Active Online Indicator Dot with Pulse */
-.nav-account-status-dot {
+/* Base Active Green Dot (positioned on icon for both desktop & mobile) */
+.nav-account-active-dot {
   position: absolute;
-  bottom: -1px;
-  right: -1px;
+  top: 6px;
+  right: 6px;
   width: 9px;
   height: 9px;
   border-radius: 50%;
   background-color: #2e7d32;
-  border: 2px solid #FAF8F5;
-  box-shadow: 0 0 6px rgba(46, 125, 50, 0.6);
+  border: 2px solid var(--bg-primary, #FAF8F5);
+  box-shadow: 0 0 6px rgba(46, 125, 50, 0.7);
   animation: slimkyStatusPulse 2.2s infinite ease-in-out;
+  pointer-events: none;
 }
 
 .nav-account-status-dot-inline {
@@ -711,7 +670,7 @@
   border-radius: 50%;
   background-color: #2e7d32;
   box-shadow: 0 0 4px rgba(46, 125, 50, 0.5);
-  margin-right: 5px;
+  margin-right: 6px;
   vertical-align: middle;
 }
 
@@ -730,139 +689,68 @@
   }
 }
 
-/* Greeting Label */
-.nav-account-greeting {
+/* Desktop Logged-In Pill State */
+.nav-account-link.is-authenticated {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  font-family: var(--font-sans);
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.nav-account-greeting-prefix {
-  color: var(--color-text-muted, #726258);
-  font-weight: 400;
-}
-
-.nav-account-greeting-name {
-  color: var(--color-brown-deep, #2C1E18);
-  font-weight: 600;
-  max-width: 95px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Desktop Hover/Focus Micro-Dropdown */
-.nav-account-dropdown {
-  position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
-  min-width: 230px;
-  background-color: var(--bg-surface, #FAF8F5);
-  border: 1px solid var(--color-border-subtle, #E6DFD5);
-  border-radius: var(--radius-sm, 6px);
-  box-shadow: 0 12px 28px rgba(34, 28, 24, 0.12);
-  padding: 10px 0;
-  z-index: 1000;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(6px);
-  transition: opacity var(--transition-fast, 150ms), transform var(--transition-fast, 150ms), visibility var(--transition-fast, 150ms);
-  pointer-events: none;
-}
-
-.nav-account-wrapper:hover .nav-account-dropdown,
-.nav-account-wrapper:focus-within .nav-account-dropdown {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-  pointer-events: auto;
-}
-
-.nav-account-dropdown-header {
-  padding: 6px 16px 10px;
-  border-bottom: 1px solid var(--color-border-subtle, #E6DFD5);
-}
-
-.nav-account-dropdown-status {
-  display: flex;
-  align-items: center;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #2e7d32;
-  margin-bottom: 3px;
-}
-
-.nav-account-dropdown-name {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-text-primary, #2C1E18);
-  line-height: 1.2;
-}
-
-.nav-account-dropdown-email {
-  display: block;
-  font-size: 0.75rem;
-  color: var(--color-text-muted, #726258);
-  margin-top: 2px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.nav-account-dropdown-links {
-  padding: 6px 0;
-}
-
-.nav-account-dropdown-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 16px;
-  font-size: 0.8125rem;
-  color: var(--color-text-primary, #2C1E18);
-  text-decoration: none;
-  transition: background-color var(--transition-fast, 150ms);
-}
-
-.nav-account-dropdown-item:hover,
-.nav-account-dropdown-item:focus-visible {
+  gap: 8px;
+  width: auto;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 14px 0 10px;
+  border-radius: var(--radius-full, 9999px);
   background-color: rgba(184, 150, 126, 0.12);
+  border: 1px solid rgba(184, 150, 126, 0.35);
+  color: var(--color-text-primary, #2C1E18);
+  transition: background-color var(--transition-fast, 150ms), border-color var(--transition-fast, 150ms);
+}
+
+.nav-account-link.is-authenticated:hover,
+.nav-account-link.is-authenticated:focus-visible {
+  background-color: rgba(184, 150, 126, 0.22);
+  border-color: var(--color-brown-deep, #2C1E18);
+}
+
+.nav-account-link.is-authenticated svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.nav-account-link.is-authenticated .nav-account-active-dot {
+  position: relative;
+  top: auto;
+  right: auto;
+  margin-left: -4px;
+}
+
+.nav-account-name {
+  font-family: var(--font-sans, 'DM Sans', sans-serif);
+  font-size: 0.8125rem;
+  font-weight: 600;
   color: var(--color-brown-deep, #2C1E18);
+  white-space: nowrap;
+  line-height: 1;
 }
 
-.nav-account-dropdown-footer {
-  padding: 6px 16px 2px;
-  border-top: 1px solid var(--color-border-subtle, #E6DFD5);
-  margin-top: 4px;
-}
-
-.nav-account-logout-btn {
-  width: 100%;
-  padding: 6px 10px;
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--color-text-muted, #726258);
-  background: transparent;
-  border: 1px solid var(--color-border-subtle, #E6DFD5);
-  border-radius: var(--radius-xs, 4px);
-  cursor: pointer;
-  text-align: center;
-  transition: all var(--transition-fast, 150ms);
-}
-
-.nav-account-logout-btn:hover {
-  color: #b71c1c;
-  border-color: #ef9a9a;
-  background-color: #ffebee;
+/* Mobile Responsiveness: compact 40x40 icon button on mobile/tablets */
+@media (max-width: 900px) {
+  .nav-account-link.is-authenticated {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 50%;
+  }
+  .nav-account-link.is-authenticated .nav-account-name {
+    display: none !important;
+  }
+  .nav-account-link.is-authenticated .nav-account-active-dot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    margin-left: 0;
+  }
 }
 
 /* Mobile Drawer Signed-In Card */
@@ -921,19 +809,4 @@
   font-size: 0.75rem;
   justify-content: center;
   text-decoration: none;
-}
-
-/* Ensure authenticated account button stays visible and compact on mobile headers */
-@media (max-width: 900px) {
-  .header-actions .nav-account-link.is-authenticated {
-    display: inline-flex !important;
-    padding: 3px;
-    gap: 0;
-  }
-  .header-actions .nav-account-link.is-authenticated .nav-account-greeting {
-    display: none;
-  }
-  .nav-account-dropdown {
-    display: none;
-  }
 }
