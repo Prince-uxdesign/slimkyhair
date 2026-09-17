@@ -15,6 +15,12 @@ We have successfully built the complete, unified e-commerce shopping experience 
   - Full INCI ingredient lists, benefits, specifications, usage steps, and community reviews.
   - 100% compliant cosmetic claims (zero unsupported medical/drug claims).
 - **[js/catalog-renderer.js](file:///Users/princeidoma/Desktop/Slimky%20Hair/js/catalog-renderer.js)**: Standardized card markup generator, dynamic star ratings, interactive wishlist heart persistence, and Quick Add button with immediate Cart Drawer sync.
+- **Logged-In Customer Session Indicator & Cross-Site Navigation**:
+  - Prominent visual state on desktop header: Circular avatar with initials (`CO`), vibrant pulsing emerald online session dot (`.nav-account-status-dot`), and personalized greeting pill (`Hi, Chioma`).
+  - Desktop hover/focus micro-dropdown displaying full customer name, email address, quick links (*My Dashboard*, *Order History*, *Saved Addresses*), and one-click *Sign Out*.
+  - Mobile header persistence and mobile slide-out drawer active customer card with status badge, full name, email, *My Account* button, and *Sign Out* button.
+  - Automatic cross-site synchronization across landing page (`/`), catalog (`/shop`), and customer account dashboard.
+  - Account dashboard top-right *"Explore Formulations"* and breadcrumbs link seamlessly back to the landing page shop section (`#essentials-collection`) with real-time session awareness.
 
 ### B. The Shop Page (`/shop`)
 - **Files**: [shop/index.html](file:///Users/princeidoma/Desktop/Slimky%20Hair/shop/index.html) & [shop.html](file:///Users/princeidoma/Desktop/Slimky%20Hair/shop.html).
