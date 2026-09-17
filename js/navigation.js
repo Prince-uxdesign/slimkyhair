@@ -304,19 +304,29 @@ export function syncAccountNavLinks(scope = document) {
         } else {
           link.classList.add('is-authenticated');
           link.classList.remove('is-guest');
+          if (link.style) {
+            link.style.width = 'auto';
+            link.style.whiteSpace = 'nowrap';
+            link.style.flexShrink = '0';
+          }
           link.innerHTML = `
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 18px; height: 18px; flex-shrink: 0;">
               <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
               <circle cx="12" cy="7" r="4"/>
             </svg>
             <span class="nav-account-active-dot" aria-label="Active session"></span>
-            <span class="nav-account-name">Hi, ${firstName}</span>
+            <span class="nav-account-name" style="white-space: nowrap !important; word-break: keep-all !important; display: inline !important;">Hi,&nbsp;${firstName}</span>
           `;
         }
       } else {
         // Guest / Logged out state
         link.classList.remove('is-authenticated');
         link.classList.add('is-guest');
+        if (link.style) {
+          link.style.width = '';
+          link.style.whiteSpace = '';
+          link.style.flexShrink = '';
+        }
         link.href = `${rootPrefix}account/login/`;
         link.setAttribute('aria-label', 'Sign In');
         link.setAttribute('title', 'Sign In');
