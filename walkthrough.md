@@ -16,9 +16,9 @@ We have successfully built the complete, unified e-commerce shopping experience 
   - 100% compliant cosmetic claims (zero unsupported medical/drug claims).
 - **[js/catalog-renderer.js](file:///Users/princeidoma/Desktop/Slimky%20Hair/js/catalog-renderer.js)**: Standardized card markup generator, dynamic star ratings, interactive wishlist heart persistence, and Quick Add button with immediate Cart Drawer sync.
 - **Logged-In Customer Session Indicator & Cross-Site Navigation**:
-  - Prominent visual state on desktop header: Circular avatar with initials (`CO`), vibrant pulsing emerald online session dot (`.nav-account-status-dot`), and personalized greeting pill (`Hi, Chioma`).
-  - Desktop hover/focus micro-dropdown displaying full customer name, email address, quick links (*My Dashboard*, *Order History*, *Saved Addresses*), and one-click *Sign Out*.
-  - Mobile header persistence and mobile slide-out drawer active customer card with status badge, full name, email, *My Account* button, and *Sign Out* button.
+  - Clean, luxury header account indicator on desktop: Displays user icon with vibrant pulsing emerald active dot (`.nav-account-active-dot`) and personalized greeting pill (`Hi, Chioma`) directly linking to `/account/`.
+  - Mobile header persistence: 40x40 icon button with active emerald online status dot.
+  - Mobile slide-out drawer active session card: Clearly displays full name (`Chioma Okonkwo`), email, and direct *My Account* & *Sign Out* buttons.
   - Automatic cross-site synchronization across landing page (`/`), catalog (`/shop`), and customer account dashboard.
   - Account dashboard top-right *"Explore Formulations"* and breadcrumbs link seamlessly back to the landing page shop section (`#essentials-collection`) with real-time session awareness.
 
