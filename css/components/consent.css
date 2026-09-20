@@ -354,14 +354,6 @@ body.has-consent-banner {
   }
 }
 
-@media (min-width: 1024px) {
-  .slimky-consent-banner {
-    left: 24px;
-    right: auto;
-    inset-inline: auto;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .slimky-switch .slimky-switch-knob {
     transition: none;
