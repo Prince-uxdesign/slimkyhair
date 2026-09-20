@@ -656,3 +656,92 @@ available).
   acceptable for the single-operator prototype, must be revisited with Supabase.
 - Full 7-viewport browser pass (360/390/430/768/1024/1280/1440) asserted
   statically here; re-run visually when Chrome is available.
+
+---
+
+# Phase A7 — Admin Customer Management
+
+`/admin/customers` (list) and `/admin/customers/?id=<id>` (detail; path form
+`/admin/customers/<id>/` also resolves where the host supports it) are built
+on the existing customer architecture. **No duplicate customer system was
+created**: `customerService` remains the only owner of accounts and address
+books, `OrderStore` the only owner of orders, `adminService` the only
+authorization barrier, and `js/admin/customers-admin.js` is pure query +
+presentation shared by both entry points through the one controller in
+`js/admin-page.js`.
+
+## Customer list
+- Name, email, phone, Registered/Guest badge, account status, registration
+  date, order count (+ settled spend), last order.
+- Search (name/email/phone, debounced), kind tabs (All/Registered/Guests with
+  live counts), status filter, 7 sorts (recent order, name A–Z/Z–A, most
+  orders, highest spend, newest/oldest account), pagination (10/page, clamped).
+- Table on desktop (columns collapse ≤1100px), cards ≤900px, stacked toolbar
+  ≤600px.
+
+## Customer detail
+- Profile (name, email, phone, account type, registered, orders, settled
+  spend, last order), order history newest-first with links into the admin
+  order views, saved addresses (registered only), account status badges.
+- A standing on-screen privacy note states credentials are never loaded here.
+- Unknown ids render an honest "Customer not found" state with a back link;
+  load failures render an error state with Try Again.
+
+## Guest customers
+- Registered history resolves by authoritative `customer_id` link only; guest
+  history by the guest email group (`guest:<email>` ids can never collide with
+  account ids). Same-email guest orders on a registered account surface in a
+  dedicated "Unlinked Guest Orders" section — counted nowhere, claimed never.
+  Claiming stays exclusively in the customer-driven conversion flow, which
+  requires the order's security token.
+
+## Order history
+- Every row links to the admin order surface (`?view=orders&order=<id>`), so
+  history stays accurate: line items are the order's own immutable snapshot,
+  unaffected by later catalogue edits (verified in A6).
+
+## Customer data security
+- Local layer: `listAllCustomers()` returns a sanitized projection (id, email,
+  name, phone, status, timestamps) — password hashes, reset tokens, session
+  tokens and the Supabase `authUserId` linkage never leave the store.
+  `getAdminCustomers()` / `getAdminCustomerAddresses()` throw without a valid
+  admin session; the controller never reads `slimky_customer_addresses`
+  directly and renders no secret values (asserted).
+- Supabase layer (migrations, reviewable but not yet applied to a live
+  project): `profiles` self-select own row only; admin customer/address/order
+  reads gated on `is_admin()`; role escalation blocked by
+  `prevent_client_role_change` trigger; payments and order items read-only to
+  the dashboard; no client DELETE on customers or orders.
+
+## Responsive behavior
+- Reuses the A6 primitives: sidebar on desktop, compact section nav
+  (now incl. Customers) ≤900px, ≥44px targets, `overflow-wrap: anywhere` on
+  emails/phones/names so long values never force horizontal overflow.
+
+## Validation — 55 checks, all passing
+Run: `node scratch/a7-core.mjs` (Node, no browser; in-memory storage;
+gitignored per repo convention, as with A6).
+
+| Area | Checks |
+|---|---|
+| Sanitized projection (no credential material) | 2 |
+| Rows: registered aggregates, guest groups, no auto-claim | 7 |
+| Search / filters / sorts / pagination | 11 |
+| Detail: profile, linked-only history, addresses, guest rules, links, no leaks | 8 |
+| Authorization (deny w/o session, bad password, logout, unknown customer) | 6 |
+| Empty + filtered-empty states | 3 |
+| RLS / server authorization (static on both migrations) | 7 |
+| Controller wiring (single system, routes, nav, error states, barrier-only reads) | 6 |
+| Responsive + route shell (static) | 5 |
+
+A6 suite re-run green (39/39) after the A7 controller changes.
+
+## Remaining issues
+- `?id=<id>` is the canonical shareable URL (what list links emit); the path
+  form needs a host rewrite on pure static hosting, same as orders.
+- RLS findings are statically verified against the migration SQL; a live
+  Supabase project does not exist yet, so policy behavior is NOT TESTABLE
+  end-to-end until provisioned (then: confirm anon cannot select customers,
+  one user cannot read another profile, admin read works, role self-grant fails).
+- Full 7-viewport browser pass asserted statically; re-run visually when
+  Chrome is available.

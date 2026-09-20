@@ -36,6 +36,15 @@ import {
 } from './admin/orders-admin.js';
 import { escapeHtml } from './utils/html-format.js';
 import {
+  buildCustomerRows,
+  queryCustomers,
+  buildCustomerDetail,
+  renderCustomerList,
+  renderCustomerDetail,
+  customerDetailHref,
+  DEFAULT_CUSTOMER_SORT
+} from './admin/customers-admin.js';
+import {
   renderDashboardOverview,
   renderDashboardLoading,
   renderDashboardError
@@ -44,9 +53,9 @@ import {
 export class AdminPage {
   constructor() {
     this.appContainer = document.querySelector('#admin-app');
-    // 'overview' | 'orders' | 'inventory'. The Overview dashboard (Phase A2) is
-    // the landing view; a ?view= query param still wins so deep links from the
-    // dashboard's own section actions land on the right screen.
+    // 'overview' | 'orders' | 'order-detail' | 'inventory' | 'customers' |
+    // 'customer-detail'. The Overview dashboard (Phase A2) is the landing view;
+    // a ?view= query param still wins so deep links land on the right screen.
     this.currentView = this.readViewFromUrl() || 'overview';
 
     // Dashboard Overview state (Phase A2)
@@ -71,6 +80,20 @@ export class AdminPage {
     // order: /admin/orders/<id>/ or /admin/orders/?order=<id>.
     this.detailOrderId = this.readOrderIdFromUrl();
 
+    // Customer list view state (Phase A7): kind tabs, status filter, search,
+    // sort and paging. Authorization + sanitization stay in
+    // adminService.getAdminCustomers() so there is exactly one barrier.
+    this.custSearch = '';
+    this.custKind = 'all';
+    this.custStatus = 'all';
+    this.custSort = DEFAULT_CUSTOMER_SORT;
+    this.custPage = 1;
+
+    // Customer detail route state (Phase A7). Set when the URL addresses a
+    // single customer: /admin/customers/<id>/ or /admin/customers/?id=<id>.
+    // Guest groups are addressed as `guest:<email>`.
+    this.detailCustomerId = this.readCustomerIdFromUrl();
+
     // Inventory View State (Milestone C20.12)
     this.inventorySearchQuery = '';
     this.inventoryAvailabilityFilter = 'all';
@@ -92,6 +115,10 @@ export class AdminPage {
       this.renderInventoryView(admin);
     } else if (this.currentView === 'order-detail') {
       this.renderOrderDetailView(admin);
+    } else if (this.currentView === 'customers') {
+      this.renderCustomersView(admin);
+    } else if (this.currentView === 'customer-detail') {
+      this.renderCustomerDetailView(admin);
     } else if (this.currentView === 'overview') {
       this.renderOverviewView(admin);
     } else {
@@ -126,7 +153,7 @@ export class AdminPage {
           <a href="${this.adminRoot()}inventory/" class="admin-nav-item ${this.currentView === 'inventory' ? 'is-active' : ''}" id="nav-inventory-link">
             <span>Inventory</span>
           </a>
-          <a href="#" class="admin-nav-item" onclick="return false;" style="opacity: 0.7;">
+          <a href="${this.adminRoot()}customers/" class="admin-nav-item ${this.currentView === 'customers' || this.currentView === 'customer-detail' ? 'is-active' : ''}" id="nav-customers-link">
             <span>Customers</span>
           </a>
           <a href="#" class="admin-nav-item" onclick="return false;" style="opacity: 0.7;">
@@ -145,6 +172,7 @@ export class AdminPage {
         <a href="${this.adminRoot()}" class="${this.currentView === 'overview' ? 'is-active' : ''}">Overview</a>
         <a href="${this.adminRoot()}orders/" class="${this.currentView === 'orders' || this.currentView === 'order-detail' ? 'is-active' : ''}">Orders</a>
         <a href="${this.adminRoot()}inventory/" class="${this.currentView === 'inventory' ? 'is-active' : ''}">Inventory</a>
+        <a href="${this.adminRoot()}customers/" class="${this.currentView === 'customers' || this.currentView === 'customer-detail' ? 'is-active' : ''}">Customers</a>
       </nav>
     `;
   }
@@ -170,6 +198,13 @@ export class AdminPage {
       e.preventDefault();
       this.currentView = 'inventory';
       this.syncUrlToView('inventory');
+      this.render();
+    });
+    document.querySelector('#nav-customers-link')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.currentView = 'customers';
+      this.detailCustomerId = null;
+      this.syncUrlToView('customers');
       this.render();
     });
   }
@@ -482,6 +517,196 @@ export class AdminPage {
     }
   }
 
+  /**
+   * Customer list — the /admin/customers/ route (Phase A7).
+   *
+   * Data comes through exactly one barrier: adminService.getAdminCustomers()
+   * (authorization + sanitized projection) joined with OrderStore.getAllOrders()
+   * for counts. customers-admin.js owns all selection/sort/pagination; this
+   * method owns shell chrome and events only.
+   *
+   * @param {Object} admin Authenticated admin session
+   */
+  renderCustomersView(admin) {
+    let body;
+    try {
+      const customers = adminService.getAdminCustomers(admin.token);
+      const orders = OrderStore.getAllOrders();
+      const rows = buildCustomerRows({ customers, orders });
+      const result = queryCustomers(rows, {
+        search: this.custSearch,
+        kind: this.custKind,
+        status: this.custStatus,
+        sort: this.custSort,
+        page: this.custPage
+      });
+      body = renderCustomerList(result, {
+        search: this.custSearch,
+        kind: this.custKind,
+        status: this.custStatus,
+        sort: this.custSort,
+        page: result.page
+      }, this.adminRoot());
+    } catch (err) {
+      console.error('[AdminPage] Customer list load failed:', err);
+      body = `
+        <div class="admin-card"><div class="admin-dash-empty" role="alert">
+          Something went wrong loading customers: ${escapeHtml(err.message)}
+          <div style="margin-top: 12px;">
+            <button type="button" id="admin-cust-retry" class="btn-admin btn-admin-outline btn-admin-sm">Try Again</button>
+          </div>
+        </div></div>`;
+    }
+
+    this.appContainer.innerHTML = `
+      <div class="admin-shell">
+        ${this.renderSidebarNav(OrderStore.getAllOrders().length)}
+        <div class="admin-main-wrapper">
+          <header class="admin-header" role="banner">
+            <div class="admin-header-title"><h2>Customer Management</h2></div>
+            <div class="admin-user-menu">
+              <div class="admin-user-pill">
+                <span class="admin-user-dot"></span>
+                <span>${escapeHtml(admin.fullName || admin.email)}</span>
+              </div>
+              <button type="button" id="admin-logout-btn" class="btn-admin btn-admin-outline btn-admin-sm">Sign Out</button>
+            </div>
+          </header>
+          <main class="admin-content" role="main">${body}</main>
+        </div>
+      </div>
+    `;
+
+    this.bindSidebarNavEvents();
+    document.querySelector('#admin-logout-btn')?.addEventListener('click', () => {
+      adminService.logoutAdmin();
+      this.render();
+    });
+    document.querySelector('#admin-cust-retry')?.addEventListener('click', () => this.render());
+
+    // Kind tabs
+    document.querySelectorAll('.admin-queue-tab[data-kind]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        this.custKind = e.currentTarget.dataset.kind;
+        this.custPage = 1;
+        this.render();
+      });
+    });
+
+    // Search (debounced so typing doesn't re-render per keystroke)
+    const searchInput = document.querySelector('#admin-cust-search');
+    let debounce = null;
+    searchInput?.addEventListener('input', (e) => {
+      clearTimeout(debounce);
+      const value = e.target.value;
+      debounce = setTimeout(() => {
+        this.custSearch = value;
+        this.custPage = 1;
+        this.render();
+        const refocused = document.querySelector('#admin-cust-search');
+        if (refocused) {
+          refocused.focus();
+          refocused.setSelectionRange(refocused.value.length, refocused.value.length);
+        }
+      }, 250);
+    });
+
+    document.querySelector('#admin-cust-status')?.addEventListener('change', (e) => {
+      this.custStatus = e.target.value;
+      this.custPage = 1;
+      this.render();
+    });
+    document.querySelector('#admin-cust-sort')?.addEventListener('change', (e) => {
+      this.custSort = e.target.value;
+      this.custPage = 1;
+      this.render();
+    });
+    document.querySelector('#admin-cust-prev')?.addEventListener('click', () => {
+      this.custPage = Math.max(1, this.custPage - 1);
+      this.render();
+    });
+    document.querySelector('#admin-cust-next')?.addEventListener('click', () => {
+      this.custPage = this.custPage + 1;
+      this.render();
+    });
+  }
+
+  /**
+   * Customer detail — the /admin/customers/<id>/ route (Phase A7).
+   *
+   * Registered history resolves by authoritative `customer_id` link only;
+   * guest history by the guest email group. Same-email guest orders on a
+   * registered account surface as explicitly unlinked context — never claimed.
+   * Addresses load through adminService.getAdminCustomerAddresses(), never
+   * straight from the store.
+   *
+   * @param {Object} admin Authenticated admin session
+   */
+  renderCustomerDetailView(admin) {
+    const customerId = this.detailCustomerId;
+    const listHref = `${this.adminRoot()}customers/`;
+    let body;
+
+    try {
+      const customers = adminService.getAdminCustomers(admin.token);
+      const orders = OrderStore.getAllOrders();
+      // Guests have no address book; only fetch for registered ids.
+      const addresses = customerId && !customerId.startsWith('guest:')
+        ? adminService.getAdminCustomerAddresses(customerId, admin.token)
+        : [];
+      const detail = customerId
+        ? buildCustomerDetail({ id: customerId, customers, orders, addresses })
+        : null;
+      body = detail
+        ? renderCustomerDetail(detail, this.adminRoot())
+        : `
+          <div class="admin-card"><div class="admin-dash-empty" role="status">
+            <h3 style="margin: 0 0 6px 0;">Customer not found</h3>
+            <p style="margin: 0 0 12px 0;">No customer matches
+              <code>${escapeHtml(customerId || '')}</code>. It may have been removed,
+              or the reference may be mistyped.</p>
+            <a href="${escapeHtml(listHref)}" class="btn-admin btn-admin-primary btn-admin-sm">Back to all customers</a>
+          </div></div>`;
+    } catch (err) {
+      console.error('[AdminPage] Customer detail load failed:', err);
+      body = `
+        <div class="admin-card"><div class="admin-dash-empty" role="alert">
+          Something went wrong loading this customer: ${escapeHtml(err.message)}
+          <div style="margin-top: 12px; display: flex; gap: 8px; justify-content: center;">
+            <button type="button" id="admin-cust-retry" class="btn-admin btn-admin-outline btn-admin-sm">Try Again</button>
+            <a href="${escapeHtml(listHref)}" class="btn-admin btn-admin-outline btn-admin-sm">All customers</a>
+          </div>
+        </div></div>`;
+    }
+
+    this.appContainer.innerHTML = `
+      <div class="admin-shell">
+        ${this.renderSidebarNav(OrderStore.getAllOrders().length)}
+        <div class="admin-main-wrapper">
+          <header class="admin-header" role="banner">
+            <div class="admin-header-title"><h2>Customer Detail</h2></div>
+            <div class="admin-user-menu">
+              <a href="${escapeHtml(listHref)}" class="btn-admin btn-admin-outline btn-admin-sm">&larr; All customers</a>
+              <div class="admin-user-pill">
+                <span class="admin-user-dot"></span>
+                <span>${escapeHtml(admin.fullName || admin.email)}</span>
+              </div>
+              <button type="button" id="admin-logout-btn" class="btn-admin btn-admin-outline btn-admin-sm">Sign Out</button>
+            </div>
+          </header>
+          <main class="admin-content" role="main">${body}</main>
+        </div>
+      </div>
+    `;
+
+    this.bindSidebarNavEvents();
+    document.querySelector('#admin-logout-btn')?.addEventListener('click', () => {
+      adminService.logoutAdmin();
+      window.location.href = this.adminRoot();
+    });
+    document.querySelector('#admin-cust-retry')?.addEventListener('click', () => this.render());
+  }
+
   renderTableRow(order) {
     const formattedDate = new Date(order.createdAt || Date.now()).toLocaleDateString('en-GB', {
       day: 'numeric',
@@ -678,6 +903,7 @@ export class AdminPage {
     const root = this.adminRoot();
     const target = view === 'inventory' ? `${root}inventory/`
       : view === 'orders' ? `${root}orders/`
+      : view === 'customers' ? `${root}customers/`
       : root;
     try {
       window.history.replaceState({}, '', target);
@@ -721,13 +947,50 @@ export class AdminPage {
     return null;
   }
 
+  /**
+   * Resolve the customer id addressed by the URL, if any.
+   *
+   * Two forms, mirroring the order route:
+   *   /admin/customers/<id>/    canonical path form
+   *   /admin/customers/?id=<id> query form — always works on static hosting.
+   * Guest groups travel as `guest:<email>`.
+   *
+   * @returns {string|null}
+   */
+  readCustomerIdFromUrl() {
+    if (typeof window === 'undefined') return null;
+
+    try {
+      const param = new URLSearchParams(window.location.search).get('id');
+      if (param) return param.trim();
+    } catch {
+      /* fall through to the path form */
+    }
+
+    try {
+      const segments = window.location.pathname.replace(/\/+$/, '').split('/').filter(Boolean);
+      const idx = segments.lastIndexOf('customers');
+      // A segment after "customers" that is not a file is a customer id.
+      if (idx !== -1 && segments[idx + 1] && !segments[idx + 1].includes('.')) {
+        return decodeURIComponent(segments[idx + 1]);
+      }
+    } catch {
+      return null;
+    }
+    return null;
+  }
+
   readViewFromUrl() {
     if (typeof window === 'undefined') return null;
-    const allowed = ['overview', 'orders', 'inventory'];
+    const allowed = ['overview', 'orders', 'inventory', 'customers'];
 
     // An addressed order is its own view, so a reload of /admin/orders/<id>/
     // lands back on that order rather than the list.
     if (this.readOrderIdFromUrl()) return 'order-detail';
+
+    // Same for a customer: /admin/customers/<id>/ or ?id=<id> (guest groups
+    // are `guest:<email>`) lands back on that customer rather than the list.
+    if (this.readCustomerIdFromUrl()) return 'customer-detail';
 
     // Path wins: /admin/inventory/ is a real directory with its own
     // index.html, matching this site's routing convention. The ?view= form is

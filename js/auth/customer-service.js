@@ -1105,6 +1105,32 @@ export class CustomerService {
   }
 
   /**
+   * List every registered customer record, stripped of any credential material.
+   *
+   * Read-only. Exists so the admin backoffice can count and profile the customer
+   * base without reaching into the storage key directly. Never returns password
+   * hashes, reset tokens, or session tokens — callers get profile fields only.
+   *
+   * Authorization is NOT performed here; callers in the backoffice must go
+   * through adminService, which owns the admin authorization barrier.
+   *
+   * @returns {Array<Object>} Sanitized customer records
+   */
+  listAllCustomers() {
+    const customers = readStorage(CUSTOMERS_STORAGE_KEY, []);
+    if (!Array.isArray(customers)) return [];
+    return customers.map(c => ({
+      id: c.id,
+      email: c.email,
+      fullName: c.fullName,
+      phone: c.phone,
+      status: c.status,
+      createdAt: c.createdAt,
+      updatedAt: c.updatedAt
+    }));
+  }
+
+  /**
    * Get all saved addresses for a customer.
    * @param {string} customerId
    * @returns {Array} List of addresses

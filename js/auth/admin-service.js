@@ -10,6 +10,7 @@
  */
 
 import { OrderStore } from '../payment/order-store.js';
+import { customerService } from './customer-service.js';
 
 const ADMIN_CREDENTIALS_KEY = 'slimky_admin_credentials';
 const ADMIN_ACTIVE_SESSION_KEY = 'slimky_admin_session';
@@ -217,6 +218,46 @@ export class AdminService {
     }
 
     return orders;
+  }
+
+  /**
+   * Retrieve every customer record for admin review (Phase A7).
+   *
+   * SECURITY ENFORCEMENT:
+   * - Throws unless the caller holds a verified admin session, matching the
+   *   barrier getAdminOrders() already applies to order data.
+   * - Returns customerService's sanitized projection: id, email, full name,
+   *   phone, status and timestamps. Credentials are not part of a customer
+   *   record in the first place (see registerCustomer), and session tokens,
+   *   password-reset tokens and the Supabase `authUserId` linkage live in
+   *   separate stores that this path never reads.
+   *
+   * @param {string} [token]
+   * @returns {Array<Object>} Sanitized customer records
+   */
+  getAdminCustomers(token = null) {
+    if (!this.isAdminAuthorized(token)) {
+      throw new Error('Unauthorized: Admin credentials required to access customer records.');
+    }
+    return customerService.listAllCustomers();
+  }
+
+  /**
+   * Retrieve one registered customer's saved addresses for admin support.
+   *
+   * Addresses are delivery PII, so they sit behind the same barrier rather
+   * than being read straight from the store by the view.
+   *
+   * @param {string} customerId
+   * @param {string} [token]
+   * @returns {Array<Object>}
+   */
+  getAdminCustomerAddresses(customerId, token = null) {
+    if (!this.isAdminAuthorized(token)) {
+      throw new Error('Unauthorized: Admin credentials required to access customer addresses.');
+    }
+    if (!customerId) return [];
+    return customerService.getAddresses(customerId);
   }
 
   /**
