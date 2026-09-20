@@ -6,6 +6,8 @@
  * transition validators, and data structures for provider-agnostic processing.
  */
 
+import { getSetting } from '../admin/settings-service.js';
+
 // 1. Payment Status Enum (Strictly independent from Order Status)
 export const PAYMENT_STATUS = Object.freeze({
   PENDING: 'pending',
@@ -149,6 +151,10 @@ export function generateOrderId() {
 /**
  * Generate a human-friendly customer reference number.
  * Example: SLM-20260911-A8F2
+ *
+ * The prefix is operational configuration (Phase A9: order_number_prefix),
+ * sanitized to letters/digits with an SLM fallback so a corrupt stored value
+ * can never produce a malformed reference.
  * @returns {string}
  */
 export function generateOrderNumber() {
@@ -158,7 +164,9 @@ export function generateOrderNumber() {
   for (let i = 0; i < 4; i++) {
     rand += chars.charAt(Math.floor(Math.random() * chars.length));
   }
-  return `SLM-${dateStr}-${rand}`;
+  const raw = String(getSetting('order_number_prefix') || 'SLM').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+  const prefix = raw || 'SLM';
+  return `${prefix}-${dateStr}-${rand}`;
 }
 
 /**

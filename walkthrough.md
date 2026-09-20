@@ -832,3 +832,84 @@ A6 (39/39) and A7 (55/55) suites re-run green after the A8 changes.
   any future layout change degrades to leaving the static bars untouched.
 - Full 7-viewport browser pass asserted statically; re-run visually when
   Chrome is available.
+
+---
+
+# Phase A9 — Admin Settings
+
+`/admin/settings/` centralizes operational configuration that was previously
+scattered (and twice wrong). **No setting without a real consumer was
+created**, and no hardcoded business value was duplicated.
+
+## Settings implemented
+- **Store & Contact** (editable): store name, support email, support phone
+  display, WhatsApp digits, support hours. Canonical values: `Slimky Hair`,
+  `care@slimkyhair.com`, `+234 816 910 4565` / `2348169104565`,
+  `Monday–Saturday, 9:00 AM–6:00 PM WAT`.
+- **Orders & Inventory**: order-number prefix (live in `generateOrderNumber()`,
+  sanitized with SLM fallback) plus the low-stock threshold — edited strictly
+  through the existing inventory writer, never stored twice.
+- **Products**: read-only card naming `validateProduct()` as the sole
+  compliance owner. No runtime product knobs exist; inventing any would
+  violate the no-decoration rule.
+- **Notifications**: read-only pipeline status (support reply-to, endpoint
+  configured?, recent dispatch attempts). Sender identity and API keys stay
+  in Edge Function runtime env — the screen states this explicitly.
+- **Admin Profile**: display-name edit; email/role/credential fields are
+  ignored even when submitted, so roles can never change via form.
+
+## Database/config changes
+- New `js/admin/settings-service.js` (dependency-free, like product-model):
+  definitions with consumers named, validation, normalization, atomic saves,
+  secret-pattern refusal; storage `slimky_admin_settings` mirroring the
+  `admin_settings` table shape.
+- `adminService` gains `getAdminSettings` / `updateAdminSettings` (barrier)
+  and `updateAdminProfile` (name-only). Consumers rewired: contact WhatsApp
+  links, track-order help link (was a dead `2348000000000` placeholder),
+  order prefix, sidebar brand.
+- Uncommitted migration seeds aligned (this branch includes that file):
+  `support_email → care@slimkyhair.com`, `low_stock_threshold 10 → 8`
+  (matches the code default), plus WhatsApp/hours/prefix keys. `base_currency`
+  stays a server constant — a switchable currency with no converter or
+  multi-currency ledger would be decoration. Legal pages keep their static
+  contacts (versioned documents, not operational config).
+
+## Security findings
+- Track-order WhatsApp link pointed at a placeholder number (dead end for
+  customers needing help) — fixed via centralized setting.
+- No secrets exist browser-side: service holds no env access, defs hold no
+  key fields, `saveSettings` refuses secret-like keys, profile ignores
+  role/credential fields, RLS migration keeps role assignment server-side.
+- All settings reads/writes behind the admin session barrier; pre-logout and
+  forged sessions verified refused.
+
+## Fixes
+1. Test-only: own code comment tripped the placeholder assertion — reworded,
+   retested green. No product-code failures in A9 validation.
+
+## Validation — 47 checks, all passing
+Run: `node scratch/a9-core.mjs` (Node, no browser; gitignored per convention).
+
+| Area | Checks |
+|---|---|
+| Reading (defaults, unknown keys, consumers named) | 3 |
+| Edit/save/persist/normalize/audit/refresh | 4 |
+| Validation (6 field rejections, atomicity, unknown + 4 secret keys) | 12 |
+| Threshold delegation honesty | 2 |
+| Unauthorized access (read/write/profile/logout) | 6 |
+| Profile (update, role immunity, bad names) | 3 |
+| Consumer wiring (prefix default/override/corrupt, WhatsApp ×3, placeholder gone) | 7 |
+| Secret protection (static) | 4 |
+| View/route/responsive wiring (static) | 3 |
+| Migration seed alignment (static) | 1 |
+
+A6 (39/39), A7 (55/55), A8 (53/53) re-run green after the A9 changes.
+
+## Remaining issues
+- Full 7-viewport browser pass asserted statically (360/390/430/768/1024/1280/1440
+  all reuse stacking primitives; no new layout modes introduced); re-run
+  visually when Chrome is available.
+- Password rotation stays out of scope (shared seed credential; belongs to
+  Supabase Auth at migration).
+- Legal-page contact blocks remain static by design; if counsel ever requires
+  them dynamic, that is a separate versioned-documents phase.

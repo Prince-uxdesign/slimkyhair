@@ -11,6 +11,7 @@
 
 import { OrderStore } from '../payment/order-store.js';
 import { customerService } from './customer-service.js';
+import { SETTING_DEFS, getAllSettings, saveSettings } from '../admin/settings-service.js';
 
 const ADMIN_CREDENTIALS_KEY = 'slimky_admin_credentials';
 const ADMIN_ACTIVE_SESSION_KEY = 'slimky_admin_session';
@@ -269,6 +270,75 @@ export class AdminService {
       localStorage.removeItem(ADMIN_SESSIONS_REGISTRY_KEY);
       this.initDefaultAdmin();
     }
+  }
+
+  /**
+   * Read backoffice settings for the settings screen (Phase A9).
+   * Throws unless the caller holds a verified admin session.
+   * @param {string} [token]
+   * @returns {{definitions: Array, values: Object}}
+   */
+  getAdminSettings(token = null) {
+    if (!this.isAdminAuthorized(token)) {
+      throw new Error('Unauthorized: Admin credentials required to access store settings.');
+    }
+    return { definitions: SETTING_DEFS, values: getAllSettings() };
+  }
+
+  /**
+   * Validate + persist a settings patch (Phase A9). Secret-like keys and
+   * invalid values are refused by the settings service; nothing is written
+   * unless every entry passes.
+   * @param {Object} patch
+   * @param {string} [token]
+   * @returns {{success: boolean, errors?: Object, saved?: Object}}
+   */
+  updateAdminSettings(patch = {}, token = null) {
+    if (!this.isAdminAuthorized(token)) {
+      throw new Error('Unauthorized: Admin credentials required to change store settings.');
+    }
+    const admin = this.getCurrentAdmin();
+    return saveSettings(patch, { actorEmail: admin?.email || 'admin' });
+  }
+
+  /**
+   * Update the signed-in admin's own display profile (Phase A9).
+   *
+   * Only `fullName` is writable. `role`, `email`, `id` and credential
+   * material are explicitly ignored even if submitted, so authorization can
+   * never be escalated through this form. Password rotation is intentionally
+   * out of scope here: this prototype stores a shared seed credential, and
+   * real rotation belongs to Supabase Auth, not a localStorage form.
+   *
+   * @param {Object} profile {fullName}
+   * @param {string} [token]
+   * @returns {{success: boolean, admin?: Object, error?: string}}
+   */
+  updateAdminProfile(profile = {}, token = null) {
+    if (!this.isAdminAuthorized(token)) {
+      throw new Error('Unauthorized: Admin credentials required to update admin profile.');
+    }
+    const fullName = String(profile.fullName || '').trim();
+    if (fullName.length < 2 || fullName.length > 80) {
+      return { success: false, error: 'Display name must be 2–80 characters.' };
+    }
+
+    const credentials = readStorage(ADMIN_CREDENTIALS_KEY, null);
+    if (credentials) {
+      credentials.fullName = fullName; // role/email/passwordHash untouched by construction
+      writeStorage(ADMIN_CREDENTIALS_KEY, credentials);
+    }
+
+    const active = readStorage(ADMIN_ACTIVE_SESSION_KEY, null);
+    const registry = readStorage(ADMIN_SESSIONS_REGISTRY_KEY, {});
+    if (active?.token && registry[active.token]) {
+      registry[active.token].fullName = fullName;
+      active.fullName = fullName;
+      writeStorage(ADMIN_SESSIONS_REGISTRY_KEY, registry);
+      writeStorage(ADMIN_ACTIVE_SESSION_KEY, active);
+    }
+
+    return { success: true, admin: this.getCurrentAdmin() };
   }
 }
 

@@ -12,10 +12,30 @@
  */
 
 import { isValidEmail } from './utils/validators.js';
+import { getSetting } from './admin/settings-service.js';
 
+// Phase A9: operational contact numbers resolve through settings (stored
+// overrides) with the official values below as fallback defaults, so the
+// contact surface keeps working even before an admin ever opens /admin/settings.
 export const SLIMKY_WHATSAPP_NUMBER = '2348169104565';
 export const SLIMKY_DISPLAY_PHONE = '+234 816 910 4565';
 export const SLIMKY_TEL_URI = 'tel:+2348169104565';
+
+/** Live WhatsApp destination digits (settings override or official fallback). */
+export function getWhatsAppNumber() {
+  const digits = String(getSetting('whatsapp_number') || '').replace(/\D/g, '');
+  return digits || SLIMKY_WHATSAPP_NUMBER;
+}
+
+/** Live display phone (settings override or official fallback). */
+export function getDisplayPhone() {
+  return getSetting('support_phone_display') || SLIMKY_DISPLAY_PHONE;
+}
+
+/** Live tel: link matching the display number. */
+export function getTelUri() {
+  return `tel:+${getWhatsAppNumber()}`;
+}
 
 /**
  * Cleanly formats the WhatsApp inquiry message from user input.
@@ -74,7 +94,7 @@ export function formatWhatsAppInquiryMessage(formData) {
  */
 export function buildWhatsAppInquiryUrl(formData) {
   const messageText = formatWhatsAppInquiryMessage(formData);
-  return `https://wa.me/${SLIMKY_WHATSAPP_NUMBER}?text=${encodeURIComponent(messageText)}`;
+  return `https://wa.me/${getWhatsAppNumber()}?text=${encodeURIComponent(messageText)}`;
 }
 
 // Browser Controller
