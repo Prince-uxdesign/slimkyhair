@@ -426,6 +426,8 @@ a.legal-contact-val {
   display: inline-block;
   margin-top: 3px;
   color: var(--color-brown-deep);
+  max-width: 100%;
+  overflow-wrap: break-word;
 }
 
 /* Responsiveness */
@@ -442,7 +444,7 @@ a.legal-contact-val {
 
 @media (max-width: 834px) {
   .legal-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-xl);
   }
 
@@ -455,7 +457,7 @@ a.legal-contact-val {
   }
 
   .legal-cookie-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -466,5 +468,12 @@ a.legal-contact-val {
 
   .legal-content-body {
     padding: var(--space-xl) var(--space-md);
+  }
+
+  .legal-section-body .btn {
+    display: flex;
+    width: 100%;
+    white-space: normal;
+    text-align: center;
   }
 }
