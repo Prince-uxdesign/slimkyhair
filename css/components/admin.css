@@ -2598,3 +2598,112 @@ input.admin-stock-input,
     display: flex;
   }
 }
+
+/* ============================================================================
+   Analytics (Phase A10)
+   Reuses dashboard sections, metric cards, tables and cards; only the range
+   toolbar and the SVG trend need dedicated rules.
+   ========================================================================== */
+
+.admin-an-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.admin-an-ranges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-an-custom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-an-date {
+  height: 44px;
+  width: auto;
+}
+
+.admin-an-chart-wrap {
+  min-width: 0;
+}
+
+.admin-an-chart {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.admin-an-bar {
+  fill: var(--admin-brand-brown);
+  opacity: 0.85;
+}
+
+.admin-an-line {
+  stroke: #8F3B3B;
+  stroke-width: 2;
+}
+
+.admin-an-dot {
+  fill: #8F3B3B;
+}
+
+.admin-an-grid {
+  stroke: var(--admin-border-subtle);
+  stroke-width: 1;
+}
+
+.admin-an-tick {
+  font-size: 11px;
+  fill: var(--admin-text-muted);
+}
+
+.admin-an-legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 0.75rem;
+  color: var(--admin-text-muted);
+  margin-top: 8px;
+}
+
+.admin-an-swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  margin-right: 6px;
+  vertical-align: baseline;
+}
+
+.admin-an-swatch.is-bar {
+  background: var(--admin-brand-brown);
+  opacity: 0.85;
+}
+
+.admin-an-swatch.is-line {
+  background: #8F3B3B;
+  border-radius: 50%;
+}
+
+@media (max-width: 600px) {
+  .admin-an-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .admin-an-custom {
+    width: 100%;
+  }
+  .admin-an-date {
+    flex: 1;
+    min-width: 0;
+  }
+}
