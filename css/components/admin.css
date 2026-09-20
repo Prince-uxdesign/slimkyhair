@@ -523,6 +523,11 @@ input.admin-search-input,
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.25s ease, visibility 0.25s ease;
+  /* A12: contain the closed off-canvas drawer (translateX(100%)) so it never
+     expands page scroll. The drawer body scrolls internally
+     (.admin-modal-body overflow-y), so the backdrop itself never needs to
+     scroll — this is containment, not an overflow-x:hidden band-aid. */
+  overflow: clip;
 }
 
 .admin-modal-backdrop.is-open {
@@ -699,9 +704,15 @@ input.admin-stock-input,
   .admin-sidebar {
     display: none;
   }
-  /* Phase A6 §10: compact section nav for phones/tablets (sidebar is hidden) */
+  /* A12: the mobile nav is a flex child of .admin-shell alongside the main
+     column. Without wrapping it competes for row space and squeezes main
+     off-screen. On small screens the nav takes its own full row. */
+  .admin-shell {
+    flex-wrap: wrap;
+  }
   .admin-mobile-nav-inline {
     display: flex;
+    flex: 1 1 100%;
     gap: 8px;
     overflow-x: auto;
     padding: 10px 12px;
@@ -710,6 +721,10 @@ input.admin-stock-input,
     position: sticky;
     top: 0;
     z-index: 5;
+  }
+  .admin-main-wrapper {
+    flex: 1 1 100%;
+    min-width: 0;
   }
   .admin-mobile-nav-inline a {
     flex: 0 0 auto;
@@ -1997,9 +2012,19 @@ input.admin-stock-input,
     padding-top: 12px;
     padding-bottom: 12px;
   }
+  /* A12: flex items default to min-width:auto (min-content), which let the
+     long operator name + sign-out button force the header past 390px. */
+  .admin-header-title { min-width: 0; flex: 1 1 auto; }
+  .admin-header-title h2 { font-size: 1rem; overflow-wrap: anywhere; }
   .admin-header-subtitle { max-width: 100%; white-space: normal; }
-  .admin-user-menu { flex-wrap: wrap; gap: 8px; }
-  .admin-user-pill { max-width: 100%; }
+  .admin-user-menu { flex-wrap: wrap; gap: 8px; min-width: 0; }
+  .admin-user-pill { max-width: 100%; min-width: 0; }
+  .admin-user-pill span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
   .admin-form-section { padding: 16px 14px; }
   .admin-form-grid { grid-template-columns: 1fr; }
   .admin-variant-grid { grid-template-columns: 1fr; }

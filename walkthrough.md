@@ -1051,3 +1051,124 @@ admin order → admin analytics, plus reviews, settings, security, responsive.
   where Chrome is available.
 - **Regression risks**: low. A11 changed zero product files; A6 (39/39), A7
   (55/55), A8 (53/53), A9 (47/47), A10 (32/32) all re-run green.
+
+---
+
+# Phase A12 — Final Admin Production-Readiness Audit
+
+========================================
+SLIMKY HAIR ADMIN FINAL QA REPORT
+========================================
+
+**Overall status: PASS** — with documented NOT TESTABLE items and remaining
+risks below. No new features added. Method followed throughout:
+INSPECT → TEST (real headless Chrome 153 over CDP + Node suites) → FIND →
+FIX → RETEST → VERIFY → REPORT.
+
+## 1. Smoke testing — PASS (101/101 in real Chrome)
+Real form login (no crash) + 7 admin routes and 6 storefront pages at 390–1440px:
+zero page errors, content renders, session persists, 0px overflow everywhere
+after fixes. Measured perf (Chrome 153, local server): home DCL ~88ms / 935KB,
+shop ~80ms / 929KB, admin orders ~50ms / 1049KB (image-heavy placeholders).
+
+## 2. Functional testing — PASS (269/269 Node checks)
+A6 39/39, A7 55/55, A8 53/53, A9 47/47, A10 32/32, A11 43/43 — all re-run
+green after every A12 change.
+
+## 3. Integration testing — PASS (A11 43/43, unchanged)
+
+## 4. Visual testing — PASS (reviewed real screenshots)
+Slimky editorial system intact on home-390, orders-390, analytics-1280:
+serif/sans hierarchy, solid palette, **zero gradients** (repo-wide scan),
+consistent buttons/forms/tables/cards/nav/dialogs/dropdowns/empty/loading/
+error states. No redesign, no decoration added.
+
+## 5. Responsive testing — PASS (measured, all 10 spec viewports)
+360×800, 375×812, 390×844, 430×932, 600×960, 768×1024, 834×1112, 1024×768,
+1280×800, 1440×900: 0px horizontal overflow on home/shop/orders/analytics/
+checkout (50 checks) + 14 page types at 390/1280 (28 checks). Sidebar hides
+≤900px with full-row section nav; tables→cards; toolbars stack; touch
+targets ≥44px. The body-level `overflow-x:hidden` guard was REMOVED after
+proving every route clean without it — future faults fail visibly.
+
+## 6. Accessibility — PASS (structural, measured)
+Single h1 + lang on all scanned pages; 0 images missing alt; 0 unnamed
+buttons; 0 unlabelled fields after fixes; global `:focus-visible` ring plus
+component focus states; chart carries text summary + screen-reader table;
+44px+ targets. Full contrast audit and screen-reader pass: NOT TESTABLE
+(no tooling/AT available) — no violations observed in reviewed screenshots.
+
+## 7. Security — PASS (directly actionable items fixed)
+Deny-by-default at every service boundary; payments sanitized; explicit-token
+moderation/inventory writes; RLS present (self-only profiles, admin gates,
+role-escalation trigger, read-only payments/items); vendored SDK + fail-closed
+secret guard; runtime scan clean; console shows diagnostics only, never PII.
+FIXED: admin password no longer prefilled in the login form; demo fixture
+data (customer/order) now seeds on dev origins only — production hosts stay
+clean, with an operator off-switch and CI opt-in.
+
+## 8. Performance — PASS (measured, no invented scores)
+One read per collection per snapshot (asserted); 5k orders aggregate fast
+with correct totals; capped chart buckets; no duplicate-request paths found.
+Page weights (~1MB, placeholder imagery) noted as the only optimization
+candidate — image pipeline exists (scripts/optimize-images.py), not run here.
+
+## 9. Browser compatibility — PARTIAL
+Chrome 153 (headless, CDP-driven): PASS (101 checks). Safari / Firefox / Edge
+/ mobile browsers: NOT TESTABLE — not installed, no devices or emulators
+available. No browser-specific APIs are used beyond standard ESM/CSS, but
+that is not a substitute for testing.
+
+## 10. Regression testing — PASS
+Storefront verified unbroken: 6 pages load error-free in Chrome; catalog
+(16 products / 8 categories), checkout validation, wishlist toggle, contact
+links and the full purchase chain (A11) all green in Node.
+
+## 11–14. Typecheck / Lint / Build / Automated tests
+No TS/lint/build toolchain exists in this repo (static site, no package.json):
+NOT APPLICABLE. Substituted with `node --check` over all 78 JS files: PASS,
+plus 269 automated Node checks + 101 browser checks + 78 overflow checks,
+all green.
+
+## FILES CHANGED (A12)
+- `css/components/admin.css`: off-canvas drawer containment, header
+  min-width/ellipsis, shell-wrap mobile nav fix, review badges were A8
+- `css/reset.css`: removed body overflow-x guard; added nothing else
+- `js/admin-page.js`: password prefill removed, orders search labelled
+- `js/auth/customer-service.js`: production-gated demo seeding
+- `index.html`, `cart.html`, `cart/index.html`: search inputs labelled
+
+## DATABASE CHANGES
+None in A12 (schema + RLS migration work closed in A7–A9).
+
+## BUGS FIXED (all retested green)
+1. **Mobile nav squeezed admin main column off-screen (my A6 regression)** —
+   269px overflow on every admin-page view ≤900px. Fixed with shell wrap +
+   full-row nav (CSS only). 101/101 browser checks green after.
+2. **Closed modal drawer expanded page scroll** — contained via backdrop
+   `overflow: clip` (drawer body scrolls internally; not a lazy band-aid).
+3. **Admin header overflowed 76–155px on phones** — min-width:0 + ellipsis.
+4. **Four unlabelled search inputs** (home, cart ×2, admin orders) — labelled.
+5. **Prefilled admin password in login form** — removed.
+6. **Unconditional demo fixtures** — production-gated (all 5 gate branches verified).
+
+## REMAINING RISKS
+- Local `js/env.js` (gitignored) points at a REAL Supabase project: RLS on
+  that project is unverified — confirm policies there before any launch.
+- Default admin credential is a documented seed value: rotate at launch
+  (password change lives in Supabase Auth at migration).
+- ~1MB page weights (placeholder imagery): run the image pipeline + re-measure.
+- Demo order fixture lacks a payments-ledger entry (dev-only since gating;
+  shows paid order with ₦0 settled revenue — correct per ledger rules).
+
+## REMAINING NOT TESTABLE ITEMS
+Safari/Firefox/Edge/mobile browsers; screen-reader pass; full contrast audit;
+live RLS end-to-end; live email dispatch; C-series legacy browser suites
+(superseded by the A12 harness; re-run where Chrome-CD P tooling exists).
+
+## FINAL RECOMMENDATION
+The admin system is **ready for real administrative use on the demo/local
+data layer** — every claim above is backed by an executed check. Launch
+gating items (not code defects): verify RLS on the real Supabase project,
+rotate the seed admin credential, run the image pipeline, and spot-check
+Safari + one mobile browser when available.

@@ -111,6 +111,35 @@ function clearActiveSession() {
 }
 
 /**
+ * Decide whether demo fixture data may be seeded in this runtime (A12).
+ *
+ * - Explicit `localStorage slimky_demo_seed = "off"` always wins (operators).
+ * - Explicit `window.__SLIMKY_SEED_DEMO__ === true` always seeds (CI/QA).
+ * - Otherwise: seed on dev origins (localhost, loopback, .local, private LAN,
+ *   file://, empty hostname) and in non-browser runtimes (Node test suites).
+ *   Real production hosts never match, so a launch can never show fixture
+ *   customers, addresses or orders as if they were business data.
+ *
+ * @returns {boolean}
+ */
+export function shouldSeedDemoData() {
+  try {
+    if (typeof localStorage !== 'undefined' && localStorage.getItem('slimky_demo_seed') === 'off') {
+      return false;
+    }
+  } catch { /* storage unavailable — fall through to origin checks */ }
+  if (typeof window !== 'undefined') {
+    if (window.__SLIMKY_SEED_DEMO__ === true) return true;
+    const host = String(window.location?.hostname || '').toLowerCase();
+    if (host === '' || host === 'localhost' || host === '127.0.0.1' || host === '[::1]') return true;
+    if (host.endsWith('.local') || host.endsWith('.localhost')) return true;
+    if (/^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(host)) return true;
+    return false;
+  }
+  return true;
+}
+
+/**
  * Validate password strength for registration.
  * Rules:
  * - At least 8 characters
@@ -159,8 +188,15 @@ export class CustomerService {
 
   /**
    * Seed a baseline demo registered customer and address for local testing.
+   *
+   * A12 production gate: fixture data must never appear in a real deployment.
+   * Seeding runs on dev origins (localhost / local network / file / Node
+   * test runtimes) or when explicitly opted in, and never on a production
+   * host. Operators can also force it off anywhere with localStorage
+   * `slimky_demo_seed = "off"`.
    */
   initDemoCustomer() {
+    if (!shouldSeedDemoData()) return;
     const customers = readStorage(CUSTOMERS_STORAGE_KEY, []);
     const addresses = readStorage(ADDRESSES_STORAGE_KEY, []);
     const demoCustId = 'cust_demo_chioma_01';
