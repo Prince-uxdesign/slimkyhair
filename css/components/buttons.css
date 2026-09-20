@@ -57,6 +57,8 @@
   .btn-mobile-full {
     width: 100% !important;
   }
+}
+
 /* Primary, Secondary & Outline Base Resilience */
 .btn-primary,
 .btn-secondary,
