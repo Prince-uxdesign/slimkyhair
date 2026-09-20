@@ -30,7 +30,7 @@ export class AccountDashboard {
     this.init();
   }
 
-  init() {
+  async init() {
     // Initialize common shell navigation
     initAccountShell({
       activeNav: 'overview',
@@ -38,12 +38,21 @@ export class AccountDashboard {
       authRequired: true
     });
 
-    this.loadData();
+    this.orders = [];
+    this.addresses = [];
+    this.wishlistIds = [];
+    this.wishlistItems = [];
+
+    // Initial skeleton/empty render
+    this.render();
+
+    // Fetch data asynchronously
+    await this.loadData();
     this.render();
     this.bindEvents();
   }
 
-  loadData() {
+  async loadData() {
     // Load real customer orders
     try {
       this.orders = customerService.getCustomerOrders(this.customer.id) || [];
@@ -51,9 +60,9 @@ export class AccountDashboard {
       this.orders = [];
     }
 
-    // Load real customer saved addresses
+    // Load real customer saved addresses (backed by Supabase)
     try {
-      this.addresses = customerService.getAddresses(this.customer.id) || [];
+      this.addresses = (await customerService.getAddresses(this.customer.id)) || [];
     } catch {
       this.addresses = [];
     }
@@ -302,7 +311,8 @@ export class AccountDashboard {
     const mount = document.querySelector('#dashboard-addresses-mount');
     if (!mount) return;
 
-    const defaultAddress = this.addresses.find(a => a.isDefault) || (this.addresses.length > 0 ? this.addresses[0] : null);
+    const list = Array.isArray(this.addresses) ? this.addresses : [];
+    const defaultAddress = list.find(a => a.isDefault) || (list.length > 0 ? list[0] : null);
 
     if (defaultAddress) {
       mount.innerHTML = `
