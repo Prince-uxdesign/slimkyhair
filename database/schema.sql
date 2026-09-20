@@ -415,3 +415,47 @@ ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipping_payment_status payment_stat
 CREATE INDEX IF NOT EXISTS idx_orders_shipping_payment_id ON orders(shipping_payment_id);
 CREATE INDEX IF NOT EXISTS idx_payments_purpose ON payments(purpose);
 
+-- 12. Phase A8: Customer Product Reviews with editorial moderation.
+-- Submissions start as 'pending' and are invisible on the storefront until an
+-- admin approves them. The localStorage mirror is js/reviews/review-service.js
+-- (key: slimky_reviews) with identical states and transition rules.
+CREATE TYPE review_status AS ENUM ('pending', 'approved', 'rejected', 'hidden');
+
+CREATE TABLE IF NOT EXISTS product_reviews (
+  id VARCHAR(64) PRIMARY KEY,
+  product_id VARCHAR(64) NOT NULL,
+  customer_id VARCHAR(64) REFERENCES customers(id) ON DELETE SET NULL,
+  author VARCHAR(60) NOT NULL,
+  customer_email VARCHAR(255),
+  rating SMALLINT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  title VARCHAR(120) NOT NULL DEFAULT '',
+  text TEXT NOT NULL CHECK (char_length(text) >= 10 AND char_length(text) <= 2000),
+  verified BOOLEAN NOT NULL DEFAULT false,
+  status review_status NOT NULL DEFAULT 'pending',
+  history JSONB NOT NULL DEFAULT '[]'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_product_reviews_product_id ON product_reviews(product_id);
+CREATE INDEX IF NOT EXISTS idx_product_reviews_status ON product_reviews(status);
+CREATE INDEX IF NOT EXISTS idx_product_reviews_created_at ON product_reviews(created_at DESC);
+
+ALTER TABLE product_reviews ENABLE ROW LEVEL SECURITY;
+
+-- Public storefront: approved reviews only. Pending/rejected/hidden rows are
+-- invisible to anon and authenticated customers alike.
+CREATE POLICY product_reviews_public_select ON product_reviews
+  FOR SELECT TO anon, authenticated
+  USING (status = 'approved');
+
+-- Submission: anyone (guest or signed-in) may insert, but ONLY as pending —
+-- WITH CHECK rejects any other status, so storefront input can never self-approve.
+CREATE POLICY product_reviews_public_insert ON product_reviews
+  FOR INSERT TO anon, authenticated
+  WITH CHECK (status = 'pending');
+
+-- No UPDATE/DELETE policy for anon/authenticated: customers cannot alter
+-- moderation state (or anyone's review). Moderation is admin-only; see the
+-- A8 migration (20260920043200_product_reviews.sql) for the is_admin() policies.
+

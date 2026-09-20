@@ -9,9 +9,18 @@ import { PRODUCTS, getProductBySlug, getCategoryBySlug, getRelatedProducts } fro
 import { renderStarsHTML, createCatalogCardHTML, initCardInteractions, getRootPath } from './catalog-renderer.js';
 import { isInWishlist, toggleWishlist, syncWishlistUI } from './wishlist-store.js';
 import { addToCart, openCartDrawer } from './cart-store.js';
-import { inventoryService } from './inventory/inventory-service.js';
+import { inventoryService, getAvailabilityLabel } from './inventory/inventory-service.js';
+import { submitReview, getPublicReviews, getPublicAggregate } from './reviews/review-service.js';
 import { applyProductSEO } from './seo.js';
 import { getApproximateForeignCurrencies } from './utils/currency-converter.js';
+import { escapeHtml } from './utils/html-format.js';
+
+function formatReviewDate(value) {
+  if (!value) return '';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('en-NG', { month: 'long', year: 'numeric' });
+}
 
 export class ProductController {
   constructor(options = {}) {
@@ -277,22 +286,24 @@ export class ProductController {
     const buyBtn = document.querySelector('#pdp-btn-buy-now');
 
     if (stockEl) {
-      if (liveStock <= 0) {
-        stockEl.className = 'pdp-stock-status out-of-stock';
-        stockEl.innerHTML = `<span class="pdp-stock-indicator-dot"></span><span class="pdp-stock-text">Out of Stock</span>`;
-        if (addBtn) { addBtn.disabled = true; addBtn.textContent = 'Out of Stock'; }
-        if (buyBtn) buyBtn.disabled = true;
-      } else if (liveStock <= 8) {
-        stockEl.className = 'pdp-stock-status low-stock';
-        stockEl.innerHTML = `<span class="pdp-stock-indicator-dot"></span><span class="pdp-stock-text">Low Stock (Only ${liveStock} left)</span>`;
-        if (addBtn) { addBtn.disabled = false; addBtn.textContent = `Add to Bag · ${v.priceFormatted}`; }
-        if (buyBtn) buyBtn.disabled = false;
-      } else {
-        stockEl.className = 'pdp-stock-status in-stock';
-        stockEl.innerHTML = `<span class="pdp-stock-indicator-dot"></span><span class="pdp-stock-text">In Stock</span>`;
-        if (addBtn) { addBtn.disabled = false; addBtn.textContent = `Add to Bag · ${v.priceFormatted}`; }
-        if (buyBtn) buyBtn.disabled = false;
+      // Classify through the shared helper rather than comparing against a
+      // literal here. The PDP previously hardcoded `liveStock <= 8`, which
+      // silently disagreed with the admin, cart and product cards the moment
+      // the low-stock threshold was configured to anything else.
+      const availability = getAvailabilityLabel(liveStock);
+      const soldOut = availability.className === 'out-of-stock';
+
+      stockEl.className = `pdp-stock-status ${availability.className}`;
+      const stockText = availability.className === 'low-stock'
+        ? `Low Stock (Only ${availability.stock} left)`
+        : availability.label;
+      stockEl.innerHTML = `<span class="pdp-stock-indicator-dot"></span><span class="pdp-stock-text">${stockText}</span>`;
+
+      if (addBtn) {
+        addBtn.disabled = soldOut;
+        addBtn.textContent = soldOut ? 'Out of Stock' : `Add to Bag · ${v.priceFormatted}`;
       }
+      if (buyBtn) buyBtn.disabled = soldOut;
     }
 
     // Sticky CTA mirrors the primary action exactly (variant, qty, stock).
@@ -550,19 +561,47 @@ export class ProductController {
       });
     });
 
-    // Review Form Simulation
+    // Review submission (Phase A8): persists a PENDING review for editorial
+    // moderation. Nothing appears publicly until an admin approves it.
     const reviewForm = document.querySelector('#pdp-review-form');
     reviewForm?.addEventListener('submit', (e) => {
       e.preventDefault();
       const submitBtn = reviewForm.querySelector('button[type="submit"]');
+      const authorInput = reviewForm.querySelector('input[type="text"]');
+      const ratingSelect = reviewForm.querySelector('select');
+      const textArea = reviewForm.querySelector('textarea');
+
+      const restore = (label) => {
+        if (!submitBtn) return;
+        submitBtn.textContent = label;
+        submitBtn.disabled = false;
+      };
+
       if (submitBtn) {
-        submitBtn.textContent = 'Review Submitted for Moderation ✓';
         submitBtn.disabled = true;
-        reviewForm.reset();
-        setTimeout(() => {
-          submitBtn.textContent = 'Submit Review';
-          submitBtn.disabled = false;
-        }, 4000);
+        submitBtn.textContent = 'Submitting…';
+      }
+
+      const result = submitReview({
+        productId: this.product?.id,
+        author: authorInput?.value || '',
+        rating: ratingSelect?.value,
+        title: '',
+        text: textArea?.value || ''
+      });
+
+      if (!result.success) {
+        if (submitBtn) {
+          submitBtn.textContent = result.error;
+          setTimeout(() => restore('Submit Review'), 4000);
+        }
+        return;
+      }
+
+      reviewForm.reset();
+      if (submitBtn) {
+        submitBtn.textContent = 'Thank you — submitted for moderation ✓';
+        setTimeout(() => restore('Submit Review'), 4000);
       }
     });
   }
@@ -602,34 +641,67 @@ export class ProductController {
 
   renderReviews() {
     const p = this.product;
+    if (!p) return;
+
+    // Phase A8: public surface = curated seed excerpts + APPROVED customer
+    // submissions. Pending/rejected/hidden never render here. Aggregates blend
+    // the seed base with approvals, so the display matches the catalogue
+    // exactly until the first approval lands.
+    const publicReviews = getPublicReviews(p, p.id);
+    const aggregate = getPublicAggregate(p);
+
     const bigScoreEl = document.querySelector('#pdp-big-score');
-    if (bigScoreEl) bigScoreEl.textContent = p.rating.toFixed(1);
+    if (bigScoreEl) bigScoreEl.textContent = aggregate.rating.toFixed(1);
 
     const bigStarsEl = document.querySelector('#pdp-big-stars');
-    if (bigStarsEl) bigStarsEl.innerHTML = renderStarsHTML(p.rating);
+    if (bigStarsEl) bigStarsEl.innerHTML = renderStarsHTML(aggregate.rating);
 
     const totalReviewsEl = document.querySelector('#pdp-total-reviews-count');
-    if (totalReviewsEl) totalReviewsEl.textContent = `Based on ${p.reviewCount} verified reviews`;
+    if (totalReviewsEl) totalReviewsEl.textContent = `Based on ${aggregate.reviewCount} verified reviews`;
+
+    this.renderReviewBars(publicReviews);
 
     const reviewsListEl = document.querySelector('#pdp-reviews-list');
-    if (reviewsListEl && p.reviews && p.reviews.length > 0) {
-      reviewsListEl.innerHTML = p.reviews.map(r => `
+    if (reviewsListEl && publicReviews.length > 0) {
+      reviewsListEl.innerHTML = publicReviews.map(r => `
         <article class="pdp-review-card">
           <div class="pdp-review-top">
             <div>
-              <span class="pdp-review-author">${r.author}</span>
+              <span class="pdp-review-author">${escapeHtml(r.author)}</span>
               ${r.verified ? `<span class="pdp-verified-badge">Verified Buyer ✓</span>` : ''}
             </div>
-            <span class="pdp-review-date">${r.date}</span>
+            <span class="pdp-review-date">${escapeHtml(r.date || formatReviewDate(r.createdAt))}</span>
           </div>
           <div class="pdp-rating-stars" style="margin-bottom: 8px;">
             ${renderStarsHTML(r.rating)}
           </div>
-          <h4 class="pdp-review-heading">${r.title}</h4>
-          <p class="pdp-review-body">${r.text}</p>
+          ${r.title ? `<h4 class="pdp-review-heading">${escapeHtml(r.title)}</h4>` : ''}
+          <p class="pdp-review-body">${escapeHtml(r.text)}</p>
         </article>
       `).join('');
     }
+  }
+
+  /**
+   * Recompute the 5★→1★ distribution bars from the public review set.
+   * The static markup ships one `.pdp-bar-row` per star level in 5→1 order;
+   * anything else is left untouched rather than guessed at.
+   */
+  renderReviewBars(publicReviews) {
+    const rows = document.querySelectorAll('.pdp-bar-row');
+    if (rows.length !== 5 || publicReviews.length === 0) return;
+    const counts = [0, 0, 0, 0, 0];
+    for (const r of publicReviews) {
+      const star = Math.round(Number(r.rating) || 0);
+      if (star >= 1 && star <= 5) counts[5 - star] += 1;
+    }
+    rows.forEach((row, i) => {
+      const pct = Math.round((counts[i] / publicReviews.length) * 100);
+      const fill = row.querySelector('.pdp-bar-fill');
+      const label = row.querySelector('.pdp-bar-count');
+      if (fill) fill.style.width = `${pct}%`;
+      if (label) label.textContent = `${pct}%`;
+    });
   }
 
   renderRelatedProducts() {

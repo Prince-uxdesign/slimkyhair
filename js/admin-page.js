@@ -45,6 +45,13 @@ import {
   DEFAULT_CUSTOMER_SORT
 } from './admin/customers-admin.js';
 import {
+  buildReviewRows,
+  queryReviews,
+  renderReviewsList,
+  DEFAULT_REVIEW_SORT
+} from './admin/reviews-admin.js';
+import { moderateReview, getPendingCount, listReviews } from './reviews/review-service.js';
+import {
   renderDashboardOverview,
   renderDashboardLoading,
   renderDashboardError
@@ -54,8 +61,9 @@ export class AdminPage {
   constructor() {
     this.appContainer = document.querySelector('#admin-app');
     // 'overview' | 'orders' | 'order-detail' | 'inventory' | 'customers' |
-    // 'customer-detail'. The Overview dashboard (Phase A2) is the landing view;
-    // a ?view= query param still wins so deep links land on the right screen.
+    // 'customer-detail' | 'reviews'. The Overview dashboard (Phase A2) is the
+    // landing view; a ?view= query param still wins so deep links land on the
+    // right screen.
     this.currentView = this.readViewFromUrl() || 'overview';
 
     // Dashboard Overview state (Phase A2)
@@ -94,6 +102,15 @@ export class AdminPage {
     // Guest groups are addressed as `guest:<email>`.
     this.detailCustomerId = this.readCustomerIdFromUrl();
 
+    // Review moderation list state (Phase A8). Authorization for actions
+    // stays in review-service.moderateReview(), which demands an explicit
+    // admin token — the controller only passes the session through.
+    this.revSearch = '';
+    this.revStatus = 'all';
+    this.revRating = 'all';
+    this.revSort = DEFAULT_REVIEW_SORT;
+    this.revPage = 1;
+
     // Inventory View State (Milestone C20.12)
     this.inventorySearchQuery = '';
     this.inventoryAvailabilityFilter = 'all';
@@ -119,6 +136,8 @@ export class AdminPage {
       this.renderCustomersView(admin);
     } else if (this.currentView === 'customer-detail') {
       this.renderCustomerDetailView(admin);
+    } else if (this.currentView === 'reviews') {
+      this.renderReviewsView(admin);
     } else if (this.currentView === 'overview') {
       this.renderOverviewView(admin);
     } else {
@@ -156,6 +175,10 @@ export class AdminPage {
           <a href="${this.adminRoot()}customers/" class="admin-nav-item ${this.currentView === 'customers' || this.currentView === 'customer-detail' ? 'is-active' : ''}" id="nav-customers-link">
             <span>Customers</span>
           </a>
+          <a href="${this.adminRoot()}reviews/" class="admin-nav-item ${this.currentView === 'reviews' ? 'is-active' : ''}" id="nav-reviews-link">
+            <span>Reviews</span>
+            ${getPendingCount() > 0 ? `<span class="admin-nav-badge">${getPendingCount()}</span>` : ''}
+          </a>
           <a href="#" class="admin-nav-item" onclick="return false;" style="opacity: 0.7;">
             <span>Settings</span>
           </a>
@@ -173,6 +196,7 @@ export class AdminPage {
         <a href="${this.adminRoot()}orders/" class="${this.currentView === 'orders' || this.currentView === 'order-detail' ? 'is-active' : ''}">Orders</a>
         <a href="${this.adminRoot()}inventory/" class="${this.currentView === 'inventory' ? 'is-active' : ''}">Inventory</a>
         <a href="${this.adminRoot()}customers/" class="${this.currentView === 'customers' || this.currentView === 'customer-detail' ? 'is-active' : ''}">Customers</a>
+        <a href="${this.adminRoot()}reviews/" class="${this.currentView === 'reviews' ? 'is-active' : ''}">Reviews</a>
       </nav>
     `;
   }
@@ -205,6 +229,12 @@ export class AdminPage {
       this.currentView = 'customers';
       this.detailCustomerId = null;
       this.syncUrlToView('customers');
+      this.render();
+    });
+    document.querySelector('#nav-reviews-link')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.currentView = 'reviews';
+      this.syncUrlToView('reviews');
       this.render();
     });
   }
@@ -515,6 +545,160 @@ export class AdminPage {
         closeBtn.addEventListener('click', () => { window.location.href = listHref; });
       }
     }
+  }
+
+  /**
+   * Review moderation list — the /admin/reviews/ route (Phase A8).
+   *
+   * Reads need no privilege beyond the page guard (counts and pending queues
+   * contain no PII beyond what the operator is already authorized to see);
+   * every STATE CHANGE goes through review-service.moderateReview() with the
+   * explicit admin token. Products resolve via productService so names survive
+   * catalogue edits; unknown ids render honestly.
+   *
+   * @param {Object} admin Authenticated admin session
+   */
+  renderReviewsView(admin) {
+    let body;
+    try {
+      const productsById = {};
+      for (const p of productService.getAllProducts()) productsById[p.id] = p;
+      const rows = buildReviewRows({ reviews: listReviews(), productsById });
+      const result = queryReviews(rows, {
+        search: this.revSearch,
+        status: this.revStatus,
+        rating: this.revRating,
+        sort: this.revSort,
+        page: this.revPage
+      });
+      body = renderReviewsList(result, {
+        search: this.revSearch,
+        status: this.revStatus,
+        rating: this.revRating,
+        sort: this.revSort,
+        page: result.page
+      }, this.adminRoot());
+    } catch (err) {
+      console.error('[AdminPage] Review list load failed:', err);
+      body = `
+        <div class="admin-card"><div class="admin-dash-empty" role="alert">
+          Something went wrong loading reviews: ${escapeHtml(err.message)}
+          <div style="margin-top: 12px;">
+            <button type="button" id="admin-rev-retry" class="btn-admin btn-admin-outline btn-admin-sm">Try Again</button>
+          </div>
+        </div></div>`;
+    }
+
+    this.appContainer.innerHTML = `
+      <div class="admin-shell">
+        ${this.renderSidebarNav(OrderStore.getAllOrders().length)}
+        <div class="admin-main-wrapper">
+          <header class="admin-header" role="banner">
+            <div class="admin-header-title"><h2>Review Moderation</h2></div>
+            <div class="admin-user-menu">
+              <div class="admin-user-pill">
+                <span class="admin-user-dot"></span>
+                <span>${escapeHtml(admin.fullName || admin.email)}</span>
+              </div>
+              <button type="button" id="admin-logout-btn" class="btn-admin btn-admin-outline btn-admin-sm">Sign Out</button>
+            </div>
+          </header>
+          <main class="admin-content" role="main">
+            <div id="admin-rev-alert" style="display: none; padding: 12px 16px; border-radius: 6px; font-size: 0.8125rem; margin-bottom: 12px;"></div>
+            ${body}
+          </main>
+        </div>
+      </div>
+    `;
+
+    this.bindSidebarNavEvents();
+    document.querySelector('#admin-logout-btn')?.addEventListener('click', () => {
+      adminService.logoutAdmin();
+      this.render();
+    });
+    document.querySelector('#admin-rev-retry')?.addEventListener('click', () => this.render());
+
+    document.querySelectorAll('.admin-queue-tab[data-status]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        this.revStatus = e.currentTarget.dataset.status;
+        this.revPage = 1;
+        this.render();
+      });
+    });
+
+    const searchInput = document.querySelector('#admin-rev-search');
+    let debounce = null;
+    searchInput?.addEventListener('input', (e) => {
+      clearTimeout(debounce);
+      const value = e.target.value;
+      debounce = setTimeout(() => {
+        this.revSearch = value;
+        this.revPage = 1;
+        this.render();
+        const refocused = document.querySelector('#admin-rev-search');
+        if (refocused) {
+          refocused.focus();
+          refocused.setSelectionRange(refocused.value.length, refocused.value.length);
+        }
+      }, 250);
+    });
+
+    document.querySelector('#admin-rev-rating')?.addEventListener('change', (e) => {
+      this.revRating = e.target.value;
+      this.revPage = 1;
+      this.render();
+    });
+    document.querySelector('#admin-rev-sort')?.addEventListener('change', (e) => {
+      this.revSort = e.target.value;
+      this.revPage = 1;
+      this.render();
+    });
+    document.querySelector('#admin-rev-prev')?.addEventListener('click', () => {
+      this.revPage = Math.max(1, this.revPage - 1);
+      this.render();
+    });
+    document.querySelector('#admin-rev-next')?.addEventListener('click', () => {
+      this.revPage = this.revPage + 1;
+      this.render();
+    });
+
+    // Moderation actions — the session token travels explicitly; the service
+    // refuses anything else. Reject/hide take an optional audit note.
+    document.querySelectorAll('.admin-rev-action').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const alertDiv = document.querySelector('#admin-rev-alert');
+        const showAlert = (msg, isError = false) => {
+          if (!alertDiv) return;
+          alertDiv.textContent = msg;
+          alertDiv.style.background = isError ? '#FEE2E2' : '#E8F5E9';
+          alertDiv.style.color = isError ? '#B91C1C' : '#2E7D32';
+          alertDiv.style.display = 'block';
+        };
+        const action = btn.dataset.action;
+        const reviewId = btn.dataset.reviewId;
+        let note = '';
+        if (action === 'reject' || action === 'hide') {
+          const input = window.prompt(`Optional audit note for "${action}" (Cancel aborts):`, '');
+          if (input === null) return;
+          note = input.trim();
+        }
+        const result = moderateReview(reviewId, action, { token: admin.token, note });
+        if (!result.success) {
+          showAlert(result.error, true);
+          return;
+        }
+        // Re-render the list, then confirm on the fresh alert slot (the old
+        // DOM, including any message, was just replaced).
+        this.render();
+        const fresh = document.querySelector('#admin-rev-alert');
+        if (fresh) {
+          fresh.textContent = `Review ${action}d.`;
+          fresh.style.background = '#E8F5E9';
+          fresh.style.color = '#2E7D32';
+          fresh.style.display = 'block';
+        }
+      });
+    });
   }
 
   /**
@@ -904,6 +1088,7 @@ export class AdminPage {
     const target = view === 'inventory' ? `${root}inventory/`
       : view === 'orders' ? `${root}orders/`
       : view === 'customers' ? `${root}customers/`
+      : view === 'reviews' ? `${root}reviews/`
       : root;
     try {
       window.history.replaceState({}, '', target);
@@ -982,7 +1167,7 @@ export class AdminPage {
 
   readViewFromUrl() {
     if (typeof window === 'undefined') return null;
-    const allowed = ['overview', 'orders', 'inventory', 'customers'];
+    const allowed = ['overview', 'orders', 'inventory', 'customers', 'reviews'];
 
     // An addressed order is its own view, so a reload of /admin/orders/<id>/
     // lands back on that order rather than the list.
