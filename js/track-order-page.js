@@ -12,6 +12,7 @@ import { ShippingQuoteCard } from './components/shipping-quote-card.js';
 import { NigeriaShippingCard } from './components/nigeria-shipping-card.js';
 
 import { getWhatsAppNumber } from './contact-page.js';
+import { escapeHtml } from './utils/html-format.js';
 export class TrackOrderController {
   constructor(options = {}) {
     this.rootPrefix = options.rootPrefix || '';
@@ -184,8 +185,8 @@ export class TrackOrderController {
           item.image || item.thumbnail || 'assets/placeholders/products/oil-dropper-bottle.jpg',
           this.rootPrefix
         );
-        const name = item.productName || item.name || 'Botanical Formulation';
-        const variant = item.variantName || item.size || 'Standard Edition';
+        const name = escapeHtml(item.productName || item.name || 'Botanical Formulation');
+        const variant = escapeHtml(item.variantName || item.size || 'Standard Edition');
         const qty = item.quantity || 1;
         const lineTotal = item.lineTotal || item.lineSubtotal || (item.unitPrice || 0) * qty;
 
@@ -277,19 +278,19 @@ export class TrackOrderController {
         <div class="track-detail-col">
           <div class="track-detail-label">Shipping Destination</div>
           <p class="track-detail-text">
-            <strong>${order.shippingAddress?.fullName || order.customer?.fullName || 'Client'}</strong><br>
-            ${order.shippingAddress?.streetAddress || ''}<br>
-            ${order.shippingAddress?.city || ''}${order.shippingAddress?.state ? `, ${order.shippingAddress.state}` : ''}<br>
-            ${order.shippingAddress?.country || (isNigeria ? 'Nigeria' : '')}
+            <strong>${escapeHtml(order.shippingAddress?.fullName || order.customer?.fullName || 'Client')}</strong><br>
+            ${escapeHtml(order.shippingAddress?.streetAddress || '')}<br>
+            ${escapeHtml(order.shippingAddress?.city || '')}${order.shippingAddress?.state ? `, ${escapeHtml(order.shippingAddress.state)}` : ''}<br>
+            ${escapeHtml(order.shippingAddress?.country || (isNigeria ? 'Nigeria' : ''))}
           </p>
         </div>
 
         <div class="track-detail-col">
           <div class="track-detail-label">Client Care Contact</div>
           <p class="track-detail-text">
-            <strong>Email:</strong> ${order.customer?.email || '—'}<br>
-            <strong>Phone / WhatsApp:</strong> ${order.customer?.phone || order.shippingAddress?.phone || '—'}<br>
-            ${order.shippingAddress?.deliveryInstructions ? `<em>Instructions: ${order.shippingAddress.deliveryInstructions}</em>` : ''}
+            <strong>Email:</strong> ${escapeHtml(order.customer?.email || '—')}<br>
+            <strong>Phone / WhatsApp:</strong> ${escapeHtml(order.customer?.phone || order.shippingAddress?.phone || '—')}<br>
+            ${order.shippingAddress?.deliveryInstructions ? `<em>Instructions: ${escapeHtml(order.shippingAddress.deliveryInstructions)}</em>` : ''}
           </p>
         </div>
       </div>

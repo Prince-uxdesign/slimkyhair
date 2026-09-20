@@ -24,7 +24,8 @@ import {
   getCartRootPath,
   resolveCartImagePath,
   validateCart,
-  applyCartValidation
+  applyCartValidation,
+  STORAGE_KEY as CART_STORAGE_KEY
 } from './cart-store.js';
 
 import { initNavigation } from './navigation.js';
@@ -57,7 +58,7 @@ export class CartPage {
     });
 
     window.addEventListener('storage', (e) => {
-      if (e.key === 'slimky_hair_cart') {
+      if (e.key === CART_STORAGE_KEY) {
         this.render();
       }
     });

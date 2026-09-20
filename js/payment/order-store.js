@@ -558,14 +558,6 @@ export const OrderStore = {
   },
 
   /**
-   * Backward-compatible alias for updateShippingQuote (originally international-only).
-   * @deprecated Use updateShippingQuote instead.
-   */
-  updateInternationalShippingQuote(orderId, quoteData = {}, meta = {}) {
-    return this.updateShippingQuote(orderId, quoteData, meta);
-  },
-
-  /**
    * Record customer acceptance or rejection of international shipping quote.
    * @param {string} orderId 
    * @param {'accepted'|'rejected'} response 

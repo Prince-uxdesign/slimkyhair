@@ -62,7 +62,10 @@ CREATE INDEX IF NOT EXISTS idx_email_log_created_at ON email_log(created_at DESC
 
 -- 2. Atomic status-transition helpers (used by Edge Functions via .rpc())
 CREATE OR REPLACE FUNCTION mark_email_log_sent(p_id BIGINT, p_provider_message_id TEXT)
-RETURNS VOID AS $$
+RETURNS VOID
+LANGUAGE sql
+SET search_path = public, pg_temp
+AS $$
   UPDATE email_log
   SET status = 'sent',
       provider_message_id = p_provider_message_id,
@@ -70,17 +73,25 @@ RETURNS VOID AS $$
       attempts = attempts + 1,
       updated_at = NOW()
   WHERE id = p_id;
-$$ LANGUAGE sql;
+$$;
 
 CREATE OR REPLACE FUNCTION mark_email_log_failed(p_id BIGINT, p_error TEXT)
-RETURNS VOID AS $$
+RETURNS VOID
+LANGUAGE sql
+SET search_path = public, pg_temp
+AS $$
   UPDATE email_log
   SET status = 'failed',
       last_error = p_error,
       attempts = attempts + 1,
       updated_at = NOW()
   WHERE id = p_id;
-$$ LANGUAGE sql;
+$$;
+
+REVOKE ALL ON FUNCTION mark_email_log_sent(BIGINT, TEXT) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION mark_email_log_failed(BIGINT, TEXT) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION mark_email_log_sent(BIGINT, TEXT) TO service_role;
+GRANT EXECUTE ON FUNCTION mark_email_log_failed(BIGINT, TEXT) TO service_role;
 
 -- 3. Row Level Security — deny-all by default.
 -- Only the service role (used exclusively inside Edge Functions) may read or

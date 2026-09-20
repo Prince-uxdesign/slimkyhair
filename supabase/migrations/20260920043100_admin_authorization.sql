@@ -82,7 +82,7 @@ CREATE OR REPLACE FUNCTION public.current_admin()
 RETURNS TABLE (id UUID, email VARCHAR(255), full_name VARCHAR(255), role app_role)
 LANGUAGE sql
 STABLE
-SECURITY DEFINER
+SECURITY INVOKER
 SET search_path = public, pg_temp
 AS $$
   SELECT p.id, p.email, p.full_name, p.role
@@ -92,9 +92,9 @@ AS $$
     AND p.role IN ('admin', 'staff');
 $$;
 
-REVOKE EXECUTE ON FUNCTION public.is_admin()      FROM PUBLIC;
-REVOKE EXECUTE ON FUNCTION public.is_staff()      FROM PUBLIC;
-REVOKE EXECUTE ON FUNCTION public.current_admin() FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.is_admin()      FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.is_staff()      FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.current_admin() FROM PUBLIC, anon;
 GRANT  EXECUTE ON FUNCTION public.is_admin()      TO authenticated, service_role;
 GRANT  EXECUTE ON FUNCTION public.is_staff()      TO authenticated, service_role;
 GRANT  EXECUTE ON FUNCTION public.current_admin() TO authenticated, service_role;
@@ -118,6 +118,8 @@ BEGIN
   RETURN NEW;
 END;
 $$;
+
+REVOKE ALL ON FUNCTION public.handle_new_auth_user() FROM PUBLIC, anon, authenticated;
 
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
@@ -160,6 +162,8 @@ BEGIN
   RETURN NEW;
 END;
 $$;
+
+REVOKE ALL ON FUNCTION public.prevent_client_role_change() FROM PUBLIC, anon, authenticated;
 
 CREATE TRIGGER profiles_guard_role
   BEFORE INSERT OR UPDATE ON profiles

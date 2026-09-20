@@ -435,7 +435,7 @@ export const LEGAL_PAGES = {
         name: "Essential Cookies",
         purpose: "Strictly necessary for core storefront operations, shopping bag drawer persistence, checkout navigation, and account authentication.",
         lifespan: "Session / Up to 1 year",
-        examples: "slimky_cart_session, auth_token, csrf_token"
+        examples: "slimky_hair_cart, slimky_active_session, slimky_auth_sessions"
       },
       {
         name: "Preference Cookies",
