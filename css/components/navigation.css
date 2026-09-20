@@ -590,7 +590,7 @@
   }
 }
 
-@media (min-width: 481px) and (max-width: 834px) {
+@media (min-width: 601px) and (max-width: 834px) {
   .drawer {
     max-width: 420px;
     width: 100%;
@@ -738,8 +738,13 @@
   line-height: 1;
 }
 
-/* Mobile Responsiveness: compact 40x40 icon button on mobile/tablets */
-@media (max-width: 900px) {
+/* Mobile Responsiveness: compact 40x40 icon button on mobile/tablets.
+   Aligned to the 992px nav-desktop collapse breakpoint above so the
+   account pill switches to icon-only at the same width the header
+   switches to the hamburger/drawer nav (previously 900px, which left
+   a 900-992px gap where the drawer nav was active but the full
+   text pill still rendered, crowding the compact 68px header). */
+@media (max-width: 992px) {
   .nav-account-link.is-authenticated {
     width: 40px;
     height: 40px;

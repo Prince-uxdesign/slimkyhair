@@ -343,6 +343,8 @@
   display: flex;
   align-items: center;
   gap: 14px;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .track-item-thumb {
@@ -359,12 +361,14 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 
 .track-item-name {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-text-primary, #2A2421);
+  overflow-wrap: break-word;
 }
 
 .track-item-variant {
@@ -378,6 +382,7 @@
   color: var(--color-text-primary, #2A2421);
   text-align: right;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* Pricing Breakdown */

@@ -30,7 +30,7 @@
 
 /* Button Sizes (Touch Ergonomics Standard) */
 .btn-sm {
-  min-height: 40px;
+  min-height: 44px;
   padding-inline: var(--space-md);
   font-size: 0.75rem;
   letter-spacing: var(--tracking-wider);

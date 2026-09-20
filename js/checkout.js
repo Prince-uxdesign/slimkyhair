@@ -727,17 +727,20 @@ export class CheckoutPage {
    *   validation, cart stock gates, and total invariants stay in one place.
    *   The compact visible label is "Continue to Payment"; the accessible
    *   label carries the full action + live total.
-   * - Activates only below 768px. Tablet/desktop keep the two-column layout
-   *   where the primary CTA is reachable; a second CTA there would duplicate
-   *   the action and risk covering fields or errors.
+   * - Activates only at/below 834px, matching the checkout-layout stacking
+   *   breakpoint in checkout.css. Above that, the two-column layout keeps
+   *   the primary CTA reachable; a second CTA there would duplicate the
+   *   action and risk covering fields or errors. (Below 834px the form is
+   *   already a single stacked column, so the sticky bar must activate in
+   *   step with the CSS breakpoint, not the site's usual 767/768 boundary.)
    * - Parks (hides) while the virtual keyboard is open, an overlay
    *   (DemoPay modal / drawer) is open, the footer is visible, or the cart
    *   is empty / the payment-handoff view is shown.
    */
   initStickyCTA() {
     const mobileQuery = window.matchMedia
-      ? window.matchMedia('(max-width: 767px)')
-      : { matches: window.innerWidth < 768, addEventListener: null };
+      ? window.matchMedia('(max-width: 834px)')
+      : { matches: window.innerWidth < 835, addEventListener: null };
 
     let stickyEl = document.querySelector('.checkout-sticky-cta');
     if (!stickyEl) {
