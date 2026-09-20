@@ -993,3 +993,61 @@ A6 (39/39), A7 (55/55), A8 (53/53), A9 (47/47) re-run green after the A10 change
   overflow mode is expected).
 - Server-side aggregates are documented SQL, NOT TESTABLE until a Supabase
   project is provisioned — then verify each figure against its query.
+
+---
+
+# Phase A11 — Admin Integration Testing
+
+**Overall: PASS.** No new features added. The complete chain was executed
+with real modules in Node (`node scratch/a11-integration.mjs`, gitignored
+per convention): product → variant → inventory → customer → checkout
+validation → demo payment → order → inventory update → customer history →
+admin order → admin analytics, plus reviews, settings, security, responsive.
+**43/43 checks pass on rerun.**
+
+## Test matrix (abridged — full matrix prints on every run)
+
+| # | Test | Expected | Actual | Status |
+|---|---|---|---|---|
+| 1 | Nameless draft rejected; incomplete cannot publish; complete publishes + goes live | refused / published / visible | refused / published / visible | PASS |
+| 2 | Stock sync on create; low / out-of-stock / restock consistency | 20 / low / out / 20 | identical | PASS |
+| 3 | Customer record → staged order → linked history → admin order/customer views | consistent | consistent | PASS |
+| 4 | Success pays via verification gate; payment sanitized; failure honest; retry recovers | verified states | identical | PASS |
+| 5 | Exactly-once deduction (20→17); replay idempotent; oversell refused; never negative | 17 / refused | identical | PASS |
+| 6 | Full status walk to delivered; customer/admin agree; cross-customer denied | delivered / denied | identical | PASS |
+| 7 | Admin sees customer data; visitor + forged token rejected | throws | throws | PASS |
+| 8 | Review pending → invisible → approved → visible, aggregate correct | 0 → 1 public | identical | PASS |
+| 9 | WhatsApp + order-prefix changes propagate to live readers | propagated | identical | PASS |
+| 10 | No secret leaks in renders; RLS present; views login-gated | clean | clean | PASS |
+| 11 | All admin views wired with responsive primitives | present | present | PASS |
+| 12 | Analytics counts chain orders/paid, lists chain product, matches dashboard | equal | equal | PASS |
+
+## Failures found during testing (all fixed + rerun green)
+1. **Apparent checkout rejection of admin-published products** — investigated
+   to a test-fixture gap (seed clones predate A3 compliance fields), not a
+   product bug: `setStatus(published)` correctly refuses incomplete records.
+   Fixture completed; publish + purchase verified end to end.
+2. **Session handling in three checks** — customer-order reads and the visitor
+   check require true session states (signed-in customer / no session at
+   all). Harness corrected to sign in and to log out before the visitor check;
+   product behavior (deny-by-default) confirmed correct throughout.
+
+## Findings
+- **Security issues**: none open. Deny-by-default verified at service
+  boundaries (admin barrier, customer order isolation, explicit-token
+  moderation/inventory writes); payments sanitized (masked PAN, no CVV);
+  RLS statically present (self-only profiles, admin gates, role-escalation
+  trigger, read-only payments/items).
+- **Data-integrity issues**: none open. Exactly-once inventory (idempotent
+  replay + oversell refusal), immutable order snapshots, no-claim guest
+  architecture, weighted review aggregates all verified across the chain.
+- **Performance issues**: none. Single-read-per-collection snapshots;
+  5k-order aggregation well under budget (A10).
+- **Responsive issues**: none found statically (shared table→card pattern,
+  stacking toolbars, ≥44px targets on every admin view).
+- **NOT TESTABLE**: live RLS end-to-end, live email dispatch (graceful
+  not-configured skips verified), 7-viewport visual pass — all need a
+  provisioned project / Chrome; browser-only suites (C-series) should re-run
+  where Chrome is available.
+- **Regression risks**: low. A11 changed zero product files; A6 (39/39), A7
+  (55/55), A8 (53/53), A9 (47/47), A10 (32/32) all re-run green.
