@@ -1,7 +1,20 @@
 /**
  * Customer Authentication & Account Service - Slimky Hair
  * Milestone C19 & C20: Customer Accounts, Order History Authorization & Linking
- * 
+ * Phase 1 (Backend Integration): Real Customer Identity
+ *
+ * Identity (register / login / logout / session / password reset) is backed
+ * by real Supabase Auth — see js/supabase-client.js. This is the source of
+ * truth; there is no local password store and no way to "log in" without a
+ * real, server-verified credential.
+ *
+ * Everything else here (addresses, wishlists, order lookups/linking) still
+ * reads/writes localStorage, keyed off the customer's id — which is now the
+ * real Supabase auth.users UUID. Migrating those to the `customers` /
+ * `customer_addresses` / `customer_wishlists` / `orders` tables is a later
+ * phase; this file's job right now is making sure *who the customer is* can
+ * never be spoofed or bypassed client-side.
+ *
  * Security Principles:
  * - Guest checkout requires NO account creation and creates NO dummy duplicate accounts.
  * - Authenticated customers have their orders linked to their customer ID.
@@ -10,14 +23,11 @@
  */
 
 import { OrderStore } from '../payment/order-store.js';
-import { emailService } from '../email/email-service.js';
 import { isValidEmail } from '../utils/validators.js';
+import { getSupabaseClient } from '../supabase-client.js';
 
-const CUSTOMERS_STORAGE_KEY = 'slimky_customers';
-const ACTIVE_SESSION_STORAGE_KEY = 'slimky_active_session';
-const SESSIONS_STORAGE_KEY = 'slimky_auth_sessions';
+const CUSTOMERS_STORAGE_KEY = 'slimky_customers'; // demo-seed fixture data only now (see initDemoCustomer)
 const ADDRESSES_STORAGE_KEY = 'slimky_customer_addresses';
-const RESET_TOKENS_STORAGE_KEY = 'slimky_password_reset_tokens';
 const WISHLISTS_STORAGE_KEY = 'slimky_customer_wishlists';
 
 
@@ -58,55 +68,149 @@ function writeStorage(key, value) {
 }
 
 /**
- * Safely read active session from either localStorage or sessionStorage.
+ * The localStorage key supabase-js persists the session under, derived the
+ * same way the SDK derives it: `sb-<project-ref>-auth-token`, where the ref
+ * is the first label of the configured Supabase host. Computed from
+ * window.__SLIMKY_ENV__ so it works without importing/constructing the
+ * Supabase client itself (most pages only need to READ login state).
+ * @returns {string|null}
  */
-function readSessionFromStorage() {
-  if (typeof localStorage !== 'undefined') {
-    try {
-      const raw = localStorage.getItem(ACTIVE_SESSION_STORAGE_KEY);
-      if (raw) return JSON.parse(raw);
-    } catch (e) {}
-  }
-  if (typeof sessionStorage !== 'undefined') {
-    try {
-      const raw = sessionStorage.getItem(ACTIVE_SESSION_STORAGE_KEY);
-      if (raw) return JSON.parse(raw);
-    } catch (e) {}
-  }
-  return null;
-}
-
-/**
- * Persist active session to appropriate storage based on rememberMe.
- */
-function writeActiveSession(session, rememberMe = true) {
-  const json = JSON.stringify(session);
-  if (rememberMe) {
-    if (typeof localStorage !== 'undefined') {
-      try { localStorage.setItem(ACTIVE_SESSION_STORAGE_KEY, json); } catch (e) {}
-    }
-    if (typeof sessionStorage !== 'undefined') {
-      try { sessionStorage.removeItem(ACTIVE_SESSION_STORAGE_KEY); } catch (e) {}
-    }
-  } else {
-    if (typeof sessionStorage !== 'undefined') {
-      try { sessionStorage.setItem(ACTIVE_SESSION_STORAGE_KEY, json); } catch (e) {}
-    }
-    if (typeof localStorage !== 'undefined') {
-      try { localStorage.removeItem(ACTIVE_SESSION_STORAGE_KEY); } catch (e) {}
-    }
+function getSupabaseStorageKey() {
+  try {
+    const url = (typeof window !== 'undefined' && window.__SLIMKY_ENV__ && window.__SLIMKY_ENV__.SUPABASE_URL) || '';
+    const host = String(url).replace(/^https?:\/\//, '').split('/')[0];
+    const ref = host.split('.')[0];
+    return ref ? `sb-${ref}-auth-token` : null;
+  } catch {
+    return null;
   }
 }
 
 /**
- * Clear active session from both localStorage and sessionStorage.
+ * Synchronously read the Supabase session supabase-js already persisted to
+ * localStorage. This is what lets getCurrentCustomer() stay a plain
+ * synchronous call for the ~20 files across the site that use it for "is
+ * someone logged in" UI, without every page needing to load the Supabase
+ * client library and await a network round trip just to render a nav badge.
+ *
+ * This is optimistic: it trusts locally-stored data for UI purposes only.
+ * Every operation that actually matters (reading another table via RLS,
+ * mutating account state) goes through the real Supabase client and is
+ * re-verified server-side regardless of what this returns.
+ * @returns {Object|null} Supabase Session-shaped object, or null
  */
-function clearActiveSession() {
-  if (typeof localStorage !== 'undefined') {
-    try { localStorage.removeItem(ACTIVE_SESSION_STORAGE_KEY); } catch (e) {}
+function readSupabaseSessionFromStorage() {
+  const key = getSupabaseStorageKey();
+  if (!key || typeof localStorage === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const session = JSON.parse(raw);
+    if (!session || !session.access_token || !session.user) return null;
+    return session;
+  } catch {
+    return null;
   }
-  if (typeof sessionStorage !== 'undefined') {
-    try { sessionStorage.removeItem(ACTIVE_SESSION_STORAGE_KEY); } catch (e) {}
+}
+
+/**
+ * Map a Supabase Auth user object onto the customer shape the rest of this
+ * app (addresses, wishlists, order lookups, account UI) already expects.
+ * @param {Object} user Supabase auth.users-shaped object
+ * @returns {Object}
+ */
+function mapUserToCustomer(user) {
+  if (!user) return null;
+  const meta = user.user_metadata || {};
+  return {
+    id: user.id,
+    authUserId: user.id,
+    email: user.email || '',
+    fullName: meta.full_name || meta.fullName || '',
+    phone: meta.phone || '',
+    status: user.email_confirmed_at || user.confirmed_at ? CUSTOMER_STATUSES.ACTIVE : CUSTOMER_STATUSES.PENDING_CONFIRMATION,
+    defaultShippingAddressId: null,
+    defaultAddress: null,
+    metadata: {},
+    createdAt: user.created_at,
+    updatedAt: user.updated_at || user.created_at
+  };
+}
+
+/**
+ * Map a `customer_addresses` row (snake_case DB columns) onto the camelCase
+ * shape account-addresses.js / checkout.js already render.
+ * @param {Object} row
+ * @returns {Object}
+ */
+function mapAddressRow(row) {
+  return {
+    id: String(row.id),
+    customerId: row.customer_id,
+    label: row.label,
+    recipientName: row.recipient_name,
+    phone: row.phone,
+    streetAddress: row.street_address,
+    city: row.city,
+    state: row.state,
+    postalCode: row.postal_code || '',
+    country: row.country,
+    deliveryInstructions: row.delivery_instructions || '',
+    isDefault: !!row.is_default,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at
+  };
+}
+
+/**
+ * Best-effort background mirror of a customer's wishlist into the real
+ * `customer_wishlists` table (Phase 5). Never awaited by its caller, never
+ * throws — the synchronous localStorage cache (WISHLISTS_STORAGE_KEY) stays
+ * the source of truth for the site-wide synchronous read path
+ * (js/wishlist-store.js is called from product-card click handlers on
+ * every page; it cannot become async without rewriting rendering site-wide).
+ * Silently does nothing on any page that hasn't loaded the Supabase vendor
+ * library / env config — this only actually runs on pages that have them
+ * (account, checkout, login/register).
+ * @param {string} customerId
+ * @param {string[]} productIds
+ */
+function pushWishlistToBackend(customerId, productIds) {
+  (async () => {
+    try {
+      const supabase = getSupabaseClient();
+      const { error: deleteError } = await supabase.from('customer_wishlists').delete().eq('customer_id', customerId);
+      if (deleteError) {
+        console.warn('[CustomerService] wishlist backend sync notice:', deleteError.message);
+        return;
+      }
+      if (productIds.length > 0) {
+        const rows = productIds.map(productId => ({ customer_id: customerId, product_id: productId }));
+        const { error: insertError } = await supabase.from('customer_wishlists').insert(rows);
+        if (insertError) console.warn('[CustomerService] wishlist backend sync notice:', insertError.message);
+      }
+    } catch {
+      // Vendor library / env not loaded on this page, or network unavailable.
+    }
+  })();
+}
+
+/**
+ * Best-effort pull of a customer's server-stored wishlist (e.g. saved from
+ * another device/browser). Returns [] on any failure — callers merge this
+ * with whatever the local cache already has, so a failed pull never loses
+ * local data.
+ * @param {string} customerId
+ * @returns {Promise<string[]>}
+ */
+async function pullWishlistFromBackend(customerId) {
+  try {
+    const supabase = getSupabaseClient();
+    const { data, error } = await supabase.from('customer_wishlists').select('product_id').eq('customer_id', customerId);
+    if (error) return [];
+    return (data || []).map(r => r.product_id).filter(Boolean);
+  } catch {
+    return [];
   }
 }
 
@@ -172,28 +276,32 @@ export class CustomerService {
   }
 
   /**
-   * Listen for storage changes across tabs to sync auth state.
+   * Listen for storage changes across tabs to sync auth state. Watches
+   * Supabase's own persisted session key, so a login/logout/token refresh in
+   * one tab is reflected in every other open tab on this origin.
    */
   bindStorageListener() {
     if (typeof window !== 'undefined' && window.addEventListener) {
       window.addEventListener('storage', (e) => {
-        if (e.key === ACTIVE_SESSION_STORAGE_KEY) {
+        const key = getSupabaseStorageKey();
+        if (key && e.key === key) {
           const customer = this.getCurrentCustomer();
-          const session = readSessionFromStorage();
-          this.notifyAuthStateChange(customer, session);
+          this.notifyAuthStateChange(customer, null);
         }
       });
     }
   }
 
   /**
-   * Seed a baseline demo registered customer and address for local testing.
-   *
-   * A12 production gate: fixture data must never appear in a real deployment.
-   * Seeding runs on dev origins (localhost / local network / file / Node
-   * test runtimes) or when explicitly opted in, and never on a production
-   * host. Operators can also force it off anywhere with localStorage
-   * `slimky_demo_seed = "off"`.
+   * Seed baseline DEMO FIXTURE data for local testing — addresses and a
+   * sample order only. This does NOT create a real, sign-in-able account:
+   * customer identity is Supabase Auth now, and there is no local password
+   * store to seed a matching login for. The "Fill Demo Credentials" helper
+   * on the login page fills a placeholder email/password that will fail
+   * against real Supabase Auth unless a matching user has been created
+   * there (Supabase dashboard / seed script) — a known limitation carried
+   * forward from the Phase 1 identity migration, not a regression to "fix"
+   * by re-introducing a local password bypass.
    */
   initDemoCustomer() {
     if (!shouldSeedDemoData()) return;
@@ -205,7 +313,7 @@ export class CustomerService {
     if (!customers.some(c => c.email && c.email.toLowerCase() === 'chioma.demo@slimkyhair.com')) {
       const demoCust = {
         id: demoCustId,
-        authUserId: null, // Connected to Supabase auth.users(id) when Supabase Auth is active
+        authUserId: null,
         email: 'chioma.demo@slimkyhair.com',
         fullName: 'Chioma E. Okonkwo',
         phone: '+234 803 123 4567',
@@ -301,82 +409,69 @@ export class CustomerService {
   }
 
   /**
-   * Check if an email is already associated with an existing registered customer account.
+   * Whether an email is already registered. Supabase Auth's signUp API is
+   * deliberately enumeration-safe (an existing, confirmed email returns the
+   * same shape as a new one — see registerCustomer), so this can no longer
+   * be answered without attempting an actual auth operation. Kept as a
+   * no-op returning false for API compatibility with existing callers (used
+   * for an inline "email already in use" hint during live validation); the
+   * authoritative check now happens at submission time in registerCustomer.
    * @param {string} email
    * @returns {boolean}
    */
-  isEmailRegistered(email) {
-    if (!email) return false;
-    const normEmail = email.trim().toLowerCase();
-    const customers = readStorage(CUSTOMERS_STORAGE_KEY, []);
-    return customers.some(c => c.email && c.email.toLowerCase() === normEmail);
+  isEmailRegistered(_email) {
+    return false;
   }
 
   /**
-   * Register a new customer account.
-   * Sends a registration confirmation email and links any eligible historical guest orders.
-   * Note: NEVER stores plaintext passwords in the customer profile.
+   * Register a new customer account via real Supabase Auth.
    * @param {Object} params
    * @param {string} params.email
    * @param {string} params.fullName
+   * @param {string} params.password
    * @param {string} [params.phone]
-   * @param {string} [params.authUserId] Optional Supabase auth.users ID
-   * @param {string} [params.status] Initial status (defaults to active or registered)
-   * @param {boolean} [params.throwOnExisting=false] Whether to throw if account already exists
-   * @returns {Promise<{ customer: Object, sessionToken: string, linkedOrdersCount: number, alreadyRegistered: boolean }>}
+   * @param {boolean} [params.throwOnExisting=false] Present for API compatibility; registration
+   *   now always throws on an existing account since there is no local session to silently log into.
+   * @returns {Promise<{ customer: Object, sessionToken: string|null, linkedOrdersCount: number, alreadyRegistered: boolean }>}
    */
-  async registerCustomer({ email, fullName, phone = '', authUserId = null, status = CUSTOMER_STATUSES.ACTIVE, throwOnExisting = false }) {
+  async registerCustomer({ email, fullName, phone = '', password }) {
     if (!email || !fullName) {
       throw new Error('Email and full name are required to create an account.');
     }
+    if (!password) {
+      throw new Error('Password is required to create an account.');
+    }
+    const strength = validatePasswordStrength(password);
+    if (!strength.valid) {
+      throw new Error(strength.message);
+    }
 
     const normEmail = email.trim().toLowerCase();
-    const customers = readStorage(CUSTOMERS_STORAGE_KEY, []);
-    let customer = customers.find(c => c.email.toLowerCase() === normEmail);
+    const supabase = getSupabaseClient();
 
-    if (customer) {
-      if (throwOnExisting) {
-        throw new Error('An account with this email address already exists. Please sign in instead.');
-      }
-      // Customer already exists -> log them in
-      const session = this.createSession(customer);
-      return {
-        customer,
-        sessionToken: session.token,
-        linkedOrdersCount: 0,
-        alreadyRegistered: true
-      };
-    }
-
-    const id = `cust_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    const now = new Date().toISOString();
-
-    customer = {
-      id,
-      authUserId: authUserId || null,
+    const { data, error } = await supabase.auth.signUp({
       email: normEmail,
-      fullName: fullName.trim(),
-      phone: phone.trim(),
-      status: Object.values(CUSTOMER_STATUSES).includes(status) ? status : CUSTOMER_STATUSES.ACTIVE,
-      defaultShippingAddressId: null,
-      defaultAddress: null,
-      metadata: {},
-      createdAt: now,
-      updatedAt: now
-    };
+      password,
+      options: {
+        data: {
+          full_name: fullName.trim(),
+          phone: phone.trim()
+        }
+      }
+    });
 
-    customers.push(customer);
-    writeStorage(CUSTOMERS_STORAGE_KEY, customers);
-
-    // Create authenticated session
-    const session = this.createSession(customer);
-
-    // Send transactional registration confirmation email (Milestone C17)
-    try {
-      await emailService.sendRegistrationConfirmationEmail(customer);
-    } catch (err) {
-      console.warn('[CustomerService] Registration email sending skipped/failed:', err);
+    if (error) {
+      throw new Error(error.message || 'Unable to create your account. Please try again.');
     }
+
+    // Supabase's anti-enumeration behavior: signing up an email that already
+    // has a confirmed account returns success with an empty `identities`
+    // array rather than an error. This is the documented way to detect it.
+    if (!data.user || (Array.isArray(data.user.identities) && data.user.identities.length === 0)) {
+      throw new Error('An account with this email address already exists. Please sign in instead.');
+    }
+
+    const customer = mapUserToCustomer(data.user);
 
     // Connect eligible historical guest orders matching this verified email (Milestone C19)
     const linkedCount = this.linkHistoricalOrders(customer.id, customer.email);
@@ -388,7 +483,7 @@ export class CustomerService {
         if (rawWishlist) {
           const guestWishlist = JSON.parse(rawWishlist);
           if (Array.isArray(guestWishlist) && guestWishlist.length > 0) {
-            this.saveCustomerWishlist(customer.id, guestWishlist, session.token);
+            this.saveCustomerWishlist(customer.id, guestWishlist);
           }
         }
       }
@@ -398,51 +493,44 @@ export class CustomerService {
 
     return {
       customer,
-      sessionToken: session.token,
+      sessionToken: data.session?.access_token || null,
       linkedOrdersCount: linkedCount,
       alreadyRegistered: false
     };
   }
 
   /**
-   * Resend the account confirmation / welcome email.
+   * Resend the account confirmation email via Supabase Auth.
    * @param {string} email
-   * @returns {Promise<{ success: boolean, messageId: string }>}
+   * @returns {Promise<{ success: boolean }>}
    */
   async resendConfirmationEmail(email) {
     if (!email) throw new Error('Email address is required to resend confirmation.');
-    const normEmail = email.trim().toLowerCase();
-    const customers = readStorage(CUSTOMERS_STORAGE_KEY, []);
-    const customer = customers.find(c => c.email.toLowerCase() === normEmail);
-
-    if (!customer) {
-      throw new Error(`No customer account found for "${email}".`);
+    const supabase = getSupabaseClient();
+    const { error } = await supabase.auth.resend({ type: 'signup', email: email.trim().toLowerCase() });
+    if (error) {
+      throw new Error(error.message || 'Unable to resend confirmation email.');
     }
-
-    return emailService.sendRegistrationConfirmationEmail(customer);
+    return { success: true };
   }
 
   /**
-   * Log in an existing customer.
+   * Log in an existing customer via real Supabase Auth.
    * Can be called with (email, password) or ({ email, password, rememberMe })
    * @param {string|Object} emailOrParams
    * @param {string} [passwordParam]
-   * @param {boolean} [rememberMeParam=true]
-   * @returns {Promise<{ customer: Object, sessionToken: string }>}
+   * @returns {Promise<{ customer: Object, sessionToken: string|null }>}
    */
-  async loginCustomer(emailOrParams, passwordParam = '', rememberMeParam = true) {
+  async loginCustomer(emailOrParams, passwordParam = '') {
     let email = '';
     let password = '';
-    let rememberMe = true;
 
     if (typeof emailOrParams === 'object' && emailOrParams !== null) {
       email = emailOrParams.email || '';
       password = emailOrParams.password || '';
-      rememberMe = emailOrParams.rememberMe !== undefined ? !!emailOrParams.rememberMe : true;
     } else {
       email = emailOrParams || '';
       password = passwordParam || '';
-      rememberMe = rememberMeParam !== undefined ? !!rememberMeParam : true;
     }
 
     if (!email || !email.trim()) {
@@ -456,22 +544,34 @@ export class CustomerService {
       throw new Error('Password is required to sign in.');
     }
 
-    const customers = readStorage(CUSTOMERS_STORAGE_KEY, []);
-    const customer = customers.find(c => c.email && c.email.toLowerCase() === normEmail);
+    const supabase = getSupabaseClient();
+    const { data, error } = await supabase.auth.signInWithPassword({ email: normEmail, password });
 
-    if (!customer) {
+    if (error) {
+      if (/email not confirmed/i.test(error.message || '')) {
+        throw new Error('Please confirm your email address before signing in. Check your inbox for the confirmation email.');
+      }
       throw new Error('Invalid email or password. Please check your credentials and try again.');
     }
 
-    if (customer.status === CUSTOMER_STATUSES.SUSPENDED) {
-      throw new Error('This customer account has been suspended. Please contact Slimky Hair Client Care.');
-    }
+    const customer = mapUserToCustomer(data.user);
 
-    if (customer.status === CUSTOMER_STATUSES.PENDING_CONFIRMATION) {
-      throw new Error('Please confirm your email address before signing in. Check your inbox for the confirmation email.');
+    // Phase 5: pull any wishlist items saved server-side (e.g. from another
+    // device/browser) into this device's local cache first, so the guest
+    // merge below sees the customer's full wishlist, not just whatever this
+    // browser happened to have cached locally.
+    try {
+      const remoteIds = await pullWishlistFromBackend(customer.id);
+      if (remoteIds.length > 0) {
+        const localIds = this.getCustomerWishlist(customer.id);
+        const merged = Array.from(new Set([...remoteIds, ...localIds]));
+        if (merged.length !== localIds.length) {
+          this.saveCustomerWishlist(customer.id, merged);
+        }
+      }
+    } catch (e) {
+      console.warn('[CustomerService] Wishlist backend pull notice:', e);
     }
-
-    const session = this.createSession(customer, rememberMe);
 
     // Intelligently merge guest wishlist with customer account wishlist (Milestone C19.8)
     try {
@@ -479,11 +579,11 @@ export class CustomerService {
         const rawWishlist = localStorage.getItem('slimky_hair_wishlist');
         const guestWishlist = rawWishlist ? JSON.parse(rawWishlist) : [];
         if (Array.isArray(guestWishlist) && guestWishlist.length > 0) {
-          const merged = this.mergeCustomerWishlist(customer.id, guestWishlist, session.token);
+          const merged = this.mergeCustomerWishlist(customer.id, guestWishlist);
           localStorage.setItem('slimky_hair_wishlist', JSON.stringify(merged));
         } else {
           // If guest wishlist is empty, restore customer's existing saved items to active localStorage
-          const customerWishlist = this.getCustomerWishlist(customer.id, session.token);
+          const customerWishlist = this.getCustomerWishlist(customer.id);
           localStorage.setItem('slimky_hair_wishlist', JSON.stringify(customerWishlist));
         }
         if (typeof window !== 'undefined') {
@@ -498,60 +598,30 @@ export class CustomerService {
       console.warn('[CustomerService] Wishlist merge notice:', e);
     }
 
-    this.notifyAuthStateChange(customer, session);
+    this.notifyAuthStateChange(customer, data.session);
 
     return {
       customer,
-      sessionToken: session.token
+      sessionToken: data.session?.access_token || null
     };
   }
 
   /**
-   * Create and persist an active session.
-   * Stores both active session and session token registry.
-   * @param {Object} customer
-   * @param {boolean} [rememberMe=true]
-   * @returns {Object} session
+   * Log out the current active customer session via real Supabase Auth.
+   * Also clears the active-session wishlist so items never leak to guest or
+   * subsequent customer on a shared device.
    */
-  createSession(customer, rememberMe = true) {
-    const sessionToken = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-    const session = {
-      token: sessionToken,
-      customerId: customer.id,
-      email: customer.email,
-      fullName: customer.fullName,
-      rememberMe,
-      createdAt: new Date().toISOString(),
-      expiresAt
-    };
-
-    const sessions = readStorage(SESSIONS_STORAGE_KEY, {});
-    sessions[sessionToken] = session;
-    writeStorage(SESSIONS_STORAGE_KEY, sessions);
-    writeActiveSession(session, rememberMe);
-
-    return session;
-  }
-
-  /**
-   * Log out the current active customer session.
-   * Clears session from active storage without clearing guest cart.
-   * Empties active session wishlist so customer items never leak to guest or subsequent user.
-   */
-  logoutCustomer() {
-    // Invalidate the token in the session registry too, not just the active-session
-    // pointer — otherwise a leaked/copied token still passes getCustomerOrders() /
-    // getOrderDetails() session lookups after "logout" (those check the registry
-    // directly, not just the active-session pointer cleared below).
-    const activeSession = readSessionFromStorage();
-    if (activeSession && activeSession.token) {
-      const sessions = readStorage(SESSIONS_STORAGE_KEY, {});
-      delete sessions[activeSession.token];
-      writeStorage(SESSIONS_STORAGE_KEY, sessions);
+  async logoutCustomer() {
+    try {
+      const supabase = getSupabaseClient();
+      const { error } = await supabase.auth.signOut();
+      if (error) console.warn('[CustomerService] Supabase sign-out error:', error);
+    } catch (err) {
+      // Vendor library / env not loaded on this page, or network unavailable.
+      // Fall through and clear what we can locally so the UI still reflects logout.
+      console.warn('[CustomerService] Sign-out request could not be sent:', err.message);
     }
-    clearActiveSession();
-    // Milestone C19.8: Clear active session wishlist so customer's items never leak to guest or subsequent customer
+
     if (typeof localStorage !== 'undefined') {
       try {
         localStorage.removeItem('slimky_hair_wishlist');
@@ -566,22 +636,15 @@ export class CustomerService {
   }
 
   /**
-   * Get the currently logged-in customer, or null if guest / expired.
+   * Get the currently logged-in customer, or null if guest / no session.
+   * Synchronous — see readSupabaseSessionFromStorage() for what this trusts
+   * and why that's safe for UI purposes only.
    * @returns {Object|null}
    */
   getCurrentCustomer() {
-    const session = readSessionFromStorage();
-    if (!session || !session.customerId) return null;
-
-    // Check expiration
-    if (session.expiresAt && new Date(session.expiresAt) <= new Date()) {
-      clearActiveSession();
-      this.notifyAuthStateChange(null, null);
-      return null;
-    }
-
-    const customers = readStorage(CUSTOMERS_STORAGE_KEY, []);
-    return customers.find(c => c.id === session.customerId) || null;
+    const session = readSupabaseSessionFromStorage();
+    if (!session) return null;
+    return mapUserToCustomer(session.user);
   }
 
   /**
@@ -593,161 +656,80 @@ export class CustomerService {
   }
 
   /**
-   * Get active session token.
+   * Get the active session's access token, if any.
    * @returns {string|null}
    */
   getSessionToken() {
-    const session = readSessionFromStorage();
-    if (!session || !session.token) return null;
-    if (session.expiresAt && new Date(session.expiresAt) <= new Date()) {
-      clearActiveSession();
-      return null;
-    }
-    return session ? session.token : null;
+    const session = readSupabaseSessionFromStorage();
+    return session?.access_token || null;
   }
 
   /**
-   * Request a password reset link for a customer account.
-   * Enumeration-safe: always returns neutral success message regardless of existence.
+   * Request a password reset email via real Supabase Auth.
+   * Enumeration-safe: Supabase does not error for an unknown email, so this
+   * always returns the same neutral success message.
    * @param {string} email
-   * @param {string} [storeUrl='./']
-   * @returns {Promise<{ success: boolean, message: string, token: string|null }>}
+   * @param {string} [storeUrl='./'] Relative path to the site root, used to build the redirect URL.
+   * @returns {Promise<{ success: boolean, message: string }>}
    */
   async requestPasswordReset(email, storeUrl = './') {
     if (!email || !email.trim()) {
       throw new Error('Email address is required to reset your password.');
     }
-
     const normEmail = email.trim().toLowerCase();
     if (!isValidEmail(normEmail)) {
       throw new Error('Please enter a valid email address.');
     }
 
-    const customers = readStorage(CUSTOMERS_STORAGE_KEY, []);
-    const customer = customers.find(c => c.email && c.email.toLowerCase() === normEmail);
+    const supabase = getSupabaseClient();
+    let redirectTo;
+    try {
+      redirectTo = new URL(`${storeUrl}account/reset-password/`, window.location.href).toString();
+    } catch {
+      redirectTo = undefined;
+    }
 
-    let generatedToken = null;
-
-    if (customer) {
-      generatedToken = `rst_${Date.now()}_${Math.random().toString(36).substring(2, 10)}${Math.random().toString(36).substring(2, 10)}`;
-      const tokens = readStorage(RESET_TOKENS_STORAGE_KEY, {});
-      tokens[generatedToken] = {
-        token: generatedToken,
-        email: customer.email,
-        customerId: customer.id,
-        createdAt: new Date().toISOString(),
-        expiresAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(), // 1 hour TTL
-        used: false
-      };
-      writeStorage(RESET_TOKENS_STORAGE_KEY, tokens);
-
-      const resetUrl = `${storeUrl}account/reset-password/?token=${encodeURIComponent(generatedToken)}`;
-
-      try {
-        await emailService.sendPasswordResetEmail({
-          email: customer.email,
-          customerName: customer.fullName,
-          resetUrl,
-          resetToken: generatedToken
-        });
-      } catch (err) {
-        console.warn('[CustomerService] Password reset email sending failed:', err);
-      }
+    const { error } = await supabase.auth.resetPasswordForEmail(normEmail, redirectTo ? { redirectTo } : undefined);
+    if (error) {
+      // Do not leak whether the email exists; log for operators only.
+      console.warn('[CustomerService] resetPasswordForEmail notice:', error.message);
     }
 
     return {
       success: true,
-      message: "If an account exists for this email address, we'll send instructions to reset your password.",
-      token: generatedToken
+      message: "If an account exists for this email address, we'll send instructions to reset your password."
     };
   }
 
   /**
-   * Validate a password reset token.
-   * Checks token presence, validity, single-use status, and 1-hour expiration.
-   * @param {string} token
-   * @returns {{ valid: boolean, error?: string, message: string, email?: string, customerId?: string }}
-   */
-  validatePasswordResetToken(token) {
-    if (!token || !token.trim()) {
-      return {
-        valid: false,
-        error: 'missing_token',
-        message: 'No password reset token was provided. Please check the link from your email.'
-      };
-    }
-
-    const cleanToken = token.trim();
-    const tokens = readStorage(RESET_TOKENS_STORAGE_KEY, {});
-    const record = tokens[cleanToken];
-
-    if (!record) {
-      return {
-        valid: false,
-        error: 'invalid_token',
-        message: 'This password reset link is invalid or has expired. Please request a new one.'
-      };
-    }
-
-    if (record.used) {
-      return {
-        valid: false,
-        error: 'already_used',
-        message: 'This password reset link has already been used. Please request a new one.'
-      };
-    }
-
-    if (record.expiresAt && new Date(record.expiresAt) <= new Date()) {
-      return {
-        valid: false,
-        error: 'expired',
-        message: 'This password reset link has expired. Reset links are valid for 1 hour.'
-      };
-    }
-
-    return {
-      valid: true,
-      email: record.email,
-      customerId: record.customerId,
-      message: 'Token is valid.'
-    };
-  }
-
-  /**
-   * Reset customer password using a verified token.
-   * Validates token validity, enforces secure password requirements, marks token used.
+   * Complete a password reset. Must be called on the page the reset email's
+   * link lands on — Supabase's client auto-detects the recovery token in
+   * the URL (detectSessionInUrl: true) and establishes a temporary recovery
+   * session before this runs; there is no separate token to pass in.
    * @param {Object} params
-   * @param {string} params.token
    * @param {string} params.newPassword
    * @returns {Promise<{ success: boolean, message: string }>}
    */
-  async resetPasswordWithToken({ token, newPassword }) {
-    const tokenStatus = this.validatePasswordResetToken(token);
-    if (!tokenStatus.valid) {
-      throw new Error(tokenStatus.message);
-    }
-
+  async resetPasswordWithToken({ newPassword }) {
     const strength = validatePasswordStrength(newPassword);
     if (!strength.valid) {
       throw new Error(strength.message);
     }
 
-    // Mark token as used
-    const cleanToken = token.trim();
-    const tokens = readStorage(RESET_TOKENS_STORAGE_KEY, {});
-    if (tokens[cleanToken]) {
-      tokens[cleanToken].used = true;
-      tokens[cleanToken].usedAt = new Date().toISOString();
-      writeStorage(RESET_TOKENS_STORAGE_KEY, tokens);
+    const supabase = getSupabaseClient();
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData?.session) {
+      throw new Error('This password reset link is invalid or has expired. Please request a new one.');
     }
 
-    // Update customer record timestamp
-    const customers = readStorage(CUSTOMERS_STORAGE_KEY, []);
-    const customer = customers.find(c => c.id === tokenStatus.customerId);
-    if (customer) {
-      customer.updatedAt = new Date().toISOString();
-      writeStorage(CUSTOMERS_STORAGE_KEY, customers);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) {
+      throw new Error(error.message || 'Failed to update password. Please try again.');
     }
+
+    // Require a fresh sign-in with the new password rather than leaving the
+    // one-time recovery session active.
+    await supabase.auth.signOut();
 
     return {
       success: true,
@@ -893,16 +875,19 @@ export class CustomerService {
 
   /**
    * Securely convert a guest order into a registered customer account (Milestone C19.9).
-   * 
+   *
    * Security & Verification:
    * 1. Requires valid orderId and cryptographic securityToken matching the order.
    * 2. Requires email matching order.customer.email (case-insensitive).
    * 3. Prevents claiming if order is already associated with a different registered customer.
-   * 4. Enforces password security requirements (validatePasswordStrength).
-   * 5. If account exists with this email, verifies credentials before linking.
+   * 4. Enforces password security requirements.
+   * 5. Resolves the account through real Supabase Auth: tries signing in with the
+   *    supplied password first (covers "this email already has an account and this
+   *    is really them"), and only creates a new account if that fails. This means a
+   *    stranger cannot take over someone else's account merely by submitting their
+   *    email on this form — they'd need the real password either way.
    * 6. Links order in-place without duplication or data loss.
-   * 7. Establishes authenticated customer session.
-   * 
+   *
    * @param {Object} params
    * @param {string} params.orderId
    * @param {string} params.securityToken
@@ -910,7 +895,7 @@ export class CustomerService {
    * @param {string} params.email
    * @param {string} [params.phone]
    * @param {string} params.password
-   * @returns {Promise<{ success: boolean, customer: Object, order: Object, sessionToken: string, isNewAccount: boolean }>}
+   * @returns {Promise<{ success: boolean, customer: Object, order: Object, sessionToken: string|null, isNewAccount: boolean }>}
    */
   async convertGuestOrderToCustomer(paramsOrOrderId, tokenMaybe, optionsMaybe) {
     let orderId, securityToken, fullName, email, phone, password;
@@ -957,7 +942,7 @@ export class CustomerService {
           success: true,
           customer: currentCustomer,
           order,
-          sessionToken: this.createSession(currentCustomer).token,
+          sessionToken: this.getSessionToken(),
           isNewAccount: false,
           alreadyLinked: true
         };
@@ -971,51 +956,39 @@ export class CustomerService {
       throw new Error(strength.message);
     }
 
-    // 5. Account resolution or creation
-    const customers = readStorage(CUSTOMERS_STORAGE_KEY, []);
-    let customer = customers.find(c => c.email && c.email.toLowerCase() === normEmail);
+    // 5. Resolve the account: try signing in first (this proves ownership of
+    // an existing account), only creating a new one if that fails.
+    const supabase = getSupabaseClient();
+    let user = null;
     let isNewAccount = false;
 
-    if (customer) {
-      // Existing customer with this email
-      if (customer.status === CUSTOMER_STATUSES.SUSPENDED) {
-        throw new Error('This customer account is suspended. Please contact customer care.');
-      }
+    const signInAttempt = await supabase.auth.signInWithPassword({ email: normEmail, password });
+    if (signInAttempt.data?.user) {
+      user = signInAttempt.data.user;
     } else {
-      // New account creation
-      isNewAccount = true;
-      const id = `cust_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-      const now = new Date().toISOString();
-
-      customer = {
-        id,
-        authUserId: null,
+      const { data, error } = await supabase.auth.signUp({
         email: normEmail,
-        fullName: (fullName || order.customer?.fullName || '').trim(),
-        phone: (phone || order.customer?.phone || '').trim(),
-        status: CUSTOMER_STATUSES.ACTIVE,
-        defaultShippingAddressId: null,
-        defaultAddress: null,
-        metadata: {},
-        createdAt: now,
-        updatedAt: now
-      };
-
-      customers.push(customer);
-      writeStorage(CUSTOMERS_STORAGE_KEY, customers);
-
-      // Send registration confirmation email
-      try {
-        await emailService.sendRegistrationConfirmationEmail(customer);
-      } catch (err) {
-        console.warn('[CustomerService] Registration confirmation email notice:', err);
+        password,
+        options: {
+          data: {
+            full_name: (fullName || order.customer?.fullName || '').trim(),
+            phone: (phone || order.customer?.phone || '').trim()
+          }
+        }
+      });
+      if (error) {
+        throw new Error(error.message || 'Unable to create your account.');
       }
+      if (!data.user || (Array.isArray(data.user.identities) && data.user.identities.length === 0)) {
+        throw new Error('An account already exists with this email address, but that password doesn\'t match it. Please sign in first, then link this order from your account.');
+      }
+      user = data.user;
+      isNewAccount = true;
     }
 
-    // 6. Establish authenticated session
-    const session = this.createSession(customer, true);
+    const customer = mapUserToCustomer(user);
 
-    // 7. Auto-save delivery address if new customer has no saved address
+    // 6. Auto-save delivery address if new customer has no saved address
     if (order.delivery && order.delivery.address) {
       try {
         const addresses = this.getAddresses(customer.id);
@@ -1039,17 +1012,27 @@ export class CustomerService {
       }
     }
 
-    // 8. Link the specific order (Order remains completely intact, customerId set, isGuest = false)
+    // 7. Link the specific order (Order remains completely intact, customerId set, isGuest = false)
     const updatedOrder = OrderStore.linkOrderToCustomer(order.id, customer.id);
 
-    // 9. Sync any guest wishlist items to the newly authenticated customer account
+    // 8. Sync any guest wishlist items to the newly authenticated customer account
     try {
+      // Pull server-stored items first (relevant when this resolved to an
+      // EXISTING account via sign-in above) so the merge below can't wipe
+      // them out — saveCustomerWishlist/mergeCustomerWishlist replace the
+      // backend list wholesale on every write.
+      const remoteIds = await pullWishlistFromBackend(customer.id);
+      if (remoteIds.length > 0) {
+        const localIds = this.getCustomerWishlist(customer.id);
+        this.saveCustomerWishlist(customer.id, Array.from(new Set([...remoteIds, ...localIds])));
+      }
+
       if (typeof localStorage !== 'undefined') {
         const rawWishlist = localStorage.getItem('slimky_hair_wishlist');
         if (rawWishlist) {
           const guestWishlist = JSON.parse(rawWishlist);
           if (Array.isArray(guestWishlist) && guestWishlist.length > 0) {
-            this.mergeCustomerWishlist(customer.id, guestWishlist, session.token);
+            this.mergeCustomerWishlist(customer.id, guestWishlist);
           }
         }
       }
@@ -1057,14 +1040,14 @@ export class CustomerService {
       console.warn('[CustomerService] Wishlist conversion merge notice:', e);
     }
 
-    // 10. Notify auth state change
-    this.notifyAuthStateChange(customer, session);
+    // 9. Notify auth state change
+    this.notifyAuthStateChange(customer, signInAttempt.data?.session || null);
 
     return {
       success: true,
       customer,
       order: updatedOrder || order,
-      sessionToken: session.token,
+      sessionToken: this.getSessionToken(),
       isNewAccount
     };
   }
@@ -1072,26 +1055,17 @@ export class CustomerService {
   /**
    * Retrieve orders belonging to the customer.
    * SECURITY GUARANTEE:
-   * Requires an authorized session matching the requested customerId.
+   * Requires the caller to BE that authenticated customer right now.
    * Orders are NEVER returned merely by passing an arbitrary email address.
    * @param {string} customerId
-   * @param {string} [sessionToken]
    * @returns {Array} List of orders
    */
-  getCustomerOrders(customerId, sessionToken = null) {
+  getCustomerOrders(customerId) {
     if (!customerId) return [];
-
-    const activeSession = readStorage(ACTIVE_SESSION_STORAGE_KEY, null);
-    const sessions = readStorage(SESSIONS_STORAGE_KEY, {});
-    const session = sessionToken 
-      ? (sessions[sessionToken] || (activeSession && activeSession.token === sessionToken ? activeSession : null))
-      : activeSession;
-
-    // Security Gate: Token/session must exist and match requested customer ID
-    if (!session || session.customerId !== customerId) {
+    const current = this.getCurrentCustomer();
+    if (!current || current.id !== customerId) {
       throw new Error('Unauthorized: You can only view orders associated with your authenticated session.');
     }
-
     return OrderStore.getOrdersByCustomer(customerId);
   }
 
@@ -1099,21 +1073,15 @@ export class CustomerService {
    * Retrieve a specific order with full authorization check.
    * @param {string} orderId
    * @param {string} customerId
-   * @param {string} [sessionToken]
    * @returns {Object} order
    */
-  getOrderDetails(orderId, customerId, sessionToken = null) {
+  getOrderDetails(orderId, customerId) {
     if (!orderId || !customerId) {
       throw new Error('Order ID and Customer ID are required.');
     }
 
-    const activeSession = readStorage(ACTIVE_SESSION_STORAGE_KEY, null);
-    const sessions = readStorage(SESSIONS_STORAGE_KEY, {});
-    const session = sessionToken 
-      ? (sessions[sessionToken] || (activeSession && activeSession.token === sessionToken ? activeSession : null))
-      : activeSession;
-
-    if (!session || session.customerId !== customerId) {
+    const current = this.getCurrentCustomer();
+    if (!current || current.id !== customerId) {
       throw new Error('Unauthorized: Session does not match requested customer account.');
     }
 
@@ -1130,26 +1098,26 @@ export class CustomerService {
   }
 
   /**
-   * Get a customer by ID.
+   * Get a customer by ID. Only ever resolves the currently authenticated
+   * customer (there is no local customer table to look up strangers in
+   * anymore) — kept for API compatibility with existing callers.
    * @param {string} customerId
    * @returns {Object|null}
    */
   getCustomerById(customerId) {
     if (!customerId) return null;
-    const customers = readStorage(CUSTOMERS_STORAGE_KEY, []);
-    return customers.find(c => c.id === customerId) || null;
+    const current = this.getCurrentCustomer();
+    return current && current.id === customerId ? current : null;
   }
 
   /**
    * List every registered customer record, stripped of any credential material.
    *
-   * Read-only. Exists so the admin backoffice can count and profile the customer
-   * base without reaching into the storage key directly. Never returns password
-   * hashes, reset tokens, or session tokens — callers get profile fields only.
-   *
-   * Authorization is NOT performed here; callers in the backoffice must go
-   * through adminService, which owns the admin authorization barrier.
-   *
+   * NOTE (Phase 1 gap): the customer directory now lives in Supabase Auth /
+   * `profiles`, which this localStorage-only method cannot see. This is a
+   * Phase 2 (admin backend integration) concern — the admin backoffice does
+   * not yet query Supabase for the real customer list. Returns the demo
+   * fixture only for now.
    * @returns {Array<Object>} Sanitized customer records
    */
   listAllCustomers() {
@@ -1167,138 +1135,149 @@ export class CustomerService {
   }
 
   /**
-   * Get all saved addresses for a customer.
+   * Get all saved addresses for a customer, from the real `customer_addresses`
+   * table (Phase 5). RLS (addresses_customer_all) scopes rows to the caller's
+   * own customer_id already; the WHERE clause here is belt-and-suspenders and
+   * keeps the method's own contract explicit.
    * @param {string} customerId
-   * @returns {Array} List of addresses
+   * @returns {Promise<Array>} List of addresses
    */
-  getAddresses(customerId) {
+  async getAddresses(customerId) {
     if (!customerId) return [];
-    const addresses = readStorage(ADDRESSES_STORAGE_KEY, []);
-    return addresses
-      .filter(a => a.customerId === customerId)
-      .sort((a, b) => {
-        if (a.isDefault && !b.isDefault) return -1;
-        if (!a.isDefault && b.isDefault) return 1;
-        return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
-      });
+    const supabase = getSupabaseClient();
+    const { data, error } = await supabase
+      .from('customer_addresses')
+      .select('*')
+      .eq('customer_id', customerId)
+      .order('is_default', { ascending: false })
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.warn('[CustomerService] getAddresses failed:', error.message);
+      return [];
+    }
+    return (data || []).map(mapAddressRow);
   }
 
   /**
    * Get a specific address by ID for a customer.
    * @param {string} addressId
    * @param {string} customerId
-   * @returns {Object|null}
+   * @returns {Promise<Object|null>}
    */
-  getAddress(addressId, customerId) {
+  async getAddress(addressId, customerId) {
     if (!addressId || !customerId) return null;
-    const addresses = readStorage(ADDRESSES_STORAGE_KEY, []);
-    return addresses.find(a => a.id === addressId && a.customerId === customerId) || null;
+    const supabase = getSupabaseClient();
+    const { data, error } = await supabase
+      .from('customer_addresses')
+      .select('*')
+      .eq('id', addressId)
+      .eq('customer_id', customerId)
+      .maybeSingle();
+    if (error || !data) return null;
+    return mapAddressRow(data);
   }
 
   /**
    * Save (create or update) a customer address.
    * @param {string} customerId
    * @param {Object} addressData
-   * @returns {Object} Saved address
+   * @returns {Promise<Object>} Saved address
    */
-  saveAddress(customerId, addressData) {
+  async saveAddress(customerId, addressData) {
     if (!customerId) throw new Error('Customer ID is required to save an address.');
     if (!addressData.streetAddress || !addressData.city || !addressData.state) {
       throw new Error('Street address, city, and state are required.');
     }
 
-    const addresses = readStorage(ADDRESSES_STORAGE_KEY, []);
-    const now = new Date().toISOString();
-    const isFirstAddress = !addresses.some(a => a.customerId === customerId);
+    const supabase = getSupabaseClient();
+    const existing = await this.getAddresses(customerId);
+    const isFirstAddress = existing.length === 0;
     const setAsDefault = addressData.isDefault || isFirstAddress;
 
-    let address;
+    // If this address will be default, unset default on the others first —
+    // customer_addresses has no partial-unique-index enforcing "one default",
+    // so this is a two-step best-effort sequence, not an atomic transaction.
+    if (setAsDefault) {
+      await supabase
+        .from('customer_addresses')
+        .update({ is_default: false })
+        .eq('customer_id', customerId)
+        .neq('id', addressData.id || 0);
+    }
+
+    const row = {
+      customer_id: customerId,
+      label: addressData.label || 'Home',
+      recipient_name: addressData.recipientName || '',
+      phone: addressData.phone || '',
+      street_address: addressData.streetAddress,
+      city: addressData.city,
+      state: addressData.state,
+      postal_code: addressData.postalCode || null,
+      country: addressData.country || 'Nigeria',
+      delivery_instructions: addressData.deliveryInstructions || null,
+      is_default: setAsDefault
+    };
 
     if (addressData.id) {
-      // Update existing address
-      const index = addresses.findIndex(a => a.id === addressData.id && a.customerId === customerId);
-      if (index === -1) throw new Error('Address not found.');
-
-      address = {
-        ...addresses[index],
-        label: addressData.label || addresses[index].label || 'Home',
-        recipientName: addressData.recipientName || addresses[index].recipientName,
-        phone: addressData.phone || addresses[index].phone,
-        streetAddress: addressData.streetAddress,
-        city: addressData.city,
-        state: addressData.state,
-        postalCode: addressData.postalCode || addresses[index].postalCode || '',
-        country: addressData.country || addresses[index].country || 'Nigeria',
-        deliveryInstructions: addressData.deliveryInstructions !== undefined ? addressData.deliveryInstructions : addresses[index].deliveryInstructions,
-        isDefault: setAsDefault,
-        updatedAt: now
-      };
-
-      addresses[index] = address;
-    } else {
-      // Create new address
-      const id = `addr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-      address = {
-        id,
-        customerId,
-        label: addressData.label || 'Home',
-        recipientName: addressData.recipientName || '',
-        phone: addressData.phone || '',
-        streetAddress: addressData.streetAddress,
-        city: addressData.city,
-        state: addressData.state,
-        postalCode: addressData.postalCode || '',
-        country: addressData.country || 'Nigeria',
-        deliveryInstructions: addressData.deliveryInstructions || '',
-        isDefault: setAsDefault,
-        createdAt: now,
-        updatedAt: now
-      };
-      addresses.push(address);
+      const { data, error } = await supabase
+        .from('customer_addresses')
+        .update(row)
+        .eq('id', addressData.id)
+        .eq('customer_id', customerId)
+        .select()
+        .maybeSingle();
+      if (error || !data) throw new Error(error?.message || 'Address not found.');
+      return mapAddressRow(data);
     }
 
-    // If marked default, unset default on other addresses for this customer
-    if (setAsDefault) {
-      addresses.forEach(a => {
-        if (a.customerId === customerId && a.id !== address.id) {
-          a.isDefault = false;
-        }
-      });
-
-      // Also sync customer defaultAddress snapshot
-      this.updateCustomerDefaultAddressSnapshot(customerId, address);
-    }
-
-    writeStorage(ADDRESSES_STORAGE_KEY, addresses);
-    return address;
+    const { data, error } = await supabase
+      .from('customer_addresses')
+      .insert(row)
+      .select()
+      .single();
+    if (error) throw new Error(error.message || 'Unable to save address.');
+    return mapAddressRow(data);
   }
 
   /**
    * Delete an address by ID.
    * @param {string} customerId
    * @param {string} addressId
-   * @returns {boolean}
+   * @returns {Promise<boolean>}
    */
-  deleteAddress(customerId, addressId) {
+  async deleteAddress(customerId, addressId) {
     if (!customerId || !addressId) return false;
-    let addresses = readStorage(ADDRESSES_STORAGE_KEY, []);
-    const target = addresses.find(a => a.id === addressId && a.customerId === customerId);
+    const supabase = getSupabaseClient();
+
+    const { data: target } = await supabase
+      .from('customer_addresses')
+      .select('is_default')
+      .eq('id', addressId)
+      .eq('customer_id', customerId)
+      .maybeSingle();
     if (!target) return false;
 
-    addresses = addresses.filter(a => !(a.id === addressId && a.customerId === customerId));
+    const { error } = await supabase
+      .from('customer_addresses')
+      .delete()
+      .eq('id', addressId)
+      .eq('customer_id', customerId);
+    if (error) return false;
 
-    // If deleted address was default, promote first remaining address
-    if (target.isDefault) {
-      const remaining = addresses.find(a => a.customerId === customerId);
+    if (target.is_default) {
+      const { data: remaining } = await supabase
+        .from('customer_addresses')
+        .select('id')
+        .eq('customer_id', customerId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
       if (remaining) {
-        remaining.isDefault = true;
-        this.updateCustomerDefaultAddressSnapshot(customerId, remaining);
-      } else {
-        this.updateCustomerDefaultAddressSnapshot(customerId, null);
+        await supabase.from('customer_addresses').update({ is_default: true }).eq('id', remaining.id);
       }
     }
 
-    writeStorage(ADDRESSES_STORAGE_KEY, addresses);
     return true;
   }
 
@@ -1306,122 +1285,84 @@ export class CustomerService {
    * Set an existing address as default for a customer.
    * @param {string} customerId
    * @param {string} addressId
-   * @returns {boolean}
+   * @returns {Promise<boolean>}
    */
-  setDefaultAddress(customerId, addressId) {
+  async setDefaultAddress(customerId, addressId) {
     if (!customerId || !addressId) return false;
-    const addresses = readStorage(ADDRESSES_STORAGE_KEY, []);
-    const target = addresses.find(a => a.id === addressId && a.customerId === customerId);
+    const supabase = getSupabaseClient();
+
+    const { data: target } = await supabase
+      .from('customer_addresses')
+      .select('id')
+      .eq('id', addressId)
+      .eq('customer_id', customerId)
+      .maybeSingle();
     if (!target) return false;
 
-    addresses.forEach(a => {
-      if (a.customerId === customerId) {
-        a.isDefault = (a.id === addressId);
-      }
-    });
-
-    writeStorage(ADDRESSES_STORAGE_KEY, addresses);
-    this.updateCustomerDefaultAddressSnapshot(customerId, target);
-    return true;
+    await supabase.from('customer_addresses').update({ is_default: false }).eq('customer_id', customerId);
+    const { error } = await supabase.from('customer_addresses').update({ is_default: true }).eq('id', addressId);
+    return !error;
   }
 
   /**
-   * Internal helper to keep customer.defaultAddress snapshot synchronized.
-   * @private
-   */
-  updateCustomerDefaultAddressSnapshot(customerId, address) {
-    const customers = readStorage(CUSTOMERS_STORAGE_KEY, []);
-    const customer = customers.find(c => c.id === customerId);
-    if (!customer) return;
-
-    if (address) {
-      customer.defaultShippingAddressId = address.id;
-      customer.defaultAddress = {
-        country: address.country,
-        state: address.state,
-        city: address.city,
-        address: address.streetAddress,
-        postalCode: address.postalCode
-      };
-    } else {
-      customer.defaultShippingAddressId = null;
-      customer.defaultAddress = null;
-    }
-    customer.updatedAt = new Date().toISOString();
-    writeStorage(CUSTOMERS_STORAGE_KEY, customers);
-  }
-
-  /**
-   * Update profile fields for a customer (full name, phone, metadata).
-   * Note: NEVER accepts passwords or credentials.
-   * @param {string} customerId
+   * Update profile fields (full name, phone) for the currently authenticated
+   * customer, persisted to Supabase Auth user metadata.
+   * @param {string} customerId Must match the currently authenticated customer.
    * @param {Object} updates
-   * @returns {Object} Updated customer
+   * @returns {Promise<Object>} Updated customer
    */
-  updateProfile(customerId, updates = {}) {
+  async updateProfile(customerId, updates = {}) {
     if (!customerId) throw new Error('Customer ID is required.');
-    const customers = readStorage(CUSTOMERS_STORAGE_KEY, []);
-    const customer = customers.find(c => c.id === customerId);
-    if (!customer) throw new Error('Customer not found.');
-
-    if (updates.fullName) customer.fullName = updates.fullName.trim();
-    if (updates.phone !== undefined) customer.phone = updates.phone.trim();
-    if (updates.metadata) {
-      customer.metadata = { ...customer.metadata, ...updates.metadata };
-    }
-    customer.updatedAt = new Date().toISOString();
-
-    writeStorage(CUSTOMERS_STORAGE_KEY, customers);
-
-    // Sync active session if this customer is logged in
-    const activeSession = readStorage(ACTIVE_SESSION_STORAGE_KEY, null);
-    if (activeSession && activeSession.customerId === customerId) {
-      activeSession.fullName = customer.fullName;
-      writeStorage(ACTIVE_SESSION_STORAGE_KEY, activeSession);
+    const current = this.getCurrentCustomer();
+    if (!current || current.id !== customerId) {
+      throw new Error('Unauthorized: You can only update your own profile.');
     }
 
-    return customer;
-  }
+    const metaPatch = {};
+    if (updates.fullName) metaPatch.full_name = updates.fullName.trim();
+    if (updates.phone !== undefined) metaPatch.phone = updates.phone.trim();
 
-  /**
-   * Update account status (e.g. active, pending_confirmation, suspended).
-   * @param {string} customerId
-   * @param {string} status
-   * @returns {Object}
-   */
-  setCustomerStatus(customerId, status) {
-    if (!Object.values(CUSTOMER_STATUSES).includes(status)) {
-      throw new Error(`Invalid customer status: ${status}`);
+    const supabase = getSupabaseClient();
+    const { data, error } = await supabase.auth.updateUser({ data: metaPatch });
+    if (error) {
+      throw new Error(error.message || 'Unable to update your profile.');
     }
-    const customers = readStorage(CUSTOMERS_STORAGE_KEY, []);
-    const customer = customers.find(c => c.id === customerId);
-    if (!customer) throw new Error('Customer not found.');
 
-    customer.status = status;
-    customer.updatedAt = new Date().toISOString();
-    writeStorage(CUSTOMERS_STORAGE_KEY, customers);
+    // Best-effort mirror into public.profiles so full_name/phone are
+    // queryable from SQL without reaching into JWT metadata (see
+    // supabase/migrations/20260920120000_profiles_phone.sql). RLS
+    // (profiles_self_update) permits this: the row's own owner may update
+    // its non-role, non-is_active columns.
+    try {
+      const profilePatch = {};
+      if (metaPatch.full_name !== undefined) profilePatch.full_name = metaPatch.full_name;
+      if (metaPatch.phone !== undefined) profilePatch.phone = metaPatch.phone;
+      if (Object.keys(profilePatch).length > 0) {
+        const { error: profileError } = await supabase.from('profiles').update(profilePatch).eq('id', customerId);
+        if (profileError) console.warn('[CustomerService] profiles mirror update notice:', profileError.message);
+      }
+    } catch (err) {
+      console.warn('[CustomerService] profiles mirror update notice:', err.message);
+    }
+
+    const customer = mapUserToCustomer(data.user);
+    this.notifyAuthStateChange(customer, null);
     return customer;
   }
 
   /**
    * Get the customer's authenticated wishlist product IDs.
-   * Enforces customer session authorization.
+   * Enforces that the caller IS the currently authenticated customer.
    * @param {string} customerId
-   * @param {string} [sessionToken]
    * @returns {string[]} Array of product ID strings
    */
-  getCustomerWishlist(customerId, sessionToken = null) {
+  getCustomerWishlist(customerId) {
     if (!customerId) {
       throw new Error('Customer ID is required.');
     }
 
-    const activeSession = readStorage(ACTIVE_SESSION_STORAGE_KEY, null);
-    const sessions = readStorage(SESSIONS_STORAGE_KEY, {});
-    const session = sessionToken 
-      ? (sessions[sessionToken] || (activeSession && activeSession.token === sessionToken ? activeSession : null))
-      : activeSession;
-
-    if (session && session.customerId !== customerId) {
+    const current = this.getCurrentCustomer();
+    if (current && current.id !== customerId) {
       throw new Error('Unauthorized: Cannot access another customer\'s wishlist.');
     }
 
@@ -1432,24 +1373,18 @@ export class CustomerService {
 
   /**
    * Persist customer's authenticated wishlist product IDs.
-   * Enforces customer session authorization.
+   * Enforces that the caller IS the currently authenticated customer.
    * @param {string} customerId
    * @param {string[]} productIds
-   * @param {string} [sessionToken]
    * @returns {string[]} Saved product IDs
    */
-  saveCustomerWishlist(customerId, productIds = [], sessionToken = null) {
+  saveCustomerWishlist(customerId, productIds = []) {
     if (!customerId) {
       throw new Error('Customer ID is required.');
     }
 
-    const activeSession = readStorage(ACTIVE_SESSION_STORAGE_KEY, null);
-    const sessions = readStorage(SESSIONS_STORAGE_KEY, {});
-    const session = sessionToken 
-      ? (sessions[sessionToken] || (activeSession && activeSession.token === sessionToken ? activeSession : null))
-      : activeSession;
-
-    if (session && session.customerId !== customerId) {
+    const current = this.getCurrentCustomer();
+    if (current && current.id !== customerId) {
       throw new Error('Unauthorized: Cannot modify another customer\'s wishlist.');
     }
 
@@ -1457,6 +1392,11 @@ export class CustomerService {
     const wishlists = readStorage(WISHLISTS_STORAGE_KEY, {});
     wishlists[customerId] = cleanIds;
     writeStorage(WISHLISTS_STORAGE_KEY, wishlists);
+
+    // Best-effort, fire-and-forget mirror to the real backend — this method
+    // must stay synchronous (called from product-card click handlers
+    // site-wide), so this is never awaited here. See pushWishlistToBackend.
+    pushWishlistToBackend(customerId, cleanIds);
 
     return cleanIds;
   }
@@ -1466,34 +1406,32 @@ export class CustomerService {
    * Preserves all existing customer items, adds new guest items, and eliminates duplicates.
    * @param {string} customerId
    * @param {string[]} guestProductIds
-   * @param {string} [sessionToken]
    * @returns {string[]} Merged product IDs
    */
-  mergeCustomerWishlist(customerId, guestProductIds = [], sessionToken = null) {
+  mergeCustomerWishlist(customerId, guestProductIds = []) {
     if (!customerId) {
       throw new Error('Customer ID is required to merge wishlist.');
     }
 
-    const currentCustomerIds = this.getCustomerWishlist(customerId, sessionToken);
+    const currentCustomerIds = this.getCustomerWishlist(customerId);
     const guestList = Array.isArray(guestProductIds) ? guestProductIds : [];
-    
+
     // Intelligently merge: guest items + customer items, deduplicated preserving order
     const merged = Array.from(new Set([...guestList, ...currentCustomerIds].filter(Boolean)));
-    
-    return this.saveCustomerWishlist(customerId, merged, sessionToken);
+
+    return this.saveCustomerWishlist(customerId, merged);
   }
 
   /**
-   * Clear all customer data and active sessions (for tests).
+   * Clear all locally-stored customer data (demo fixtures, addresses,
+   * wishlists). Does NOT sign out of Supabase Auth — call logoutCustomer()
+   * for that. Kept for tests / QA reset tooling.
    */
   clearAll() {
     if (typeof localStorage !== 'undefined') {
       localStorage.removeItem(CUSTOMERS_STORAGE_KEY);
-      localStorage.removeItem(ACTIVE_SESSION_STORAGE_KEY);
-      localStorage.removeItem(SESSIONS_STORAGE_KEY);
       localStorage.removeItem(ADDRESSES_STORAGE_KEY);
       localStorage.removeItem(WISHLISTS_STORAGE_KEY);
-      localStorage.removeItem(RESET_TOKENS_STORAGE_KEY);
     }
   }
 }

@@ -17,15 +17,6 @@ export class ResetPasswordPage {
       this.rootPrefix = path.includes('/account/reset-password/') ? '../../' : '../';
     }
 
-    if (options.token !== undefined) {
-      this.token = options.token;
-    } else if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      this.token = params.get('token');
-    } else {
-      this.token = null;
-    }
-
     this.mount = document.querySelector('#reset-page-mount');
     this.form = document.querySelector('#reset-form');
     this.passwordInput = document.querySelector('#reset-password');
@@ -38,11 +29,22 @@ export class ResetPasswordPage {
     this.init();
   }
 
-  init() {
-    // Validate the token immediately on mount
-    const tokenValidation = customerService.validatePasswordResetToken(this.token);
-    if (!tokenValidation.valid) {
-      this.renderInvalidTokenState(tokenValidation.error);
+  async init() {
+    // Supabase's client auto-exchanges the recovery link's token/code in the
+    // URL for a temporary recovery session on construction (detectSessionInUrl:
+    // true) — this checks that it actually succeeded before showing the form.
+    let hasRecoverySession = false;
+    try {
+      const { getSupabaseClient } = await import('../supabase-client.js');
+      const supabase = getSupabaseClient();
+      const { data } = await supabase.auth.getSession();
+      hasRecoverySession = !!data?.session;
+    } catch (err) {
+      console.warn('[ResetPasswordPage] Could not establish recovery session:', err.message);
+    }
+
+    if (!hasRecoverySession) {
+      this.renderInvalidTokenState('This password reset link is invalid or has expired. Please request a new one.');
       return;
     }
 
@@ -211,26 +213,19 @@ export class ResetPasswordPage {
       this.setLoadingState(true);
 
       try {
-        const result = await customerService.resetPasswordWithToken({
-          token: this.token,
-          newPassword
-        });
-
+        const result = await customerService.resetPasswordWithToken({ newPassword });
         if (result.success) {
           this.renderSuccessState();
-        } else {
-          // If token expired or was already used in another window
-          if (result.error && (result.error.toLowerCase().includes('expired') || result.error.toLowerCase().includes('already used') || result.error.toLowerCase().includes('invalid'))) {
-            this.renderInvalidTokenState(result.error);
-          } else {
-            this.showGeneralError(result.error || 'Failed to update password. Please try again.');
-            this.setLoadingState(false);
-          }
         }
       } catch (err) {
         console.error('[ResetPasswordPage] Error during password reset:', err);
-        this.showGeneralError('An unexpected network error occurred. Please try again.');
-        this.setLoadingState(false);
+        const message = err.message || '';
+        if (/invalid or has expired/i.test(message)) {
+          this.renderInvalidTokenState(message);
+        } else {
+          this.showGeneralError(message || 'Failed to update password. Please try again.');
+          this.setLoadingState(false);
+        }
       }
     });
   }

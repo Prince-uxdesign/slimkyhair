@@ -132,15 +132,63 @@ export class AdminPage {
     this.init();
   }
 
-  init() {
+  async init() {
     if (!this.appContainer) return;
+    this.bindViewportGate();
+
+    // Phase 2: re-verify admin/staff role server-side (public.is_staff() via
+    // the current_admin() RPC) on every fresh page load, rather than trusting
+    // any locally-cached flag. This is what makes a hard refresh, an expired
+    // role, or a revoked account actually take effect immediately.
+    this.appContainer.innerHTML = `
+      <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #F9F7F4;">
+        <div style="color: #6B625B; font-size: 0.875rem;">Verifying access…</div>
+      </div>
+    `;
+    await adminService.restoreSession();
     this.render();
+  }
+
+  /**
+   * Admin is tablet/desktop only. Below 768px viewport width (mobile),
+   * authorized admins see a restriction notice instead of the dashboard.
+   * Follows the existing project convention (matchMedia max-width: 767px,
+   * as used in product-controller.js and checkout.js).
+   * @returns {boolean} true when the viewport is a mobile phone width.
+   */
+  isMobileViewport() {
+    if (typeof window === 'undefined') return false;
+    if (window.matchMedia) {
+      return window.matchMedia('(max-width: 767px)').matches;
+    }
+    return window.innerWidth < 768;
+  }
+
+  /**
+   * Re-render when the viewport crosses the 768px boundary (e.g. desktop
+   * resized below 768px, or mobile rotated/resized above it). Bound once —
+   * render() itself must never add listeners, or every state change would
+   * stack duplicates.
+   */
+  bindViewportGate() {
+    if (this.viewportGateBound || typeof window === 'undefined' || !window.matchMedia) return;
+    this.viewportGateBound = true;
+    const query = window.matchMedia('(max-width: 767px)');
+    query.addEventListener('change', () => {
+      if (!this.appContainer) return;
+      // Only re-render when the gate outcome could change: an authenticated
+      // session showing either the dashboard or the restriction notice.
+      // The login screen is viewport-independent and left untouched.
+      if (adminService.getCurrentAdmin()) this.render();
+    });
   }
 
   render() {
     const admin = adminService.getCurrentAdmin();
     if (!admin) {
       this.renderLogin();
+    } else if (this.isMobileViewport()) {
+      this.renderMobileRestriction();
     } else if (this.currentView === 'inventory') {
       this.renderInventoryView(admin);
     } else if (this.currentView === 'order-detail') {
@@ -206,7 +254,7 @@ export class AdminPage {
 
         <div class="admin-sidebar-footer">
           <div>Slimky Hair Ops v2.4</div>
-          <div style="margin-top: 4px; color: #554C47;"> African Botanical Science</div>
+          <div style="margin-top: 4px; color: #554C47;">African Botanical Science</div>
         </div>
       </aside>
       <!-- Phase A6 §10: the sidebar hides at ≤900px, so small screens get this
@@ -288,7 +336,7 @@ export class AdminPage {
 
             <div style="margin-bottom: 16px;">
               <label for="admin-email" style="display: block; font-size: 0.8125rem; font-weight: 600; margin-bottom: 6px;">Admin Email</label>
-              <input type="email" id="admin-email" class="admin-search-input" value="admin@slimkyhair.com" required autocomplete="username" style="padding-left: 14px;">
+              <input type="email" id="admin-email" class="admin-search-input" value="" placeholder="you@slimkyhair.com" required autocomplete="username" style="padding-left: 14px;">
             </div>
 
             <div style="margin-bottom: 24px;">
@@ -310,21 +358,52 @@ export class AdminPage {
       </div>
     `;
 
-    document.querySelector('#admin-login-form')?.addEventListener('submit', (e) => {
+    document.querySelector('#admin-login-form')?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.querySelector('#admin-email')?.value.trim();
       const pass = document.querySelector('#admin-password')?.value;
-      const res = adminService.loginAdmin(email, pass);
+      const submitBtn = document.querySelector('#admin-login-form button[type="submit"]');
+      const errDiv = document.querySelector('#admin-login-error');
+      if (errDiv) errDiv.style.display = 'none';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Signing In...';
+      }
+
+      const res = await adminService.loginAdmin(email, pass);
       if (res.success) {
         this.render();
       } else {
-        const errDiv = document.querySelector('#admin-login-error');
         if (errDiv) {
           errDiv.textContent = res.error || 'Authentication failed.';
           errDiv.style.display = 'block';
         }
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Sign In to Admin Portal';
+        }
       }
     });
+  }
+
+  /**
+   * Mobile restriction notice. Shown INSTEAD of the dashboard — no admin
+   * data is fetched or rendered underneath. This is a UX/access gate only;
+   * authentication/authorization above (getCurrentAdmin → renderLogin) and
+   * server-side RLS remain the real security boundary.
+   */
+  renderMobileRestriction() {
+    const storeRoot = this.adminRoot().replace(/admin\/$/, '');
+    this.appContainer.innerHTML = `
+      <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #F9F7F4; padding: 20px;">
+        <div style="background: #FFFFFF; border: 1px solid #E8E2D9; border-radius: 8px; max-width: 440px; width: 100%; padding: 36px 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); text-align: center;">
+          <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em; color: #8F3B3B; font-weight: 700;">Backoffice Access</span>
+          <h1 style="font-family: var(--font-serif, Georgia, serif); font-size: 1.75rem; margin: 6px 0 0 0; color: #231B18;">Admin Access Unavailable on Mobile</h1>
+          <p style="font-size: 0.875rem; color: #6B625B; margin-top: 12px; line-height: 1.6;">You cannot view this page on your phone. Use a computer or tablet to access the admin page.</p>
+          <a href="${escapeHtml(storeRoot)}" class="btn-admin btn-admin-primary" style="display: inline-block; margin-top: 20px; text-decoration: none; height: 48px; line-height: 48px; padding: 0 28px; font-size: 0.9375rem;">Back to Store</a>
+        </div>
+      </div>
+    `;
   }
 
   renderDashboard(admin) {
@@ -475,11 +554,11 @@ export class AdminPage {
                         <th>Customer</th>
                         <th>Date</th>
                         <th>Country</th>
-                        <th>State / Region</th>
+                        <th class="admin-order-hide-compact">State / Region</th>
                         <th>Payment Status</th>
                         <th>Order Status</th>
                         <th>Total</th>
-                        <th>Shipping Status</th>
+                        <th class="admin-order-hide-compact">Shipping Status</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
@@ -565,8 +644,8 @@ export class AdminPage {
 
     this.bindSidebarNavEvents();
 
-    document.querySelector('#admin-logout-btn')?.addEventListener('click', () => {
-      adminService.logoutAdmin();
+    document.querySelector('#admin-logout-btn')?.addEventListener('click', async () => {
+      await adminService.logoutAdmin();
       window.location.href = this.adminRoot();
     });
 
@@ -648,8 +727,8 @@ export class AdminPage {
     `;
 
     this.bindSidebarNavEvents();
-    document.querySelector('#admin-logout-btn')?.addEventListener('click', () => {
-      adminService.logoutAdmin();
+    document.querySelector('#admin-logout-btn')?.addEventListener('click', async () => {
+      await adminService.logoutAdmin();
       this.render();
     });
     document.querySelector('#admin-rev-retry')?.addEventListener('click', () => this.render());
@@ -770,8 +849,8 @@ export class AdminPage {
     `;
 
     this.bindSidebarNavEvents();
-    document.querySelector('#admin-logout-btn')?.addEventListener('click', () => {
-      adminService.logoutAdmin();
+    document.querySelector('#admin-logout-btn')?.addEventListener('click', async () => {
+      await adminService.logoutAdmin();
       this.render();
     });
 
@@ -1004,8 +1083,8 @@ export class AdminPage {
     `;
 
     this.bindSidebarNavEvents();
-    document.querySelector('#admin-logout-btn')?.addEventListener('click', () => {
-      adminService.logoutAdmin();
+    document.querySelector('#admin-logout-btn')?.addEventListener('click', async () => {
+      await adminService.logoutAdmin();
       this.render();
     });
 
@@ -1112,13 +1191,13 @@ export class AdminPage {
       }
     });
 
-    document.querySelector('#admin-set-profile-form')?.addEventListener('submit', (e) => {
+    document.querySelector('#admin-set-profile-form')?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.querySelector('#admin-set-profile-save');
       setBusy(btn, true, 'Saving…');
       try {
         const name = document.querySelector('#set-profile-name')?.value || '';
-        const result = adminService.updateAdminProfile({ fullName: name }, admin.token);
+        const result = await adminService.updateAdminProfile({ fullName: name }, admin.token);
         if (!result.success) {
           const slot = document.querySelector('.admin-set-error[data-error-for="profile-name"]');
           if (slot) { slot.textContent = result.error; slot.hidden = false; }
@@ -1196,8 +1275,8 @@ export class AdminPage {
     `;
 
     this.bindSidebarNavEvents();
-    document.querySelector('#admin-logout-btn')?.addEventListener('click', () => {
-      adminService.logoutAdmin();
+    document.querySelector('#admin-logout-btn')?.addEventListener('click', async () => {
+      await adminService.logoutAdmin();
       this.render();
     });
     document.querySelector('#admin-cust-retry')?.addEventListener('click', () => this.render());
@@ -1318,8 +1397,8 @@ export class AdminPage {
     `;
 
     this.bindSidebarNavEvents();
-    document.querySelector('#admin-logout-btn')?.addEventListener('click', () => {
-      adminService.logoutAdmin();
+    document.querySelector('#admin-logout-btn')?.addEventListener('click', async () => {
+      await adminService.logoutAdmin();
       window.location.href = this.adminRoot();
     });
     document.querySelector('#admin-cust-retry')?.addEventListener('click', () => this.render());
@@ -1350,11 +1429,11 @@ export class AdminPage {
           <div style="font-weight: 600;">${escapeHtml(getCustomerName(order))}</div>
           <div style="font-size: 0.75rem; color: var(--admin-text-muted);">${escapeHtml(getCustomerEmail(order))}</div>
         </td>
-        <td>${formattedDate}</td>
+        <td style="white-space: nowrap;">${formattedDate}</td>
         <td>
           <span class="admin-badge badge-country">${escapeHtml(country)}</span>
         </td>
-        <td style="font-size: 0.8125rem;">${escapeHtml(region || '—')}</td>
+        <td class="admin-order-hide-compact" style="font-size: 0.8125rem;">${escapeHtml(region || '—')}</td>
         <td>
           <span class="admin-badge badge-${order.paymentStatus || 'pending'}">
             ${order.paymentStatus || 'pending'}
@@ -1366,7 +1445,7 @@ export class AdminPage {
           </span>
         </td>
         <td style="font-weight: 600;">${formatNaira(total)}</td>
-        <td style="font-size: 0.8125rem; color: var(--admin-brand-brown);">${escapeHtml(shippingStatus)}</td>
+        <td class="admin-order-hide-compact" style="font-size: 0.8125rem; color: var(--admin-brand-brown);">${escapeHtml(shippingStatus)}</td>
         <td>
           <button type="button" class="btn-admin btn-admin-outline btn-admin-sm inspect-order-btn" data-order-id="${order.id}">
             Inspect
@@ -1671,8 +1750,8 @@ export class AdminPage {
     `;
 
     this.bindSidebarNavEvents();
-    document.querySelector('#admin-logout-btn')?.addEventListener('click', () => {
-      adminService.logoutAdmin();
+    document.querySelector('#admin-logout-btn')?.addEventListener('click', async () => {
+      await adminService.logoutAdmin();
       this.render();
     });
 
@@ -1863,12 +1942,15 @@ export class AdminPage {
     });
     qtyInput?.addEventListener('input', () => { clampToZero(); renderDelta(); });
 
-    document.querySelector('#inv-adjust-form')?.addEventListener('submit', (e) => {
+    document.querySelector('#inv-adjust-form')?.addEventListener('submit', async (e) => {
       e.preventDefault();
       errorEl.hidden = true;
 
+      const submitBtn = document.querySelector('#inv-adjust-form button[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
+
       const admin = adminService.getCurrentAdmin();
-      const result = inventoryService.adjustStock(row.sku, parseInt(qtyInput.value, 10), {
+      const result = await inventoryService.adjustStock(row.sku, parseInt(qtyInput.value, 10), {
         token: admin?.token || null,
         reason: document.querySelector('#inv-reason')?.value || null,
         note: document.querySelector('#inv-note')?.value || ''
@@ -1877,6 +1959,7 @@ export class AdminPage {
       if (!result.success) {
         errorEl.textContent = result.error;
         errorEl.hidden = false;
+        if (submitBtn) submitBtn.disabled = false;
         return;
       }
 
@@ -1911,8 +1994,8 @@ export class AdminPage {
   bindInventoryEvents() {
     this.bindSidebarNavEvents();
 
-    document.querySelector('#admin-logout-btn')?.addEventListener('click', () => {
-      adminService.logoutAdmin();
+    document.querySelector('#admin-logout-btn')?.addEventListener('click', async () => {
+      await adminService.logoutAdmin();
       this.render();
     });
 
@@ -1969,8 +2052,8 @@ export class AdminPage {
     this.bindSidebarNavEvents();
 
     // Logout
-    document.querySelector('#admin-logout-btn')?.addEventListener('click', () => {
-      adminService.logoutAdmin();
+    document.querySelector('#admin-logout-btn')?.addEventListener('click', async () => {
+      await adminService.logoutAdmin();
       this.render();
     });
 

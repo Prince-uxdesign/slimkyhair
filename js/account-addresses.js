@@ -80,7 +80,7 @@ class AccountAddressesController {
     this.attachEventListeners();
 
     // 5. Initial Render
-    this.loadAndRenderAddresses();
+    await this.loadAndRenderAddresses();
   }
 
   computeRootPrefix() {
@@ -170,8 +170,8 @@ class AccountAddressesController {
     }
   }
 
-  loadAndRenderAddresses() {
-    this.addresses = customerService.getAddresses(this.customer.id) || [];
+  async loadAndRenderAddresses() {
+    this.addresses = await customerService.getAddresses(this.customer.id) || [];
     this.renderAddressList();
   }
 
@@ -375,36 +375,36 @@ class AccountAddressesController {
     this.deletingAddressId = null;
   }
 
-  confirmDelete() {
+  async confirmDelete() {
     if (!this.deletingAddressId) return;
 
     const addressToDelete = this.addresses.find(a => a.id === this.deletingAddressId);
     const wasDefault = addressToDelete?.isDefault;
 
-    const success = customerService.deleteAddress(this.customer.id, this.deletingAddressId);
+    const success = await customerService.deleteAddress(this.customer.id, this.deletingAddressId);
     this.closeDeleteModal();
 
     if (success) {
       this.showToast(wasDefault && this.addresses.length > 1
         ? 'Address deleted. Your next saved address has been set as default.'
         : 'Address deleted successfully.', 'success');
-      this.loadAndRenderAddresses();
+      await this.loadAndRenderAddresses();
     } else {
       this.showToast('Failed to delete address. Please try again.', 'error');
     }
   }
 
-  handleSetDefault(addressId) {
-    const success = customerService.setDefaultAddress(this.customer.id, addressId);
+  async handleSetDefault(addressId) {
+    const success = await customerService.setDefaultAddress(this.customer.id, addressId);
     if (success) {
       this.showToast('Default delivery address updated.', 'success');
-      this.loadAndRenderAddresses();
+      await this.loadAndRenderAddresses();
     } else {
       this.showToast('Could not update default address.', 'error');
     }
   }
 
-  handleFormSubmit(e) {
+  async handleFormSubmit(e) {
     e.preventDefault();
     this.clearErrors();
 
@@ -437,10 +437,10 @@ class AccountAddressesController {
     }
 
     try {
-      customerService.saveAddress(this.customer.id, addressData);
+      await customerService.saveAddress(this.customer.id, addressData);
       this.closeFormModal();
       this.showToast(this.activeModalMode === 'edit' ? 'Address updated successfully.' : 'New delivery address saved.', 'success');
-      this.loadAndRenderAddresses();
+      await this.loadAndRenderAddresses();
     } catch (err) {
       console.error('[AccountAddresses] Error saving address:', err);
       if (this.modalFeedback) {
