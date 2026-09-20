@@ -314,3 +314,345 @@ Batch 6 represents the final, comprehensive responsive verification across the e
 4. **Zero Layout Shifts & Zero Gradients**:
    - All components adhere strictly to the botanical luxury solid-color palette (`#FAF8F5`, `#F4EFEA`, `#2C1E18`, `#1B242A`, `#3B4E43`) and serif/sans typography rules.
 
+
+---
+
+# Phase A2 — Admin Dashboard Overview
+
+`/admin` now opens on a **Dashboard Overview** built from real application
+records. It is the landing view after sign-in; Orders and Inventory are
+unchanged and reachable from the sidebar as before.
+
+## Important context on the data source
+
+This build has **no live Supabase backend**. `js/env.js` holds placeholder
+credentials, no frontend module imports a Supabase client, and no Slimky Hair
+project exists in the Supabase account. The application's real data layer is the
+persistence in `OrderStore` / `customerService` / `inventoryService`, which is
+modelled 1:1 on `database/schema.sql`.
+
+The dashboard therefore reads **that** layer — the project's actual live data —
+and every field it touches exists in the SQL schema. All aggregation is isolated
+in one module, `js/admin/dashboard-service.js`, with the equivalent SQL noted
+against each metric, so switching to Supabase is a change to that single file
+and nothing else.
+
+## What is shown
+
+### Summary metrics (6 cards)
+| Card | Derived from |
+|---|---|
+| Total Orders | `orders` in the selected window |
+| Paid Orders | `orders.payment_status = 'successful'` |
+| Revenue (Settled) | `SUM(payments.amount) WHERE status='successful'`, split by `payments.purpose` into product vs shipping |
+| Registered Customers | `customers`, plus new-in-window and guest-order counts |
+| Products | catalog size + tracked SKU count |
+| Stock Alerts | low + out-of-stock SKU counts |
+
+Revenue comes from the **payments ledger**, not order totals, because the ledger
+is what actually settled. Product and shipping money stay separated exactly as
+the schema separates them. If settled payments span more than one currency the
+card says "Mixed currencies" rather than summing incomparable amounts.
+
+### Recent orders
+Newest 8 in range — order number, customer (guest-tagged), date, amount, payment
+status, order status. Rows are **real links**. The dedicated
+`/admin/orders/:id` route does not exist yet, so a row points at
+`?view=orders&order=<id>`, which opens that order's detail drawer. When the
+dedicated route ships, `orderDetailHref()` and `consumeDeepLinkedOrder()` are
+the only two places that change.
+
+### Order status overview
+Counts per `order_status`, using the project's existing enum and the same labels
+as the Orders queue bar. No status was renamed or invented. Statuses with a zero
+count are omitted rather than padded.
+
+### Inventory alerts
+Out-of-stock first, then low stock, scarcest first, against the project's single
+`LOW_STOCK_THRESHOLD` (8). **Read-only** — the dashboard never adjusts or
+deducts stock.
+
+### Date filters
+Today / 7d / 30d / 90d / All time, defaulting to 30 days. Order, revenue and
+customer figures are windowed. Product and inventory figures are **not** — stock
+is a current level, not an event — and their cards are labelled `· current` so
+the distinction is visible rather than implied.
+
+## Honest states
+
+Every section handles loading, empty, error and populated. There is no skeleton
+or placeholder content standing in for data that does not exist: an empty
+database shows real zeros and plain sentences ("No orders yet.", "No inventory
+records yet."). The error state names the cause and offers Retry.
+
+## Performance
+
+One storage read per collection per snapshot, with every metric folded out of a
+single traversal rather than re-filtering per card (verified by instrumenting
+`Storage.prototype.getItem`). 5,000 orders aggregate in ~4.6ms; 10× the data
+costs ~4.4×, so cost is linear, not quadratic. Recent orders are capped at 8.
+
+## Responsive
+
+| Width | Layout |
+|---|---|
+| ≥1600px | 6-up metrics, two-column workspace |
+| 1280–1599px | 3×2 metrics, two-column workspace |
+| 1101–1279px | 3×2 metrics, single-column workspace |
+| 601–1100px | 2-up metrics, single column |
+| ≤900px | recent orders become cards — no scrolling table |
+| ≤600px | single column throughout |
+
+Zero horizontal overflow and all touch targets ≥44px at 360×800, 375×812,
+390×844, 430×932, 768×1024, 1024×768, 1280×800 and 1440×900 — including the
+empty and error states.
+
+## Validation
+
+151 checks across four real-browser suites, all passing. See
+`scratch/a2-README.md` to re-run them.
+
+| Suite | Checks |
+|---|---|
+| Metrics correctness, statuses, alerts, empty/error states | 58 |
+| Responsive across 8 viewports | 60 |
+| Performance, deep links, routing, console | 16 |
+| A1 regression (login, Orders, Inventory, sign-out) | 17 |
+
+### Fixes made during validation
+- **Touch targets below 44px** — date-range buttons were 40px and the inherited
+  `.btn-admin-sm` 36px. Raised the range button to 44px and added a 44px floor
+  scoped to the dashboard, leaving A1's Orders/Inventory button metrics alone.
+- **Metric grid orphan** — `auto-fit` left a lone sixth card on its own row.
+  Replaced with explicit balanced column counts.
+- **Recent-orders table scrolled horizontally at desktop widths** — the table
+  inherits from the full-width Orders table but lives in a narrower column.
+  Tightened its cell padding and allowed its status badges to wrap. It now fits
+  at 1024, 1280 and 1440 with no inner scroll.
+- **Unstyled status badges** — `delivered`, `shipping_payment_confirmed`,
+  `draft` and `refunded` had no badge rule and rendered as plain text anywhere
+  they appeared, the Orders table included. All twelve `order_status` and all
+  seven `payment_status` values now have styling.
+
+---
+
+# Phase A5 — Inventory Management
+
+`/admin/inventory` is now a real route with a full stock administration screen,
+built on the existing `inventoryService` + product/variant architecture. **No
+second inventory system was created**: `js/inventory/inventory-service.js`
+remains the only module that reads or writes `slimky_inventory_stock`, and the
+`/admin` Inventory tab and `/admin/inventory/` render the same shared view
+module (`js/admin/inventory-admin.js`).
+
+## Route
+
+`/admin/inventory/` is a directory with its own `index.html`, matching the site's
+routing convention. `admin-page.js` now derives its view from the **pathname**
+first and `?view=` second, so both entry points drive one controller. Sidebar
+links are real hrefs, and switching views in place keeps the URL in sync via
+`history.replaceState` — a reload no longer contradicts the screen.
+
+## Inventory list
+
+Product · Variant · SKU · Stock · Status · Last Updated · Actions, with:
+- **Search** across product, variant, SKU and category
+- **Filter** by availability, with live counts per tab
+- **Sort** by product, stock, last updated or SKU, with a direction toggle
+
+Desktop/tablet render a table; ≤600px renders cards. All values are escaped —
+the previous markup interpolated product names raw, which became a real concern
+once A3 let admins author product names.
+
+## Inventory states and the configurable threshold
+
+`In Stock` / `Low Stock` / `Out of Stock`, classified **only** by
+`getAvailabilityLabel()`. The cutoff is now configurable
+(`getLowStockThreshold()` / `setLowStockThreshold()`, admin-only, persisted),
+defaulting to the existing `LOW_STOCK_THRESHOLD` of 8.
+
+Three components were each comparing against a literal `8` and would have
+drifted the moment the threshold changed. All now classify through the shared
+helper:
+
+| File | Was |
+|---|---|
+| `js/product-controller.js` | `liveStock <= 8` on the PDP |
+| `js/admin/dashboard-service.js` | `stock <= LOW_STOCK_THRESHOLD` |
+| `js/admin-products-page.js` | `row.totalStock <= 8` |
+
+## Adjustments and audit
+
+`inventoryService.adjustStock(sku, qty, { token, reason, note })` is the only
+manual write path. It is separate from `setSkuStock()` (product-management sync)
+because an operator edit must carry a reason and an accountable identity.
+
+Every entry records **previous quantity, new quantity, signed adjustment,
+reason, note, timestamp and the admin responsible**. Order deductions, restores
+and product-sync writes are logged too, so the history explains the current
+number rather than only manual edits. Refused: negative, fractional, missing or
+unknown reason, `other` without a note, no-op, and unknown SKU.
+
+## Order integration (verified, not rebuilt)
+
+Deduction remains where C18 put it — **only** after verified payment
+(`payment-service.js`, `webhook-service.js`). Confirmed by test: viewing,
+adding to cart and wishlisting deduct nothing; `checkStock()` is read-only;
+replayed webhooks are idempotent; overselling is refused atomically; stock
+cannot go negative; cancellation restores.
+
+## Variants
+
+Inventory is keyed by SKU throughout. Adjusting one variant leaves its siblings
+untouched; a multi-variant product is never treated as one pooled quantity.
+
+## Storefront at zero stock
+
+Out-of-stock variant pills are disabled while in-stock siblings stay
+selectable; Add to Bag and Buy Now disable; quick-add reads "Out of Stock". A
+forced programmatic purchase is still refused at checkout and payment.
+**Discovery is not broken** — the product remains listed, searchable and
+browsable.
+
+## Security
+
+- Inventory writes require an **explicit** admin session token.
+  `adminService.isAdminAuthorized(null)` falls back to whatever session is in
+  `localStorage`, which is shared across the whole origin — so any storefront
+  script could have mutated stock whenever an admin happened to be signed in in
+  the same browser. `isAuthorizedInventoryWriter()` closes that ambient path.
+- The threshold is admin-gated: it changes what customers are told about
+  availability.
+- All list and history output is HTML-escaped.
+- Signed-out visitors get the login gate; no SKU data, table or controls leak.
+
+## Validation — 218 checks, all passing
+
+| Suite | Checks |
+|---|---|
+| `a5-core` | 71 |
+| `a5-ui` | 40 |
+| `a5-storefront` | 23 |
+| `a5-responsive` (7 viewports, list + both dialogs) | 84 |
+
+Plus the A2 suites re-run green (152) after the shared CSS and dashboard changes.
+See `scratch/a5-README.md`.
+
+### Bugs found and fixed
+1. **Ambient-authority inventory writes** — adjustment and threshold changes
+   succeeded with no token. Now require an explicit one.
+2. **Threshold hardcoded in three components** (above) — all now single-sourced.
+3. **Admin inputs overridden by storefront form styles** — `input[type="text"]`
+   (0,1,1) outranks `.admin-search-input` (0,1,0), so every admin search and
+   number field silently used storefront metrics; the search placeholder sat
+   under the magnifier icon. Admin input rules are now element-qualified.
+4. **Touch targets below 44px** — stock steppers were 40px and `.btn-admin-sm`
+   36px. A2 had scoped a 44px floor to the dashboard only; it is now uniform.
+5. **Unescaped product names** in the inventory list markup.
+6. **Duplicated source label** in history entries for automatic movement.
+
+---
+
+# Phase A6 — Admin Order Management
+
+`/admin/orders` (list) and `/admin/orders/?order=<id>` (detail; path form
+`/admin/orders/<id>/` also resolves where the host supports it) are built on
+the existing order architecture. **No duplicate order logic was created**:
+`payment/order-store.js` remains the only writer, `payment-model.js` owns the
+status vocabulary and transition table, `admin-service.js` owns authorization,
+and `js/admin/orders-admin.js` is pure query + presentation shared by both
+entry points through the one controller in `js/admin-page.js`.
+
+## Order architecture
+- Records: `createOrderRecord()` snapshots customer, delivery, items (product,
+  variant, SKU, qty, unit price, subtotal) and pricing at purchase time, so
+  later catalogue edits cannot rewrite history.
+- Writes: all fulfilment actions (`updateShippingQuote`,
+  `recordCustomerQuoteResponse`, `confirmShippingPayment`,
+  `recordShippingPaymentSuccess`, `markOrderShipped`, `markOrderDelivered`,
+  `transitionOrderStatus`, `addInternalNote`) go through `OrderStore`, each
+  appending actor + timestamp + note to `order.history`.
+
+## Status workflow
+- Uses `validateOrderStatusTransition()` exclusively — no second table.
+- Nigeria: pending → paid → quote_required → quote_sent → payment_pending →
+  payment_confirmed → ready → shipped → delivered.
+- International: pending → paid → quote_required → quote_sent →
+  payment_pending → ready → shipped → delivered (verified gateway payments
+  land on payment_confirmed first; both edges validate).
+- Terminal states (delivered, cancelled) reject all further transitions;
+  cancellation is allowed from any non-terminal state.
+
+## Payment integration
+- Product payment (`paid`) is gateway-verified only (payment-service.js,
+  webhook-service.js). The manual status form excludes it
+  (`GATEWAY_ONLY_STATUSES`) with an on-screen notice, and the submit handler
+  refuses it even if tampered with via devtools. No Paystack/Flutterwave added.
+
+## Shipping workflow
+- Nigeria and international quotes are manual entry only — no automated rate
+  calculator. Quote amounts live on `shippingQuote` + `pricing.shippingAmount`
+  and never fold into the product total (`getOrderTotal()` reads product money
+  only; `getShippingAmount()` is separate).
+
+## Inventory interaction
+- Verified: `order-store.js` contains no inventory import; deductions happen
+  only after verified payment (payment-service.js, webhook-service.js, with
+  idempotency). Status transitions write zero deduction records. Admin status
+  changes therefore cannot double-deduct.
+
+## Security
+- List and detail sit behind `adminService` sessions; unauthenticated visitors
+  get the login gate. `getAdminOrders` throws without a valid token.
+- Detail renders only fulfilment-necessary fields (name, email, phone,
+  delivery, items, payment/order status). No passwords, tokens, card numbers,
+  CVV or service-role material is rendered.
+
+## Responsive behavior
+- Desktop/tablet: full table (now incl. State / Region column) inside a
+  horizontal scroll-wrap. ≤900px: cards. ≤600px: stacked toolbar, full-width
+  selects. New compact section nav (Overview/Orders/Inventory, ≥44px targets)
+  replaces the hidden sidebar on small screens.
+
+## Bugs fixed during A6 completion
+1. **Dead-end state machine** — verified shipping payments threw for
+   international orders and manual confirmations threw for Nigerian ones.
+   Both `SHIPPING_PAYMENT_PENDING` rows now accept `CONFIRMED` and `READY`.
+2. **Hand-applied `paid`** — the manual transition dropdown offered gateway
+   statuses. `paid` is now excluded + server-side refused in the handler.
+3. **Duplicate dispatch/delivery** — repeat `markOrderShipped`/`markOrderDelivered`
+   appended duplicate history. Both are now idempotent no-ops when already applied.
+4. **Missing shipping state** — list showed country but not state/region (§1).
+   Added to table and cards.
+5. **No mobile navigation** — sidebar hides ≤900px with no alternative. Added
+   a compact sticky section nav.
+
+## Validation — 39 checks, all passing
+Run: `node scratch/a6-core.mjs` (Node, no browser; in-memory storage).
+
+| Area | Checks |
+|---|---|
+| Nigeria + international end-to-end workflows | 8 |
+| Invalid transitions (terminal, jumps) | 5 |
+| Nonexistent orders (throw + not-found view) | 5 |
+| Duplicate dispatch/delivery idempotency | 2 |
+| Unauthorized access (list w/o session, login, post-logout) | 4 |
+| Inventory non-interference (static + dynamic) | 2 |
+| Snapshot immutability | 1 |
+| List query (country, sort, pagination, selectors, totals) | 5 |
+| Payment safety + privacy | 2 |
+| Responsive static guarantees | 5 |
+
+Existing C20.10 / C21–C23 browser suites were reviewed: they use only
+single dispatch/delivery calls and transitions that remain valid, so no
+regression is expected (browser re-run still recommended where Chrome is
+available).
+
+## Remaining issues
+- `/admin/orders/<id>/` path form needs a host rewrite/fallback on pure static
+  hosting; the `?order=<id>` query form is the canonical shareable URL and is
+  what list links emit.
+- Concurrent multi-tab edits are last-write-wins (synchronous localStorage);
+  acceptable for the single-operator prototype, must be revisited with Supabase.
+- Full 7-viewport browser pass (360/390/430/768/1024/1280/1440) asserted
+  statically here; re-run visually when Chrome is available.
