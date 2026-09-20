@@ -93,18 +93,31 @@
   right: 56px;
   top: 50%;
   transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   background: none;
   border: none;
-  padding: 6px;
+  padding: 0;
   color: var(--color-text-muted);
   cursor: pointer;
   display: none;
-  font-size: 18px;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
   line-height: 1;
 }
 
+/* Expand the tappable area to ~44px without changing the visual icon size */
+.search-hero-clear::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
 .search-hero-clear.is-visible {
-  display: block;
+  display: inline-flex;
 }
 
 .search-hero-clear:hover {
@@ -113,11 +126,13 @@
 
 .search-hero-submit {
   position: absolute;
-  right: 10px;
+  right: 8px;
   top: 50%;
   transform: translateY(-50%);
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   background-color: var(--bg-dark);
   color: #FFFFFF;
   border: none;
@@ -127,6 +142,13 @@
   justify-content: center;
   cursor: pointer;
   transition: background-color var(--transition-fast);
+}
+
+/* Expand the tappable area to meet the ~44px touch target guidance */
+.search-hero-submit::after {
+  content: '';
+  position: absolute;
+  inset: 0;
 }
 
 .search-hero-submit:hover {
@@ -368,11 +390,11 @@
   }
 
   .search-hero-clear {
-    right: 50px;
-    width: 38px;
-    height: 38px;
-    min-width: 38px;
-    min-height: 38px;
+    right: 52px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
     display: none;
     align-items: center;
     justify-content: center;
@@ -383,8 +405,10 @@
   }
 
   .search-hero-submit {
-    width: 42px;
-    height: 42px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
     right: 4px;
   }
 

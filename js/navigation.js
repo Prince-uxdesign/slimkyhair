@@ -261,7 +261,7 @@ export function syncAccountNavLinks(scope = document) {
       let link = actions.querySelector('.nav-account-link');
       if (!link) {
         link = document.createElement('a');
-        link.className = 'btn-icon nav-account-link';
+        link.className = 'btn-icon hide-on-mobile nav-account-link';
         link.setAttribute('aria-label', 'My Account');
         link.setAttribute('title', 'My Account');
         link.innerHTML = `

@@ -171,7 +171,7 @@ export class AccountDashboard {
               </span>
               <h2 class="dashboard-card-title">Personal Profile</h2>
             </div>
-            <button type="button" id="btn-open-edit-profile" class="btn-outline btn-sm" style="min-height: 38px; padding: 0 14px;">
+            <button type="button" id="btn-open-edit-profile" class="btn-outline btn-sm" style="min-height: 44px; padding: 0 16px;">
               Edit Profile
             </button>
           </div>
@@ -505,7 +505,7 @@ export class AccountDashboard {
               <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin: 0 0 10px 0;">
                 Update your account password or receive a secure reset link.
               </p>
-              <button type="button" id="btn-request-reset" class="btn-outline btn-sm" style="min-height: 38px;">
+              <button type="button" id="btn-request-reset" class="btn-outline btn-sm" style="min-height: 44px;">
                 Send Reset Password Email
               </button>
               <div id="reset-request-feedback" style="display: none; font-size: 0.8125rem; color: #1E6B37; margin-top: 6px; font-weight: 500;"></div>

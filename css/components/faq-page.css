@@ -161,6 +161,13 @@
   transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
+/* Expand the tappable area to meet the ~44px touch target guidance */
+.faq-search-clear::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+}
+
 .faq-search-clear:hover {
   background-color: var(--color-border-medium);
   color: var(--color-text-primary);

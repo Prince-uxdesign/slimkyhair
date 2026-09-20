@@ -2049,8 +2049,11 @@ body.has-overlay-open .checkout-sticky-cta,
   }
 }
 
-/* Mobile-only activation + scroll clearance above the bar. */
-@media (max-width: 767px) {
+/* Activation matches the checkout-layout stacking breakpoint (834px) above,
+   not the site's usual 767/768 boundary — the sticky CTA exists to anchor
+   the primary action once the form is a single stacked column, and that
+   happens at 834px here, so the two must move together. */
+@media (max-width: 834px) {
   .checkout-sticky-cta {
     display: flex;
   }
@@ -2065,7 +2068,7 @@ body.has-overlay-open .checkout-sticky-cta,
   }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 835px) {
   .checkout-sticky-cta {
     display: none !important;
   }
