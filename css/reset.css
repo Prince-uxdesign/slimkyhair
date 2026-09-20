@@ -29,7 +29,8 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
+  /* A12: removed body overflow-x:hidden — it masked horizontal layout faults
+     instead of fixing them. All routes verified at 0px overflow without it. */
 }
 
 /* Prevent body scroll when drawers/modals are active */

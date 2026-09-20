@@ -288,12 +288,14 @@ export class AdminPage {
 
             <div style="margin-bottom: 16px;">
               <label for="admin-email" style="display: block; font-size: 0.8125rem; font-weight: 600; margin-bottom: 6px;">Admin Email</label>
-              <input type="email" id="admin-email" class="admin-search-input" value="admin@slimkyhair.com" required style="padding-left: 14px;">
+              <input type="email" id="admin-email" class="admin-search-input" value="admin@slimkyhair.com" required autocomplete="username" style="padding-left: 14px;">
             </div>
 
             <div style="margin-bottom: 24px;">
               <label for="admin-password" style="display: block; font-size: 0.8125rem; font-weight: 600; margin-bottom: 6px;">Password</label>
-              <input type="password" id="admin-password" class="admin-search-input" value="BotanicalAdmin2026" required style="padding-left: 14px;">
+              <!-- A12: never prefill the password — not even with the seed
+                   credential. Browsers and screenshots must not capture it. -->
+              <input type="password" id="admin-password" class="admin-search-input" value="" placeholder="Enter admin password" required autocomplete="current-password" style="padding-left: 14px;">
             </div>
 
             <button type="submit" class="btn-admin btn-admin-primary" style="width: 100%; height: 48px; font-size: 0.9375rem;">
@@ -419,7 +421,7 @@ export class AdminPage {
             <div class="admin-toolbar">
               <div class="admin-search-box">
                 <span class="admin-search-icon">🔍</span>
-                <input type="text" id="admin-search-input" class="admin-search-input" placeholder="Search by Order #, Customer Name, or Email..." value="${this.searchQuery}">
+                <input type="text" id="admin-search-input" class="admin-search-input" placeholder="Search by Order #, Customer Name, or Email..." value="${this.searchQuery}" aria-label="Search orders">
               </div>
 
               <div class="admin-filter-group">
