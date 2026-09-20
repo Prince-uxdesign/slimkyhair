@@ -10,7 +10,7 @@ import { ORDER_STATUS, PAYMENT_STATUS, validateOrderStatusTransition, CUSTOMS_IM
 import { emailService } from './email/email-service.js';
 import { productService } from './catalog/product-service.js';
 import { PRODUCT_STATUS } from './catalog/product-model.js';
-import { inventoryService, getAvailabilityLabel, setLowStockThreshold } from './inventory/inventory-service.js';
+import { inventoryService, getAvailabilityLabel, setLowStockThreshold, getLowStockThreshold } from './inventory/inventory-service.js';
 import {
   renderInventoryBody,
   renderAdjustDialog,
@@ -51,6 +51,7 @@ import {
   DEFAULT_REVIEW_SORT
 } from './admin/reviews-admin.js';
 import { moderateReview, getPendingCount, listReviews } from './reviews/review-service.js';
+import { SETTING_DEFS, getSetting, getAllSettings } from './admin/settings-service.js';
 import {
   renderDashboardOverview,
   renderDashboardLoading,
@@ -61,9 +62,9 @@ export class AdminPage {
   constructor() {
     this.appContainer = document.querySelector('#admin-app');
     // 'overview' | 'orders' | 'order-detail' | 'inventory' | 'customers' |
-    // 'customer-detail' | 'reviews'. The Overview dashboard (Phase A2) is the
-    // landing view; a ?view= query param still wins so deep links land on the
-    // right screen.
+    // 'customer-detail' | 'reviews' | 'settings'. The Overview dashboard
+    // (Phase A2) is the landing view; a ?view= query param still wins so deep
+    // links land on the right screen.
     this.currentView = this.readViewFromUrl() || 'overview';
 
     // Dashboard Overview state (Phase A2)
@@ -138,6 +139,8 @@ export class AdminPage {
       this.renderCustomerDetailView(admin);
     } else if (this.currentView === 'reviews') {
       this.renderReviewsView(admin);
+    } else if (this.currentView === 'settings') {
+      this.renderSettingsView(admin);
     } else if (this.currentView === 'overview') {
       this.renderOverviewView(admin);
     } else {
@@ -154,7 +157,7 @@ export class AdminPage {
     return `
       <aside class="admin-sidebar" role="navigation" aria-label="Admin Navigation">
         <div class="admin-sidebar-brand">
-          <h1>SLIMKY HAIR</h1>
+          <h1>${escapeHtml(String(getSetting('store_name') || 'Slimky Hair').toUpperCase())}</h1>
           <span>Operations Backoffice</span>
         </div>
 
@@ -179,7 +182,7 @@ export class AdminPage {
             <span>Reviews</span>
             ${getPendingCount() > 0 ? `<span class="admin-nav-badge">${getPendingCount()}</span>` : ''}
           </a>
-          <a href="#" class="admin-nav-item" onclick="return false;" style="opacity: 0.7;">
+          <a href="${this.adminRoot()}settings/" class="admin-nav-item ${this.currentView === 'settings' ? 'is-active' : ''}" id="nav-settings-link">
             <span>Settings</span>
           </a>
         </nav>
@@ -197,6 +200,7 @@ export class AdminPage {
         <a href="${this.adminRoot()}inventory/" class="${this.currentView === 'inventory' ? 'is-active' : ''}">Inventory</a>
         <a href="${this.adminRoot()}customers/" class="${this.currentView === 'customers' || this.currentView === 'customer-detail' ? 'is-active' : ''}">Customers</a>
         <a href="${this.adminRoot()}reviews/" class="${this.currentView === 'reviews' ? 'is-active' : ''}">Reviews</a>
+        <a href="${this.adminRoot()}settings/" class="${this.currentView === 'settings' ? 'is-active' : ''}">Settings</a>
       </nav>
     `;
   }
@@ -235,6 +239,12 @@ export class AdminPage {
       e.preventDefault();
       this.currentView = 'reviews';
       this.syncUrlToView('reviews');
+      this.render();
+    });
+    document.querySelector('#nav-settings-link')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.currentView = 'settings';
+      this.syncUrlToView('settings');
       this.render();
     });
   }
@@ -702,6 +712,306 @@ export class AdminPage {
   }
 
   /**
+   * Store settings — the /admin/settings/ route (Phase A9).
+   *
+   * Five sections: Store & Contact (editable), Orders & Inventory (prefix
+   * editable; threshold edits go through the inventory writer, never a second
+   * store), Products (read-only owner reference — compliance rules are NOT
+   * duplicated here), Notifications (read-only pipeline status; secrets never
+   * enter the browser), Admin Profile (display name only — role immutable).
+   * Every save validates, shows loading/success/error, and never fails
+   * silently.
+   *
+   * @param {Object} admin Authenticated admin session
+   */
+  renderSettingsView(admin) {
+    const values = getAllSettings();
+    const storeDefs = SETTING_DEFS.filter(d => d.section === 'store');
+    const orderDefs = SETTING_DEFS.filter(d => d.section === 'orders');
+    const threshold = getLowStockThreshold();
+
+    const fieldHTML = (def) => {
+      const value = values[def.key] ?? def.default;
+      const inputType = def.type === 'email' ? 'email' : 'text';
+      const inputMode = def.type === 'digits' ? 'numeric' : undefined;
+      return `
+        <div style="margin-bottom: 14px;">
+          <label for="set-${def.key}" style="display: block; font-size: 0.75rem; font-weight: 600; margin-bottom: 4px;">${escapeHtml(def.label)}</label>
+          <input type="${inputType}" ${inputMode ? `inputmode="${inputMode}"` : ''} id="set-${def.key}"
+                 class="admin-search-input" data-setting-key="${def.key}"
+                 value="${escapeHtml(value)}" style="height: 44px; padding-left: 12px; width: 100%;">
+          <div style="font-size: 0.75rem; color: var(--admin-text-muted); margin-top: 4px;">${escapeHtml(def.description)}</div>
+          <div class="admin-set-error" data-error-for="${def.key}" hidden
+               style="font-size: 0.75rem; color: #B91C1C; margin-top: 4px;"></div>
+        </div>`;
+    };
+
+    const env = (typeof window !== 'undefined' && window.__SLIMKY_ENV__) || {};
+    const emailConfigured = !!(env.SUPABASE_URL && env.SUPABASE_ANON_KEY
+      && !String(env.SUPABASE_URL).includes('YOUR_PROJECT_REF'));
+    let dispatchAttempts = 0;
+    try {
+      const raw = localStorage.getItem('slimky_email_dispatch_log');
+      const log = raw ? JSON.parse(raw) : [];
+      dispatchAttempts = Array.isArray(log) ? log.length : 0;
+    } catch { /* unreadable log counts as zero */ }
+
+    this.appContainer.innerHTML = `
+      <div class="admin-shell">
+        ${this.renderSidebarNav(OrderStore.getAllOrders().length)}
+        <div class="admin-main-wrapper">
+          <header class="admin-header" role="banner">
+            <div class="admin-header-title"><h2>Store Settings</h2></div>
+            <div class="admin-user-menu">
+              <div class="admin-user-pill">
+                <span class="admin-user-dot"></span>
+                <span>${escapeHtml(admin.fullName || admin.email)}</span>
+              </div>
+              <button type="button" id="admin-logout-btn" class="btn-admin btn-admin-outline btn-admin-sm">Sign Out</button>
+            </div>
+          </header>
+          <main class="admin-content" role="main">
+            <div id="admin-set-alert" style="display: none; padding: 12px 16px; border-radius: 6px; font-size: 0.8125rem; margin-bottom: 12px;"></div>
+
+            <form id="admin-set-store-form" class="admin-card" style="padding: 20px; margin-bottom: 16px;" novalidate>
+              <h3 style="margin: 0 0 4px 0;">Store &amp; Contact</h3>
+              <p style="font-size: 0.8125rem; color: var(--admin-text-muted); margin: 0 0 16px 0;">
+                Powers the contact page, order-lookup help link and backoffice brand. WhatsApp links use the international digits form.
+              </p>
+              ${storeDefs.map(fieldHTML).join('')}
+              <div style="text-align: right;">
+                <button type="submit" class="btn-admin btn-admin-primary" id="admin-set-store-save">Save Store Settings</button>
+              </div>
+            </form>
+
+            <div class="admin-card" style="padding: 20px; margin-bottom: 16px;">
+              <h3 style="margin: 0 0 4px 0;">Orders &amp; Inventory</h3>
+              <p style="font-size: 0.8125rem; color: var(--admin-text-muted); margin: 0 0 16px 0;">
+                Order numbering and the single low-stock cutoff shared by the PDP, cards, cart and dashboard.
+              </p>
+              <form id="admin-set-orders-form" novalidate>
+                ${orderDefs.map(fieldHTML).join('')}
+                <div style="text-align: right; margin-bottom: 8px;">
+                  <button type="submit" class="btn-admin btn-admin-primary" id="admin-set-orders-save">Save Order Settings</button>
+                </div>
+              </form>
+              <form id="admin-set-threshold-form" novalidate
+                    style="border-top: 1px solid var(--admin-border); padding-top: 16px; margin-top: 8px;">
+                <label for="set-threshold" style="display: block; font-size: 0.75rem; font-weight: 600; margin-bottom: 4px;">Low-stock threshold (units)</label>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
+                  <input type="number" id="set-threshold" class="admin-search-input" min="0" max="1000"
+                         value="${threshold}" style="height: 44px; padding-left: 12px; max-width: 200px;">
+                  <button type="submit" class="btn-admin btn-admin-outline" id="admin-set-threshold-save">Update Threshold</button>
+                </div>
+                <div style="font-size: 0.75rem; color: var(--admin-text-muted); margin-top: 4px;">
+                  Saved through the inventory writer — the same control as Inventory → Threshold, never a second copy.
+                </div>
+                <div class="admin-set-error" data-error-for="threshold" hidden
+                     style="font-size: 0.75rem; color: #B91C1C; margin-top: 4px;"></div>
+              </form>
+            </div>
+
+            <div class="admin-card" style="padding: 20px; margin-bottom: 16px;">
+              <h3 style="margin: 0 0 4px 0;">Products</h3>
+              <p style="font-size: 0.8125rem; color: var(--admin-text-muted); margin: 0;">
+                Product compliance rules (publication lifecycle, required INCI/safety fields,
+                variant integrity) are owned exclusively by
+                <code>validateProduct()</code> in <code>js/catalog/product-model.js</code> and
+                are deliberately not duplicated here — one rulebook, no drift. There are no
+                other runtime product knobs to configure.
+              </p>
+            </div>
+
+            <div class="admin-card" style="padding: 20px; margin-bottom: 16px;">
+              <h3 style="margin: 0 0 4px 0;">Notifications</h3>
+              <p style="font-size: 0.8125rem; color: var(--admin-text-muted); margin: 0 0 12px 0;">
+                Transactional email sends storefront → Supabase Edge Function → Resend.
+                Sender identity and API keys live in Edge Function runtime env only.
+              </p>
+              <div class="admin-detail-grid">
+                <div class="admin-detail-item">
+                  <strong>Support reply-to</strong>
+                  ${escapeHtml(values.support_email)}
+                </div>
+                <div class="admin-detail-item">
+                  <strong>Email endpoint</strong>
+                  ${emailConfigured ? 'Configured' : 'Not configured (js/env.js placeholders)'}
+                </div>
+                <div class="admin-detail-item">
+                  <strong>Recent dispatch attempts (this device)</strong>
+                  ${dispatchAttempts}
+                </div>
+              </div>
+              <p class="admin-cust-privacy">
+                Resend API keys, Supabase service-role keys and all other secrets can never
+                be viewed or stored from this screen — or any browser screen.
+              </p>
+            </div>
+
+            <form id="admin-set-profile-form" class="admin-card" style="padding: 20px; margin-bottom: 16px;" novalidate>
+              <h3 style="margin: 0 0 4px 0;">Admin Profile</h3>
+              <p style="font-size: 0.8125rem; color: var(--admin-text-muted); margin: 0 0 16px 0;">
+                Your own display information. Authorization role cannot be changed from any frontend form.
+              </p>
+              <div style="margin-bottom: 14px;">
+                <label for="set-profile-name" style="display: block; font-size: 0.75rem; font-weight: 600; margin-bottom: 4px;">Display name</label>
+                <input type="text" id="set-profile-name" class="admin-search-input"
+                       value="${escapeHtml(admin.fullName || '')}" style="height: 44px; padding-left: 12px; width: 100%;">
+                <div class="admin-set-error" data-error-for="profile-name" hidden
+                     style="font-size: 0.75rem; color: #B91C1C; margin-top: 4px;"></div>
+              </div>
+              <div class="admin-detail-grid" style="margin-bottom: 16px;">
+                <div class="admin-detail-item">
+                  <strong>Email (sign-in, immutable)</strong>
+                  ${escapeHtml(admin.email)}
+                </div>
+                <div class="admin-detail-item">
+                  <strong>Role (server-assigned, immutable)</strong>
+                  ${escapeHtml(admin.role || 'admin')}
+                </div>
+              </div>
+              <div style="text-align: right;">
+                <button type="submit" class="btn-admin btn-admin-primary" id="admin-set-profile-save">Save Profile</button>
+              </div>
+            </form>
+          </main>
+        </div>
+      </div>
+    `;
+
+    this.bindSidebarNavEvents();
+    document.querySelector('#admin-logout-btn')?.addEventListener('click', () => {
+      adminService.logoutAdmin();
+      this.render();
+    });
+
+    const showAlert = (msg, isError = false) => {
+      // Re-query every time: successful saves re-render first, which replaces
+      // the node this view initially painted.
+      const slot = document.querySelector('#admin-set-alert');
+      if (!slot) return;
+      slot.textContent = msg;
+      slot.style.background = isError ? '#FEE2E2' : '#E8F5E9';
+      slot.style.color = isError ? '#B91C1C' : '#2E7D32';
+      slot.style.display = 'block';
+      slot.scrollIntoView({ block: 'nearest' });
+    };
+    const setBusy = (btn, busy, label) => {
+      if (!btn) return;
+      btn.disabled = busy;
+      if (busy) {
+        btn.dataset.label = btn.textContent;
+        btn.textContent = label;
+      } else if (btn.dataset.label) {
+        btn.textContent = btn.dataset.label;
+      }
+    };
+    const paintErrors = (errors = {}) => {
+      document.querySelectorAll('.admin-set-error').forEach(el => { el.hidden = true; el.textContent = ''; });
+      for (const [key, msg] of Object.entries(errors)) {
+        if (key === '_form') continue;
+        const slot = document.querySelector(`.admin-set-error[data-error-for="${key}"]`);
+        if (slot) {
+          slot.textContent = msg;
+          slot.hidden = false;
+        }
+      }
+    };
+
+    const collectPatch = (form) => {
+      const patch = {};
+      form.querySelectorAll('[data-setting-key]').forEach(input => {
+        patch[input.dataset.settingKey] = input.value;
+      });
+      return patch;
+    };
+
+    document.querySelector('#admin-set-store-form')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const btn = document.querySelector('#admin-set-store-save');
+      setBusy(btn, true, 'Saving…');
+      try {
+        const result = adminService.updateAdminSettings(collectPatch(e.target), admin.token);
+        if (!result.success) {
+          paintErrors(result.errors);
+          showAlert(result.errors?._form || 'Please correct the highlighted fields.', true);
+          return;
+        }
+        this.render();
+        document.querySelector('#admin-set-alert') && showAlert('Store settings saved.');
+      } catch (err) {
+        showAlert(err.message, true);
+      } finally {
+        setBusy(document.querySelector('#admin-set-store-save'), false);
+      }
+    });
+
+    document.querySelector('#admin-set-orders-form')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const btn = document.querySelector('#admin-set-orders-save');
+      setBusy(btn, true, 'Saving…');
+      try {
+        const result = adminService.updateAdminSettings(collectPatch(e.target), admin.token);
+        if (!result.success) {
+          paintErrors(result.errors);
+          showAlert(result.errors?._form || 'Please correct the highlighted fields.', true);
+          return;
+        }
+        this.render();
+        showAlert('Order settings saved.');
+      } catch (err) {
+        showAlert(err.message, true);
+      } finally {
+        setBusy(document.querySelector('#admin-set-orders-save'), false);
+      }
+    });
+
+    document.querySelector('#admin-set-threshold-form')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const btn = document.querySelector('#admin-set-threshold-save');
+      setBusy(btn, true, 'Saving…');
+      try {
+        const value = parseInt(document.querySelector('#set-threshold')?.value, 10);
+        const result = setLowStockThreshold(value, admin.token || null);
+        if (!result.success) {
+          const slot = document.querySelector('.admin-set-error[data-error-for="threshold"]');
+          if (slot) { slot.textContent = result.error; slot.hidden = false; }
+          showAlert(result.error, true);
+          return;
+        }
+        this.render();
+        showAlert(`Low-stock threshold updated to ${result.threshold ?? value}.`);
+      } catch (err) {
+        showAlert(err.message, true);
+      } finally {
+        setBusy(document.querySelector('#admin-set-threshold-save'), false);
+      }
+    });
+
+    document.querySelector('#admin-set-profile-form')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const btn = document.querySelector('#admin-set-profile-save');
+      setBusy(btn, true, 'Saving…');
+      try {
+        const name = document.querySelector('#set-profile-name')?.value || '';
+        const result = adminService.updateAdminProfile({ fullName: name }, admin.token);
+        if (!result.success) {
+          const slot = document.querySelector('.admin-set-error[data-error-for="profile-name"]');
+          if (slot) { slot.textContent = result.error; slot.hidden = false; }
+          showAlert(result.error, true);
+          return;
+        }
+        this.render();
+        showAlert('Profile saved.');
+      } catch (err) {
+        showAlert(err.message, true);
+      } finally {
+        setBusy(document.querySelector('#admin-set-profile-save'), false);
+      }
+    });
+  }
+
+  /**
    * Customer list — the /admin/customers/ route (Phase A7).
    *
    * Data comes through exactly one barrier: adminService.getAdminCustomers()
@@ -1089,6 +1399,7 @@ export class AdminPage {
       : view === 'orders' ? `${root}orders/`
       : view === 'customers' ? `${root}customers/`
       : view === 'reviews' ? `${root}reviews/`
+      : view === 'settings' ? `${root}settings/`
       : root;
     try {
       window.history.replaceState({}, '', target);
@@ -1167,7 +1478,7 @@ export class AdminPage {
 
   readViewFromUrl() {
     if (typeof window === 'undefined') return null;
-    const allowed = ['overview', 'orders', 'inventory', 'customers', 'reviews'];
+    const allowed = ['overview', 'orders', 'inventory', 'customers', 'reviews', 'settings'];
 
     // An addressed order is its own view, so a reload of /admin/orders/<id>/
     // lands back on that order rather than the list.

@@ -8,8 +8,10 @@ import { initDrawers } from './drawers.js';
 import { OrderStore } from './payment/order-store.js';
 import { formatNaira, resolveCartImagePath } from './cart-store.js';
 import { ShippingQuoteCard } from './components/shipping-quote-card.js';
+
 import { NigeriaShippingCard } from './components/nigeria-shipping-card.js';
 
+import { getWhatsAppNumber } from './contact-page.js';
 export class TrackOrderController {
   constructor(options = {}) {
     this.rootPrefix = options.rootPrefix || '';
@@ -205,11 +207,12 @@ export class TrackOrderController {
     const subtotal = order.pricing?.subtotal || order.pricing?.productPaymentTotal || 0;
     const totalPaid = order.pricing?.totalPaid || order.pricing?.productPaymentTotal || subtotal;
 
-    // WhatsApp Direct Inquiry link
+    // WhatsApp Direct Inquiry link (Phase A9: centralized official number —
+    // previously a dead placeholder that reached nobody).
     const waText = encodeURIComponent(
       `Hello Slimky Hair Client Care, I am inquiring about the status of my order ${orderNumber}.`
     );
-    const waUrl = `https://wa.me/2348000000000?text=${waText}`;
+    const waUrl = `https://wa.me/${getWhatsAppNumber()}?text=${waText}`;
 
     this.resultMount.innerHTML = `
       <div class="track-result-header">
