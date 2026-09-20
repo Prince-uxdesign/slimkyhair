@@ -200,8 +200,11 @@ Deno.serve(async (req) => {
 
   // Idempotency: if this order id already exists, this is a retry (page
   // refresh, duplicate sync call) — do not re-insert or re-deduct stock.
-  const { data: existingOrder } = await admin.from('orders').select('id').eq('id', order.id).maybeSingle();
+  const { data: existingOrder } = await admin.from('orders').select('id, order_status').eq('id', order.id).maybeSingle();
   if (existingOrder) {
+    if (existingOrder.order_status === 'cancelled') {
+      return jsonResponse({ success: false, error: 'INSUFFICIENT_STOCK', orderId: order.id, alreadySynced: true }, 409);
+    }
     return jsonResponse({ success: true, alreadySynced: true, orderId: order.id });
   }
 
@@ -236,6 +239,11 @@ Deno.serve(async (req) => {
   });
 
   if (orderInsertError) {
+    if ((orderInsertError as { code?: string }).code === '23505') {
+      // Postgres unique_violation on orders(id) — concurrent duplicate submission
+      console.warn('[sync-order] concurrent duplicate submission detected for order:', order.id);
+      return jsonResponse({ success: true, alreadySynced: true, orderId: order.id });
+    }
     console.error('[sync-order] orders insert failed:', orderInsertError.message);
     return jsonResponse({ error: 'Failed to persist order.', detail: orderInsertError.message }, 500);
   }
@@ -257,8 +265,6 @@ Deno.serve(async (req) => {
   const { error: itemsInsertError } = await admin.from('order_items').insert(itemRows);
   if (itemsInsertError) {
     console.error('[sync-order] order_items insert failed:', itemsInsertError.message);
-    // Order row already exists at this point; leave it for admin review
-    // rather than attempting a partial rollback from an Edge Function.
     return jsonResponse({ error: 'Failed to persist order items.', detail: itemsInsertError.message }, 500);
   }
 
@@ -287,25 +293,67 @@ Deno.serve(async (req) => {
     }
   }
 
-  // Real, atomic, server-side stock deduction — cannot be bypassed by
-  // client-side script manipulation, unlike the localStorage-based check.
-  let stockWarning: string | null = null;
+  // Real, atomic, server-side stock deduction — protected by database-level
+  // row-level locking (FOR UPDATE) and inventory_deductions idempotency ledger.
   try {
     const { error: deductError } = await admin.rpc('deduct_order_inventory', { p_order_id: order.id });
     if (deductError) {
-      stockWarning = deductError.message;
+      console.warn('[sync-order] stock deduction failed for order', order.id, ':', deductError.message);
+
+      // Inventory invariant enforcement: cancel unfulfillable order and fail payment
+      await admin
+        .from('orders')
+        .update({
+          order_status: 'cancelled',
+          metadata: {
+            ...(order.metadata as object ?? {}),
+            cancellation_reason: 'out_of_stock',
+            stock_sync_error: deductError.message,
+          },
+        })
+        .eq('id', order.id);
+
+      if (paymentId) {
+        await admin
+          .from('payments')
+          .update({
+            status: 'failed',
+            failure_reason: `Order cancelled due to insufficient inventory: ${deductError.message}`,
+          })
+          .eq('id', paymentId);
+      }
+
+      return jsonResponse({
+        success: false,
+        error: 'INSUFFICIENT_STOCK',
+        orderId: order.id,
+        detail: deductError.message,
+      }, 409);
     }
   } catch (err) {
-    stockWarning = (err as Error).message;
-  }
+    const msg = (err as Error).message;
+    console.error('[sync-order] unexpected deduction exception for order', order.id, ':', msg);
 
-  if (stockWarning) {
-    console.warn('[sync-order] stock deduction notice for order', order.id, ':', stockWarning);
     await admin
       .from('orders')
-      .update({ metadata: { ...(order.metadata as object ?? {}), stock_sync_warning: stockWarning } })
+      .update({
+        order_status: 'cancelled',
+        metadata: {
+          ...(order.metadata as object ?? {}),
+          cancellation_reason: 'out_of_stock',
+          stock_sync_error: msg,
+        },
+      })
       .eq('id', order.id);
+
+    return jsonResponse({
+      success: false,
+      error: 'INSUFFICIENT_STOCK',
+      orderId: order.id,
+      detail: msg,
+    }, 409);
   }
 
-  return jsonResponse({ success: true, orderId: order.id, stockWarning });
+  return jsonResponse({ success: true, orderId: order.id });
 });
+
