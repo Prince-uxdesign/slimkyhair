@@ -52,6 +52,13 @@ import {
 } from './admin/reviews-admin.js';
 import { moderateReview, getPendingCount, listReviews } from './reviews/review-service.js';
 import { SETTING_DEFS, getSetting, getAllSettings } from './admin/settings-service.js';
+import { buildAnalyticsSnapshot, DEFAULT_ANALYTICS_RANGE_ID } from './admin/analytics-service.js';
+import {
+  renderAnalytics,
+  renderAnalyticsToolbar,
+  renderAnalyticsLoading,
+  renderAnalyticsError
+} from './admin/analytics-view.js';
 import {
   renderDashboardOverview,
   renderDashboardLoading,
@@ -62,9 +69,9 @@ export class AdminPage {
   constructor() {
     this.appContainer = document.querySelector('#admin-app');
     // 'overview' | 'orders' | 'order-detail' | 'inventory' | 'customers' |
-    // 'customer-detail' | 'reviews' | 'settings'. The Overview dashboard
-    // (Phase A2) is the landing view; a ?view= query param still wins so deep
-    // links land on the right screen.
+    // 'customer-detail' | 'reviews' | 'settings' | 'analytics'. The Overview
+    // dashboard (Phase A2) is the landing view; a ?view= query param still
+    // wins so deep links land on the right screen.
     this.currentView = this.readViewFromUrl() || 'overview';
 
     // Dashboard Overview state (Phase A2)
@@ -112,6 +119,11 @@ export class AdminPage {
     this.revSort = DEFAULT_REVIEW_SORT;
     this.revPage = 1;
 
+    // Analytics view state (Phase A10): preset id plus a custom from/to pair
+    // applied together through the Apply button.
+    this.analyticsRangeId = DEFAULT_ANALYTICS_RANGE_ID;
+    this.analyticsCustom = { from: '', to: '' };
+
     // Inventory View State (Milestone C20.12)
     this.inventorySearchQuery = '';
     this.inventoryAvailabilityFilter = 'all';
@@ -141,6 +153,8 @@ export class AdminPage {
       this.renderReviewsView(admin);
     } else if (this.currentView === 'settings') {
       this.renderSettingsView(admin);
+    } else if (this.currentView === 'analytics') {
+      this.renderAnalyticsView(admin);
     } else if (this.currentView === 'overview') {
       this.renderOverviewView(admin);
     } else {
@@ -185,6 +199,9 @@ export class AdminPage {
           <a href="${this.adminRoot()}settings/" class="admin-nav-item ${this.currentView === 'settings' ? 'is-active' : ''}" id="nav-settings-link">
             <span>Settings</span>
           </a>
+          <a href="${this.adminRoot()}analytics/" class="admin-nav-item ${this.currentView === 'analytics' ? 'is-active' : ''}" id="nav-analytics-link">
+            <span>Analytics</span>
+          </a>
         </nav>
 
         <div class="admin-sidebar-footer">
@@ -201,6 +218,7 @@ export class AdminPage {
         <a href="${this.adminRoot()}customers/" class="${this.currentView === 'customers' || this.currentView === 'customer-detail' ? 'is-active' : ''}">Customers</a>
         <a href="${this.adminRoot()}reviews/" class="${this.currentView === 'reviews' ? 'is-active' : ''}">Reviews</a>
         <a href="${this.adminRoot()}settings/" class="${this.currentView === 'settings' ? 'is-active' : ''}">Settings</a>
+        <a href="${this.adminRoot()}analytics/" class="${this.currentView === 'analytics' ? 'is-active' : ''}">Analytics</a>
       </nav>
     `;
   }
@@ -245,6 +263,12 @@ export class AdminPage {
       e.preventDefault();
       this.currentView = 'settings';
       this.syncUrlToView('settings');
+      this.render();
+    });
+    document.querySelector('#nav-analytics-link')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.currentView = 'analytics';
+      this.syncUrlToView('analytics');
       this.render();
     });
   }
@@ -708,6 +732,104 @@ export class AdminPage {
           fresh.style.display = 'block';
         }
       });
+    });
+  }
+
+  /**
+   * Analytics — the /admin/analytics/ route (Phase A10).
+   *
+   * Two paints like the Overview: shell plus an honest loading state first,
+   * then the real snapshot. Aggregation is synchronous against the local
+   * store; a network-backed read will occupy the same loading state once
+   * Supabase server-side aggregates replace the local traversal.
+   *
+   * @param {Object} admin Authenticated admin session
+   */
+  renderAnalyticsView(admin) {
+    this.appContainer.innerHTML = `
+      <div class="admin-shell">
+        ${this.renderSidebarNav(OrderStore.getAllOrders().length)}
+        <div class="admin-main-wrapper">
+          <header class="admin-header" role="banner">
+            <div class="admin-header-title"><h2>Analytics</h2></div>
+            <div class="admin-user-menu">
+              <div class="admin-user-pill">
+                <span class="admin-user-dot"></span>
+                <span>${escapeHtml(admin.fullName || admin.email)}</span>
+              </div>
+              <button type="button" id="admin-logout-btn" class="btn-admin btn-admin-outline btn-admin-sm">Sign Out</button>
+            </div>
+          </header>
+          <main class="admin-content" role="main" id="admin-analytics-root">
+            ${renderAnalyticsLoading()}
+          </main>
+        </div>
+      </div>
+    `;
+
+    this.bindSidebarNavEvents();
+    document.querySelector('#admin-logout-btn')?.addEventListener('click', () => {
+      adminService.logoutAdmin();
+      this.render();
+    });
+
+    this.loadAnalyticsData(admin);
+  }
+
+  /**
+   * Fetch the analytics snapshot and paint it into the analytics root without
+   * re-rendering the surrounding shell.
+   */
+  loadAnalyticsData(admin) {
+    const root = document.querySelector('#admin-analytics-root');
+    if (!root) return;
+    root.innerHTML = renderAnalyticsLoading();
+
+    const run = () => {
+      try {
+        const snapshot = buildAnalyticsSnapshot(admin.token, {
+          rangeId: this.analyticsRangeId,
+          custom: this.analyticsCustom
+        });
+        root.innerHTML =
+          renderAnalyticsToolbar(this.analyticsRangeId, this.analyticsCustom) +
+          renderAnalytics(snapshot);
+        this.bindAnalyticsEvents(admin);
+      } catch (err) {
+        console.error('[AdminPage] Analytics load failed:', err);
+        root.innerHTML = renderAnalyticsError(err);
+        document.querySelector('#admin-analytics-retry')?.addEventListener('click', () => {
+          this.loadAnalyticsData(admin);
+        });
+      }
+    };
+
+    if (typeof requestAnimationFrame === 'function') {
+      requestAnimationFrame(run);
+    } else {
+      run();
+    }
+  }
+
+  /** Wire the analytics range presets and the custom-range form. */
+  bindAnalyticsEvents(admin) {
+    document.querySelectorAll('.admin-range-btn[data-range]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const rangeId = btn.dataset.range;
+        if (!rangeId || rangeId === this.analyticsRangeId) return;
+        this.analyticsRangeId = rangeId;
+        this.loadAnalyticsData(admin);
+      });
+    });
+
+    document.querySelector('#admin-an-custom-form')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const from = document.querySelector('#admin-an-from')?.value || '';
+      const to = document.querySelector('#admin-an-to')?.value || '';
+      if (!from || !to) return;
+      this.analyticsCustom = { from, to };
+      this.analyticsRangeId = 'custom';
+      this.loadAnalyticsData(admin);
     });
   }
 
@@ -1400,6 +1522,7 @@ export class AdminPage {
       : view === 'customers' ? `${root}customers/`
       : view === 'reviews' ? `${root}reviews/`
       : view === 'settings' ? `${root}settings/`
+      : view === 'analytics' ? `${root}analytics/`
       : root;
     try {
       window.history.replaceState({}, '', target);
@@ -1478,7 +1601,7 @@ export class AdminPage {
 
   readViewFromUrl() {
     if (typeof window === 'undefined') return null;
-    const allowed = ['overview', 'orders', 'inventory', 'customers', 'reviews', 'settings'];
+    const allowed = ['overview', 'orders', 'inventory', 'customers', 'reviews', 'settings', 'analytics'];
 
     // An addressed order is its own view, so a reload of /admin/orders/<id>/
     // lands back on that order rather than the list.

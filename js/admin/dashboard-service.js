@@ -100,10 +100,13 @@ export function resolveDateRange(rangeId = DEFAULT_RANGE_ID) {
  * Parse a record timestamp to epoch ms, tolerating the snake_case alias the
  * schema-parity records carry alongside the camelCase field.
  *
+ * Exported for Phase A10: analytics folds the same collections with the same
+ * date semantics rather than inventing a second clock.
+ *
  * @param {Object} record
  * @returns {number|null} epoch ms, or null when the record carries no usable date
  */
-function recordTime(record) {
+export function recordTime(record) {
   const raw = record?.createdAt || record?.created_at || null;
   if (!raw) return null;
   const ms = new Date(raw).getTime();
@@ -115,10 +118,12 @@ function recordTime(record) {
  * Reads the camelCase field first and falls back to the snake_case schema
  * alias, so the same code works against a Supabase row unchanged.
  *
+ * Exported for Phase A10 for the same reason as recordTime above.
+ *
  * @param {Object} order
  * @returns {Object}
  */
-function normalizeOrder(order) {
+export function normalizeOrder(order) {
   const createdMs = recordTime(order);
   return {
     id: order.id,

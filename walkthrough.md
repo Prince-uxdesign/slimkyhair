@@ -913,3 +913,83 @@ A6 (39/39), A7 (55/55), A8 (53/53) re-run green after the A9 changes.
   Supabase Auth at migration).
 - Legal-page contact blocks remain static by design; if counsel ever requires
   them dynamic, that is a separate versioned-documents phase.
+
+---
+
+# Phase A10 — Admin Analytics
+
+`/admin/analytics/` is a deliberately small first-party view over REAL
+records — eight metrics, one trend, one top-products table, three customer
+figures. **No second engine was built**: it folds the same collections with
+the same date semantics, paid definition, ledger-revenue rule and undated
+policy as `buildDashboardSnapshot()`, importing its `recordTime` /
+`normalizeOrder` / `resolveDateRange` primitives (now exported for reuse)
+rather than re-implementing them.
+
+## Metrics verified
+- Total / paid orders, settled revenue (product vs shipping from the payments
+  ledger, mixed-currency reported not summed), AOV (settled ÷ paid; `—` with
+  an explanatory hint when zero), units sold, total / new / returning
+  customers, guest-order context. Verified against hand-computed fixtures.
+
+## Calculations verified
+- Top products aggregate purchased line-item quantity/revenue only — never
+  views, carts or wishlists; snapshot names survive catalogue edits; unknown
+  ids impossible (items always carry names, fallback present).
+- Returning = registered accounts with ≥2 ever-linked orders; guests excluded
+  by design (no stable identity), stated on screen.
+- New = dated accounts inside the window under one uniform rule (unbounded
+  windows count all dated accounts). Undated records counted and excluded
+  from windows, never silently dropped.
+
+## Database queries
+- One read per collection per snapshot (asserted by instrumenting storage:
+  orders ×1, payments ×1, customers ×1), everything folded in a single
+  traversal. Each section carries its Supabase server-side equivalent
+  (GROUP BY / COUNT with date_trunc bucketing) so migration moves aggregation
+  to the database and the browser never fetches rows to count.
+
+## Performance
+- 5,000 orders + payments aggregate in well under budget with correct totals;
+  series buckets capped by granularity (hourly/daily/weekly/monthly, ≤36
+  points) so charts stay mobile-legible.
+
+## Visual behavior
+- Today / 7d / 30d / this-month / all-time / custom (inclusive, validated,
+  invalid input falls back to the default window — never silent-empty).
+  Pure-SVG trend (revenue bars + orders line, legend, text summary,
+  screen-reader table); empty windows render honest copy, never a fake chart.
+  Table→cards reuse, toolbar stacks ≤600px, ≥44px controls, sidebar + mobile
+  nav entries, loading/error/retry states.
+
+## Fixes
+1. **Fallback range dropped all data** (caught by validation): the invalid-
+   custom fallback lacked `until: null`, failing the range predicate for every
+   record. Fixed the fallback and hardened the predicate to treat a missing
+   bound as open-ended.
+2. **Test-side**: two wrong hand-computed expectations (category leader,
+   windowed total under the fixed fixture) and a fixture that could not be
+   undated through the real writer — corrected to fixture via save-then-strip
+   (the update path preserves it), retested green.
+
+## Validation — 32 checks, all passing
+Run: `node scratch/a10-core.mjs` (Node, no browser; gitignored per convention).
+
+| Area | Checks |
+|---|---|
+| Core metrics vs known records | 9 |
+| Date filters (incl. invalid-custom fallback, undated policy) | 5 |
+| Dashboard-engine consistency (30d figures match A2) | 1 |
+| Trend honesty (caps, SVG content, empty states) | 5 |
+| Performance (single reads, 5k aggregation + totals) | 3 |
+| Auth, mixed currency | 2 |
+| Wiring, by-design SQL notes, responsive, route, chart a11y | 7 |
+
+A6 (39/39), A7 (55/55), A8 (53/53), A9 (47/47) re-run green after the A10 changes.
+
+## Remaining issues
+- Full 7-viewport browser pass asserted statically; re-run visually when
+  Chrome is available (chart uses a scaling viewBox + capped buckets, so no
+  overflow mode is expected).
+- Server-side aggregates are documented SQL, NOT TESTABLE until a Supabase
+  project is provisioned — then verify each figure against its query.
