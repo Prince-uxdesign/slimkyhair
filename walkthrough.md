@@ -737,11 +737,98 @@ gitignored per repo convention, as with A6).
 A6 suite re-run green (39/39) after the A7 controller changes.
 
 ## Remaining issues
-- `?id=<id>` is the canonical shareable URL (what list links emit); the path
+- `?id=` is the canonical shareable URL (what list links emit); the path
   form needs a host rewrite on pure static hosting, same as orders.
 - RLS findings are statically verified against the migration SQL; a live
   Supabase project does not exist yet, so policy behavior is NOT TESTABLE
   end-to-end until provisioned (then: confirm anon cannot select customers,
   one user cannot read another profile, admin read works, role self-grant fails).
+- Full 7-viewport browser pass asserted statically; re-run visually when
+  Chrome is available.
+
+---
+
+# Phase A8 — Review Management & Moderation
+
+`/admin/reviews` fulfils the promise the PDP already makes ("editorial
+moderation prior to publication"). Before A8 there was no review system at
+all: seed excerpts in `catalog-data.js` rendered publicly and the submission
+form was a simulator that persisted nothing. **No duplicate architecture was
+created**: `js/reviews/review-service.js` is the one submission store and the
+one moderation writer; the seed arrays stay untouched curated excerpts.
+
+## Review list
+- Review (title + clamped text + expandable moderation history), product (with
+  honest "no longer in catalogue" fallback), star rating, customer
+  name/email, date, moderation status badge.
+- Search (text/title/author/product, debounced), status tabs
+  (All/Pending/Approved/Rejected/Hidden with live counts), rating filter,
+  5 sorts, clamped pagination. Table on desktop, cards ≤900px.
+
+## Moderation
+- States exactly `pending / approved / rejected / hidden` (new vocabulary —
+  none existed in the schema). Legal moves only (pending→approve/reject,
+  approved→hide/reject, rejected/hidden→approve/reopen); anything else,
+  including double-approve, is refused with no history written.
+- Every action records actor, timestamp and optional note; history survives
+  catalogue edits and is never deleted (no DELETE path anywhere).
+
+## Approve / reject / hide
+- Approved submissions join the seed excerpts on the PDP (newest-first) and
+  on cards; pending/rejected/hidden never render publicly.
+- Aggregates recompute as a weighted blend of seed base + approvals, so all
+  displays are byte-identical until the first approval lands. PDP star bars
+  recompute from the public set too.
+
+## Security
+- Moderation demands an explicit admin token (ambient-session fallback
+  refused, mirroring inventory). `submitReview()` forces PENDING — a forged
+  `status` in input is ignored, so customers cannot self-approve or alter
+  moderation state.
+- Supabase layer: public SELECT approved-only, public INSERT pending-only
+  (WITH CHECK), no client UPDATE/DELETE; admin UPDATE gated on `is_admin()`.
+  New table + policies live in `database/schema.sql` (§12) and migration
+  `20260920043200_product_reviews.sql`.
+
+## No fake social proof
+- The submission store starts empty and nothing ever seeds it (asserted).
+  Seed excerpts pre-date this work and were not fabricated here.
+
+## Responsive behavior
+- Reuses the admin primitives (sidebar / compact section nav incl. Reviews /
+  ≥44px targets / `overflow-wrap: anywhere`); review-specific responsive
+  rules cover table→cards, column collapse and stacked actions.
+
+## Bugs fixed during A8 completion
+1. **Aggregate ignored approvals** (caught by validation): `getPublicAggregate`
+   defaulted to base values when no list was passed — exactly how the PDP
+   calls it. It now reads approvals for `product.id` unless a pre-fetched
+   list is supplied.
+2. **Unescaped review rendering**: the PDP interpolated review fields raw.
+   All customer-visible review content is now escaped in both PDP and admin.
+
+## Validation — 53 checks, all passing
+Run: `node scratch/a8-core.mjs` (Node, no browser; gitignored per convention).
+
+| Area | Checks |
+|---|---|
+| No seeding (empty store, zero queue, untouched aggregates) | 3 |
+| Submission → pending + 6 input rejections | 8 |
+| Unauthorized moderation (no/empty/forged token, bad action/id) | 6 |
+| Approve → visibility + weighted math + history + double-approve refusal | 5 |
+| Reject/hide invisibility, invalid moves, corrections | 6 |
+| Rows/query (join, honest unknowns, search, filters, sorts, pagination, actions) | 10 |
+| Empty + XSS-safe rendering | 2 |
+| Wiring/storefront/route/styles/responsive (static) | 7 |
+| Schema + RLS migration (static) | 3 |
+
+A6 (39/39) and A7 (55/55) suites re-run green after the A8 changes.
+
+## Remaining issues
+- RLS behavior is statically verified; live end-to-end is NOT TESTABLE until
+  a Supabase project is provisioned (then: anon sees approved-only, anon
+  INSERT of `approved` fails, customer UPDATE fails, admin moderate works).
+- PDP star bars recompute only when exactly 5 `.pdp-bar-row` levels exist;
+  any future layout change degrades to leaving the static bars untouched.
 - Full 7-viewport browser pass asserted statically; re-run visually when
   Chrome is available.

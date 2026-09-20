@@ -31,6 +31,7 @@ export function renderStarsHTML(rating = 5) {
 import { isInWishlist, toggleWishlist, syncWishlistUI } from './wishlist-store.js';
 import { addItem, openCartDrawer } from './cart-store.js';
 import { inventoryService, getAvailabilityLabel } from './inventory/inventory-service.js';
+import { getApprovedByProduct, getPublicAggregate } from './reviews/review-service.js';
 
 /**
  * Determine root path prefix based on window location depth
@@ -108,6 +109,11 @@ export function createCatalogCardHTML(product, options = {}) {
   const availability = liveStock !== null ? getAvailabilityLabel(liveStock) : null;
   const isSoldOut = availability ? availability.className === 'out-of-stock' : false;
 
+  // Phase A8: public aggregate blends the catalogue base with APPROVED
+  // customer reviews. With zero approvals this equals the catalogue's own
+  // rating/reviewCount, so cards are unchanged until moderation happens.
+  const publicAggregate = getPublicAggregate(product, getApprovedByProduct(product.id));
+
   return `
     <article class="product-card" id="product-${product.id}" data-product-id="${product.id}" data-product-slug="${product.slug}">
       <div class="product-card-media media-frame media-frame-product">
@@ -146,9 +152,9 @@ export function createCatalogCardHTML(product, options = {}) {
 
         <div class="product-card-rating">
           <div class="product-card-stars">
-            ${renderStarsHTML(product.rating)}
+            ${renderStarsHTML(publicAggregate.rating)}
           </div>
-          <span class="product-card-review-count">${product.rating.toFixed(1)} (${product.reviewCount})</span>
+          <span class="product-card-review-count">${publicAggregate.rating.toFixed(1)} (${publicAggregate.reviewCount})</span>
         </div>
 
         <div class="product-card-actives">
