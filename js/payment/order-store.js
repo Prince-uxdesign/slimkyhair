@@ -699,6 +699,13 @@ export const OrderStore = {
     const order = this.getOrder(orderId);
     if (!order) throw new Error(`Order "${orderId}" not found.`);
 
+    // Phase A6 §11 duplicate-action guard: dispatching twice must not append
+    // a second "shipped" history entry. Refresh/retry after a successful
+    // dispatch returns the existing order unchanged.
+    if (order.orderStatus === 'shipped' || order.orderStatus === 'delivered') {
+      return order;
+    }
+
     if (!trackingData.trackingNumber || !String(trackingData.trackingNumber).trim()) {
       throw new Error('A valid carrier tracking number is required to mark order as shipped.');
     }
@@ -736,6 +743,12 @@ export const OrderStore = {
   markOrderDelivered(orderId, meta = {}) {
     const order = this.getOrder(orderId);
     if (!order) throw new Error(`Order "${orderId}" not found.`);
+
+    // Phase A6 §11 duplicate-action guard: a delivered order is terminal.
+    // Retry after a successful delivery returns the existing order unchanged.
+    if (order.orderStatus === 'delivered') {
+      return order;
+    }
 
     order.delivery = order.delivery || {};
     order.delivery.deliveredAt = new Date().toISOString();
