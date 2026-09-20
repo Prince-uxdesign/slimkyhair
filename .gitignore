@@ -3,6 +3,7 @@
 .env.local
 supabase/.env.local
 js/env.js
+supabase/.temp/
 
 # Internal testing & audit scratch scripts
 scratch/

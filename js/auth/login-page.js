@@ -8,6 +8,7 @@ import { initNavigation } from '../navigation.js';
 import { initDrawers } from '../drawers.js';
 import { syncWishlistUI } from '../wishlist-store.js';
 import { isValidEmail } from '../utils/validators.js';
+import { escapeHtml } from '../utils/html-format.js';
 
 export class LoginPage {
   constructor(options = {}) {
@@ -297,7 +298,7 @@ export class LoginPage {
           this.showGeneralError(`
             <div>${errMsg}</div>
             <button type="button" id="login-resend-confirm-btn" style="background: none; border: none; padding: 0; margin-top: 6px; color: inherit; text-decoration: underline; font-weight: 600; cursor: pointer;">
-              Resend confirmation email to ${email}
+              Resend confirmation email to ${escapeHtml(email)}
             </button>
             <div id="login-resend-feedback" style="display: none; font-size: 0.8125rem; margin-top: 4px;"></div>
           `, true);

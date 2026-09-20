@@ -1,0 +1,23 @@
+INSERT INTO public.inventory (sku, product_id, variant_id, stock, availability) VALUES
+  ('SLM-OIL-050', 'prod-01', 'SLM-OIL-050', 24, 'In Stock'),
+  ('SLM-OIL-100', 'prod-01', 'SLM-OIL-100', 12, 'In Stock'),
+  ('SLM-GLS-060', 'prod-02', 'SLM-GLS-060', 18, 'In Stock'),
+  ('SLM-CST-100', 'prod-03', 'SLM-CST-100', 15, 'In Stock'),
+  ('SLM-SHP-250', 'prod-04', 'SLM-SHP-250', 28, 'In Stock'),
+  ('SLM-SHP-500', 'prod-04', 'SLM-SHP-500', 14, 'In Stock'),
+  ('SLM-CLR-250', 'prod-05', 'SLM-CLR-250', 10, 'In Stock'),
+  ('SLM-CND-250', 'prod-06', 'SLM-CND-250', 22, 'In Stock'),
+  ('SLM-CND-500', 'prod-06', 'SLM-CND-500', 9, 'Low Stock'),
+  ('SLM-LIV-200', 'prod-07', 'SLM-LIV-200', 19, 'In Stock'),
+  ('SLM-CRM-200', 'prod-08', 'SLM-CRM-200', 30, 'In Stock'),
+  ('SLM-CRM-400', 'prod-08', 'SLM-CRM-400', 16, 'In Stock'),
+  ('SLM-LTN-200', 'prod-09', 'SLM-LTN-200', 20, 'In Stock'),
+  ('SLM-BTR-180', 'prod-10', 'SLM-BTR-180', 25, 'In Stock'),
+  ('SLM-MNG-150', 'prod-11', 'SLM-MNG-150', 14, 'In Stock'),
+  ('SLM-MSK-250', 'prod-12', 'SLM-MSK-250', 18, 'In Stock'),
+  ('SLM-MSK-500', 'prod-12', 'SLM-MSK-500', 7, 'Low Stock'),
+  ('SLM-PRT-200', 'prod-13', 'SLM-PRT-200', 12, 'In Stock'),
+  ('SLM-SCP-050', 'prod-14', 'SLM-SCP-050', 17, 'In Stock'),
+  ('SLM-GEL-250', 'prod-15', 'SLM-GEL-250', 21, 'In Stock'),
+  ('SLM-EDG-100', 'prod-16', 'SLM-EDG-100', 32, 'In Stock')
+ON CONFLICT (sku) DO UPDATE SET stock = EXCLUDED.stock, availability = EXCLUDED.availability;

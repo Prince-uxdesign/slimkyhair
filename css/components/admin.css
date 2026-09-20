@@ -199,8 +199,19 @@ body.admin-body {
   gap: 8px;
   margin-bottom: 20px;
   overflow-x: auto;
-  padding-bottom: 4px;
+  padding-bottom: 6px;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--admin-border) transparent;
+}
+
+.admin-queue-bar::-webkit-scrollbar {
+  height: 4px;
+}
+
+.admin-queue-bar::-webkit-scrollbar-thumb {
+  background: var(--admin-border);
+  border-radius: 4px;
 }
 
 .admin-queue-tab {
@@ -337,16 +348,23 @@ input.admin-search-input,
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  padding: 14px 16px;
+  padding: 11px 12px;
   border-bottom: 1px solid var(--admin-border);
   font-weight: 600;
   white-space: nowrap;
 }
 
 .admin-table td {
-  padding: 14px 16px;
+  padding: 11px 12px;
   border-bottom: 1px solid var(--admin-border-subtle);
   vertical-align: middle;
+}
+
+.admin-table td code,
+.admin-inventory-table td code {
+  white-space: nowrap;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.8125rem;
 }
 
 .admin-table tr:hover td {
@@ -709,10 +727,13 @@ input.admin-stock-input,
      off-screen. On small screens the nav takes its own full row. */
   .admin-shell {
     flex-wrap: wrap;
+    align-content: flex-start;
   }
   .admin-mobile-nav-inline {
     display: flex;
-    flex: 1 1 100%;
+    flex: 0 0 auto;
+    width: 100%;
+    align-items: center;
     gap: 8px;
     overflow-x: auto;
     padding: 10px 12px;
@@ -721,6 +742,7 @@ input.admin-stock-input,
     position: sticky;
     top: 0;
     z-index: 5;
+    box-sizing: border-box;
   }
   .admin-main-wrapper {
     flex: 1 1 100%;
@@ -728,7 +750,8 @@ input.admin-stock-input,
   }
   .admin-mobile-nav-inline a {
     flex: 0 0 auto;
-    min-height: 44px;
+    height: 40px;
+    min-height: 40px;
     display: inline-flex;
     align-items: center;
     padding: 0 16px;
@@ -739,6 +762,8 @@ input.admin-stock-input,
     text-decoration: none;
     border: 1px solid var(--admin-border);
     background: #FAF7F2;
+    box-sizing: border-box;
+    line-height: 1;
   }
   .admin-mobile-nav-inline a.is-active {
     background: var(--admin-brand-brown);
@@ -800,10 +825,19 @@ input.admin-stock-input,
     align-items: stretch;
   }
   .admin-filter-group {
-    flex-direction: column;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
   }
   .admin-select {
     width: 100%;
+    flex: 1 1 100%;
+  }
+  .admin-filter-group > .btn-admin {
+    flex: 1 1 calc(50% - 4px);
+    justify-content: center;
+    text-align: center;
   }
   .admin-modal-drawer {
     max-width: 100%;
@@ -2334,11 +2368,17 @@ input.admin-stock-input,
 }
 
 /* Order list: keep the dense table from overflowing before it becomes cards. */
+@media (max-width: 1360px) {
+  .admin-order-hide-compact {
+    display: none;
+  }
+}
+
 @media (max-width: 1240px) and (min-width: 901px) {
   .admin-table th,
   .admin-table td {
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 8px;
+    padding-right: 8px;
   }
 }
 
@@ -2649,12 +2689,14 @@ input.admin-stock-input,
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .admin-an-date {
-  height: 44px;
+  height: 40px;
   width: auto;
+  font-size: 0.8125rem;
+  padding: 0 10px;
 }
 
 .admin-an-chart-wrap {
@@ -2723,12 +2765,29 @@ input.admin-stock-input,
   .admin-an-toolbar {
     flex-direction: column;
     align-items: stretch;
+    gap: 12px;
+  }
+  .admin-an-ranges {
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .admin-an-ranges .admin-range-btn {
+    flex-shrink: 0;
   }
   .admin-an-custom {
     width: 100%;
+    flex-wrap: nowrap;
+    gap: 6px;
   }
   .admin-an-date {
-    flex: 1;
+    flex: 1 1 0;
     min-width: 0;
+    padding: 0 6px;
+    font-size: 0.75rem;
   }
 }

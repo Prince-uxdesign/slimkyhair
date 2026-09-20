@@ -6,6 +6,8 @@
  * Structured to be 100% compatible with future Supabase / PostgreSQL backend.
  */
 
+import { hydrateCatalog } from './catalog/catalog-overlay.js';
+
 export const CATEGORIES = [
   {
     slug: "hair-oils",
@@ -941,3 +943,16 @@ export function getRelatedProducts(product, limit = 4) {
 
 // Alias export for consistency
 export const CATALOG_PRODUCTS = PRODUCTS;
+
+/**
+ * Phase A3: apply persisted admin product-management changes.
+ *
+ * Runs synchronously at module evaluation, BEFORE any importer body executes,
+ * so shop, category pages, search, PDP, cart, wishlist and the checkout price
+ * validator all read the same merged catalogue. PRODUCTS and CATEGORIES are
+ * mutated in place — every consumer holds this array reference.
+ *
+ * Only Published products survive into PRODUCTS; drafts and archived products
+ * are admin-only and are served from catalog/catalog-overlay.js instead.
+ */
+hydrateCatalog(PRODUCTS, CATEGORIES, SEARCH_SUGGESTIONS);
