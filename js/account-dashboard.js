@@ -208,7 +208,7 @@ export class AccountDashboard {
       const orderNum = recent.orderNumber || recent.id;
       const orderDate = recent.createdAt ? new Date(recent.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Recent';
       const itemsCount = recent.items ? recent.items.reduce((sum, item) => sum + (item.quantity || 1), 0) : 0;
-      const totalFormatted = recent.pricing ? `NGN ${Number(recent.pricing.totalAmount || 0).toLocaleString()}` : (recent.totalFormatted || 'NGN 0');
+      const totalFormatted = recent.pricing ? `₦${Number(recent.pricing.totalAmount || recent.pricing.productPaymentTotal || recent.pricing.subtotal || 0).toLocaleString('en-NG')}` : (recent.totalFormatted || '₦0');
       const status = recent.orderStatus || 'processing';
 
       mount.innerHTML = `
@@ -565,7 +565,7 @@ export class AccountDashboard {
       });
 
       if (editForm) {
-        editForm.addEventListener('submit', (e) => {
+        editForm.addEventListener('submit', async (e) => {
           e.preventDefault();
           const newName = nameInput.value.trim();
           const newPhone = phoneInput.value.trim();
@@ -581,7 +581,7 @@ export class AccountDashboard {
           }
 
           try {
-            const updated = customerService.updateProfile(this.customer.id, {
+            const updated = await customerService.updateProfile(this.customer.id, {
               fullName: newName,
               phone: newPhone
             });
@@ -644,9 +644,9 @@ export class AccountDashboard {
 
     // 3. Bind Sign Out actions
     document.querySelectorAll('.account-signout-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener('click', async (e) => {
         e.preventDefault();
-        customerService.logoutCustomer();
+        await customerService.logoutCustomer();
         window.location.href = `${this.rootPrefix}account/login/`;
       });
     });

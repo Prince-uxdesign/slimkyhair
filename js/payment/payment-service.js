@@ -32,6 +32,7 @@ import { inventoryService } from '../inventory/inventory-service.js';
 import { emailService } from '../email/email-service.js';
 import { customerService } from '../auth/customer-service.js';
 import { clearCart } from '../cart-store.js';
+import { syncOrderToBackend } from './order-sync.js';
 
 export class PaymentService {
   constructor() {
@@ -435,6 +436,15 @@ export class PaymentService {
           await emailService.sendOrderConfirmationEmail(updatedOrder, updatedPayment);
         } catch (emailErr) {
           console.warn('[PaymentService] Email dispatch skipped/failed:', emailErr);
+        }
+
+        // Persist the verified order into the real backend (Phase 3, Piece 1).
+        // Best-effort, matching the email dispatch above: never blocks or
+        // fails an already-successful checkout — see js/payment/order-sync.js.
+        try {
+          await syncOrderToBackend(updatedOrder, updatedPayment);
+        } catch (syncErr) {
+          console.warn('[PaymentService] Backend order sync skipped/failed:', syncErr);
         }
 
         // Authoritatively clear shopping bag upon verified payment

@@ -8,6 +8,7 @@ import { initNavigation } from '../navigation.js';
 import { initDrawers } from '../drawers.js';
 import { syncWishlistUI } from '../wishlist-store.js';
 import { isValidEmail } from '../utils/validators.js';
+import { escapeHtml } from '../utils/html-format.js';
 
 export class RegisterPage {
   constructor(options = {}) {
@@ -284,13 +285,14 @@ export class RegisterPage {
         const fullName = document.querySelector('#reg-name').value.trim();
         const email = document.querySelector('#reg-email').value.trim();
         const phone = document.querySelector('#reg-phone').value.trim();
+        const password = document.querySelector('#reg-password').value;
 
         // Register customer through unified customer service
         const regResult = await customerService.registerCustomer({
           fullName,
           email,
           phone,
-          throwOnExisting: true
+          password
         });
 
         // Transition to confirmation state
@@ -335,10 +337,10 @@ export class RegisterPage {
           <h1 class="auth-confirmation-title">Check your email</h1>
           
           <p class="auth-confirmation-desc">
-            Welcome, <strong>${customer.fullName}</strong>. We've sent an account confirmation notification and receipt to:
+            Welcome, <strong>${escapeHtml(customer.fullName)}</strong>. We've sent an account confirmation notification and receipt to:
           </p>
 
-          <div class="auth-email-badge">${customer.email}</div>
+          <div class="auth-email-badge">${escapeHtml(customer.email)}</div>
 
           <p style="font-size: 0.875rem; color: var(--color-text-secondary); margin-bottom: 28px; line-height: 1.5;">
             Please check your inbox (and spam/promotions folder) to confirm your email address. You can explore our botanical formulations right away.
@@ -355,7 +357,7 @@ export class RegisterPage {
 
           <div class="auth-resend-wrapper">
             <span>Didn't receive the email? </span>
-            <button type="button" id="resend-confirmation-btn" class="auth-resend-btn" data-email="${customer.email}">
+            <button type="button" id="resend-confirmation-btn" class="auth-resend-btn" data-email="${escapeHtml(customer.email)}">
               Resend confirmation email
             </button>
             <div id="resend-feedback" class="auth-resend-feedback" role="status"></div>

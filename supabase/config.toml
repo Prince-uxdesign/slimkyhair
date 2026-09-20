@@ -6,6 +6,13 @@
 # key or RESEND_API_KEY) — a valid JWT (anon or user) is enough.
 verify_jwt = true
 
+[functions.sync-order]
+# Called by the storefront right after a payment is verified successful —
+# a valid JWT (anon for guest checkout, or the customer's own for signed-in
+# checkout) is enough; the function re-derives customer_id from that JWT
+# itself rather than trusting the request body.
+verify_jwt = true
+
 [functions.auth-email-hook]
 # Supabase Auth calls hooks without a user JWT — this function verifies the
 # Standard Webhooks signature itself using SEND_EMAIL_HOOK_SECRET.

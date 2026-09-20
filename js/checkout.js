@@ -22,7 +22,8 @@ import {
   resolveCartImagePath,
   formatNaira,
   validateCart,
-  applyCartValidation
+  applyCartValidation,
+  STORAGE_KEY as CART_STORAGE_KEY
 } from './cart-store.js';
 
 import {
@@ -206,7 +207,7 @@ export class CheckoutPage {
     });
 
     window.addEventListener('storage', (e) => {
-      if (e.key === 'slimky_hair_cart') {
+      if (e.key === CART_STORAGE_KEY) {
         this.render();
       }
     });
@@ -355,7 +356,7 @@ export class CheckoutPage {
       .replace(/'/g, '&#039;');
   }
 
-  syncCustomerAuthStatus() {
+  async syncCustomerAuthStatus() {
     const customer = customerService.getCurrentCustomer();
     const statusBadge = this.guestStatusEl || document.querySelector('#checkout-guest-status');
     const authBanner = this.authBannerEl || document.querySelector('#checkout-auth-banner');
@@ -398,8 +399,8 @@ export class CheckoutPage {
 
         const switchBtn = authBanner.querySelector('#btn-checkout-switch-account');
         if (switchBtn) {
-          switchBtn.addEventListener('click', () => {
-            customerService.logoutCustomer();
+          switchBtn.addEventListener('click', async () => {
+            await customerService.logoutCustomer();
             this.syncCustomerAuthStatus();
           });
         }
@@ -416,7 +417,7 @@ export class CheckoutPage {
       }
 
       // Render Saved Addresses for signed-in customer
-      this.renderSavedAddresses(customer);
+      await this.renderSavedAddresses(customer);
 
     } else {
       // 2. Guest Checkout Experience (Low friction, no account required)
@@ -483,10 +484,10 @@ export class CheckoutPage {
     }
   }
 
-  renderSavedAddresses(customer) {
+  async renderSavedAddresses(customer) {
     if (!this.savedAddressesWrapper || !this.savedAddressesList) return;
 
-    const addresses = customerService.getAddresses(customer.id) || [];
+    const addresses = await customerService.getAddresses(customer.id) || [];
 
     if (addresses.length === 0) {
       // Customer has no saved addresses
@@ -505,7 +506,7 @@ export class CheckoutPage {
     // Milestone C20.3: Preselect default address if customer has one; if not, do NOT invent one!
     let targetAddress = null;
     if (this.selectedSavedAddressId) {
-      targetAddress = customerService.getAddress(this.selectedSavedAddressId, customer.id);
+      targetAddress = await customerService.getAddress(this.selectedSavedAddressId, customer.id);
     }
     if (!targetAddress && !this.isEnteringNewAddress) {
       const defaultAddr = addresses.find(a => a.isDefault);
@@ -586,11 +587,11 @@ export class CheckoutPage {
     }
   }
 
-  selectSavedAddress(customer, addressId) {
+  async selectSavedAddress(customer, addressId) {
     if (!customer || !customer.id) return;
-    
+
     // Security check: Verify that the selected address strictly belongs to this authenticated customer
-    const addr = customerService.getAddress(addressId, customer.id);
+    const addr = await customerService.getAddress(addressId, customer.id);
     if (!addr) {
       console.warn('[Security Alert] Selected address ID does not belong to authenticated customer:', addressId);
       this.selectedSavedAddressId = null;
@@ -1381,7 +1382,7 @@ export class CheckoutPage {
       // Milestone C20.3: Security verification - verify selected saved address strictly belongs to active customer
       let verifiedSavedAddressId = null;
       if (activeCustomer && this.selectedSavedAddressId && !this.isEnteringNewAddress) {
-        const verifiedAddr = customerService.getAddress(this.selectedSavedAddressId, activeCustomer.id);
+        const verifiedAddr = await customerService.getAddress(this.selectedSavedAddressId, activeCustomer.id);
         if (verifiedAddr) {
           verifiedSavedAddressId = verifiedAddr.id;
         } else {
@@ -1393,7 +1394,7 @@ export class CheckoutPage {
       // Milestone C20.1: If authenticated customer chose to save new address to their account
       if (activeCustomer && this.saveAddressCheck?.checked && this.isEnteringNewAddress) {
         try {
-          const newSaved = customerService.saveAddress(activeCustomer.id, {
+          const newSaved = await customerService.saveAddress(activeCustomer.id, {
             label: 'Home',
             recipientName: this.fullNameInput.value.trim(),
             phone: this.phoneInput.value.trim(),
@@ -1417,7 +1418,7 @@ export class CheckoutPage {
         try {
           const updatedName = this.fullNameInput.value.trim();
           const updatedPhone = this.phoneInput.value.trim();
-          customerService.updateProfile(activeCustomer.id, {
+          await customerService.updateProfile(activeCustomer.id, {
             fullName: updatedName,
             phone: updatedPhone
           });
@@ -1521,13 +1522,13 @@ export class CheckoutPage {
 
     const isNigeria = session.flow === 'nigeria_checkout';
     const formattedAddress = isNigeria
-      ? (session.delivery.address.toLowerCase().includes(session.delivery.city.toLowerCase()) 
-          ? `${session.delivery.address}, ${session.delivery.state}, Nigeria` 
-          : `${session.delivery.address}, ${session.delivery.city}, ${session.delivery.state}, Nigeria`)
-      : `${session.delivery.address}, ${session.delivery.city}, ${session.delivery.state} ${session.delivery.postalCode}, ${session.delivery.country}`;
+      ? (session.delivery.address.toLowerCase().includes(session.delivery.city.toLowerCase())
+          ? `${this.escapeHtml(session.delivery.address)}, ${this.escapeHtml(session.delivery.state)}, Nigeria`
+          : `${this.escapeHtml(session.delivery.address)}, ${this.escapeHtml(session.delivery.city)}, ${this.escapeHtml(session.delivery.state)}, Nigeria`)
+      : `${this.escapeHtml(session.delivery.address)}, ${this.escapeHtml(session.delivery.city)}, ${this.escapeHtml(session.delivery.state)} ${this.escapeHtml(session.delivery.postalCode)}, ${this.escapeHtml(session.delivery.country)}`;
 
     const shippingStatusText = isNigeria ? 'Calculated separately' : 'Quote required';
-    const destinationCountry = isNigeria ? 'Nigeria' : session.delivery.country;
+    const destinationCountry = isNigeria ? 'Nigeria' : this.escapeHtml(session.delivery.country);
 
     const itemCount = session.items.length;
     const itemLabel = itemCount === 1 ? '1 item' : `${itemCount} items`;
@@ -1553,7 +1554,7 @@ export class CheckoutPage {
 
           <h2 class="checkout-confirmed-title">Information Verified</h2>
           <p class="checkout-confirmed-subtext">
-            Thank you, <strong>${session.customer.fullName}</strong>. Your contact and delivery information for ${destinationCountry} have been verified.
+            Thank you, <strong>${this.escapeHtml(session.customer.fullName)}</strong>. Your contact and delivery information for ${destinationCountry} have been verified.
           </p>
 
           <!-- 2. Staged Order Card (Structured Receipt Style) -->
@@ -1587,15 +1588,15 @@ export class CheckoutPage {
               </div>
               <div class="checkout-receipt-row">
                 <span class="checkout-receipt-label">Recipient</span>
-                <span class="checkout-receipt-value" style="font-weight: 600;">${session.customer.fullName}</span>
+                <span class="checkout-receipt-value" style="font-weight: 600;">${this.escapeHtml(session.customer.fullName)}</span>
               </div>
               <div class="checkout-receipt-row">
                 <span class="checkout-receipt-label">Email</span>
-                <span class="checkout-receipt-value">${session.customer.email}</span>
+                <span class="checkout-receipt-value">${this.escapeHtml(session.customer.email)}</span>
               </div>
               <div class="checkout-receipt-row">
                 <span class="checkout-receipt-label">Phone / WhatsApp</span>
-                <span class="checkout-receipt-value">${session.customer.phone}</span>
+                <span class="checkout-receipt-value">${this.escapeHtml(session.customer.phone)}</span>
               </div>
               <div class="checkout-receipt-row">
                 <span class="checkout-receipt-label">Delivery Address</span>
@@ -1604,7 +1605,7 @@ export class CheckoutPage {
               ${session.delivery.instructions ? `
                 <div class="checkout-receipt-row">
                   <span class="checkout-receipt-label">Delivery Notes</span>
-                  <span class="checkout-receipt-value" style="font-style: italic;">"${session.delivery.instructions}"</span>
+                  <span class="checkout-receipt-value" style="font-style: italic;">"${this.escapeHtml(session.delivery.instructions)}"</span>
                 </div>
               ` : ''}
             </div>
@@ -1642,7 +1643,7 @@ export class CheckoutPage {
             <div class="checkout-shipping-separate-alert">
               <strong class="checkout-shipping-alert-title">Shipping Fee Notice (Calculated Separately)</strong>
               <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
-                The product total above (<strong style="display: inline; font-weight: 700; white-space: nowrap;">${session.pricing.productPaymentTotalFormatted}</strong>) is what you will pay through the product payment flow. Slimky does not add automated or estimated shipping fees online. After payment is verified, our logistics team reviews your order and emails you an exact delivery fee quote for your location in ${session.delivery.state}, which you review and pay directly from your order page.
+                The product total above (<strong style="display: inline; font-weight: 700; white-space: nowrap;">${session.pricing.productPaymentTotalFormatted}</strong>) is what you will pay through the product payment flow. Slimky does not add automated or estimated shipping fees online. After payment is verified, our logistics team reviews your order and emails you an exact delivery fee quote for your location in ${this.escapeHtml(session.delivery.state)}, which you review and pay directly from your order page.
               </p>
             </div>
           ` : `
@@ -1654,7 +1655,7 @@ export class CheckoutPage {
               <ol style="padding-left: 20px; margin: 0; line-height: 1.6; font-size: 0.875rem;">
                 <li style="margin-bottom: 4px;"><strong>Product Payment First:</strong> You pay for your ordered products online (${session.pricing.productPaymentTotalFormatted}${!isNigeria ? ` · approx. ${getApproximateForeignCurrencies(session.pricing.productPaymentTotal).usdFormatted} / ${getApproximateForeignCurrencies(session.pricing.productPaymentTotal).gbpFormatted}` : ''}).</li>
                 <li style="margin-bottom: 4px;"><strong>Shipping Quote Obtained by Slimky:</strong> Our logistics team packages and weighs your order to obtain the actual courier rate (e.g. DHL Express) for ${destinationCountry}.</li>
-                <li style="margin-bottom: 4px;"><strong>Quote Sent to You:</strong> Slimky sends the official shipping quote directly to your Phone / WhatsApp (${session.customer.phone}) and email.</li>
+                <li style="margin-bottom: 4px;"><strong>Quote Sent to You:</strong> Slimky sends the official shipping quote directly to your Phone / WhatsApp (${this.escapeHtml(session.customer.phone)}) and email.</li>
                 <li><strong>Acceptance & Shipping Payment:</strong> You accept or decline the quote. The shipping payment is handled separately prior to dispatch.</li>
               </ol>
               <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--color-border-subtle); font-size: 0.8125rem; color: var(--color-text-secondary);">
@@ -1866,12 +1867,12 @@ export class CheckoutPage {
     if (this.emptyContainer) this.emptyContainer.style.display = 'none';
 
     const isNigeria = order.flow === 'nigeria_checkout';
-    const destinationCountry = isNigeria ? 'Nigeria' : order.delivery.country;
+    const destinationCountry = isNigeria ? 'Nigeria' : this.escapeHtml(order.delivery.country);
     const formattedAddress = isNigeria
       ? (order.delivery.address.toLowerCase().includes(order.delivery.city.toLowerCase())
-          ? `${order.delivery.address}, ${order.delivery.state}, Nigeria`
-          : `${order.delivery.address}, ${order.delivery.city}, ${order.delivery.state}, Nigeria`)
-      : `${order.delivery.address}, ${order.delivery.city}, ${order.delivery.state} ${order.delivery.postalCode}, ${order.delivery.country}`;
+          ? `${this.escapeHtml(order.delivery.address)}, ${this.escapeHtml(order.delivery.state)}, Nigeria`
+          : `${this.escapeHtml(order.delivery.address)}, ${this.escapeHtml(order.delivery.city)}, ${this.escapeHtml(order.delivery.state)}, Nigeria`)
+      : `${this.escapeHtml(order.delivery.address)}, ${this.escapeHtml(order.delivery.city)}, ${this.escapeHtml(order.delivery.state)} ${this.escapeHtml(order.delivery.postalCode)}, ${this.escapeHtml(order.delivery.country)}`;
 
     if (this.successView) {
       this.successView.style.display = 'block';
@@ -1893,7 +1894,7 @@ export class CheckoutPage {
 
           <h2 class="checkout-confirmed-title">Order Confirmed</h2>
           <p class="checkout-confirmed-subtext">
-            Thank you, <strong>${order.customer.fullName}</strong>. Your payment of <strong>${formatNaira(order.pricing.productPaymentTotal)}</strong> has been verified via <strong>Demo Payment</strong>.
+            Thank you, <strong>${this.escapeHtml(order.customer.fullName)}</strong>. Your payment of <strong>${formatNaira(order.pricing.productPaymentTotal)}</strong> has been verified via <strong>Demo Payment</strong>.
           </p>
 
           <!-- 2. Main Info Card (Structured Scannable Receipt) -->
@@ -1931,15 +1932,15 @@ export class CheckoutPage {
               </div>
               <div class="checkout-receipt-row">
                 <span class="checkout-receipt-label">Recipient</span>
-                <span class="checkout-receipt-value" style="font-weight: 600;">${order.customer.fullName}</span>
+                <span class="checkout-receipt-value" style="font-weight: 600;">${this.escapeHtml(order.customer.fullName)}</span>
               </div>
               <div class="checkout-receipt-row">
                 <span class="checkout-receipt-label">Email</span>
-                <span class="checkout-receipt-value">${order.customer.email}</span>
+                <span class="checkout-receipt-value">${this.escapeHtml(order.customer.email)}</span>
               </div>
               <div class="checkout-receipt-row">
                 <span class="checkout-receipt-label">Phone / WhatsApp</span>
-                <span class="checkout-receipt-value">${order.customer.phone}</span>
+                <span class="checkout-receipt-value">${this.escapeHtml(order.customer.phone)}</span>
               </div>
               <div class="checkout-receipt-row">
                 <span class="checkout-receipt-label">Delivery Destination</span>
@@ -1948,7 +1949,7 @@ export class CheckoutPage {
               ${order.delivery.instructions ? `
                 <div class="checkout-receipt-row">
                   <span class="checkout-receipt-label">Delivery Notes</span>
-                  <span class="checkout-receipt-value" style="font-style: italic;">"${order.delivery.instructions}"</span>
+                  <span class="checkout-receipt-value" style="font-style: italic;">"${this.escapeHtml(order.delivery.instructions)}"</span>
                 </div>
               ` : ''}
             </div>
@@ -2005,14 +2006,14 @@ export class CheckoutPage {
             <div class="checkout-confirmed-callout">
               <span class="checkout-confirmed-callout-title">Delivery Fee Follow-Up</span>
               <div>
-                Your product order is placed. Delivery fees for Nigeria are calculated separately — our logistics team will review your order for ${order.delivery.state} and email <strong>${order.customer.email}</strong> a shipping quote you can review and pay directly from your order page.
+                Your product order is placed. Delivery fees for Nigeria are calculated separately — our logistics team will review your order for ${this.escapeHtml(order.delivery.state)} and email <strong>${this.escapeHtml(order.customer.email)}</strong> a shipping quote you can review and pay directly from your order page.
               </div>
             </div>
           ` : `
             <div class="checkout-confirmed-callout">
               <span class="checkout-confirmed-callout-title">International Shipping Quote Follow-Up</span>
               <div>
-                Your product payment is verified. Slimky logistics will weigh your package to calculate courier rates for ${destinationCountry}, and send the official shipping quote to <strong>${order.customer.email}</strong> and <strong>${order.customer.phone}</strong>.
+                Your product payment is verified. Slimky logistics will weigh your package to calculate courier rates for ${destinationCountry}, and send the official shipping quote to <strong>${this.escapeHtml(order.customer.email)}</strong> and <strong>${this.escapeHtml(order.customer.phone)}</strong>.
               </div>
             </div>
           `}
@@ -2097,7 +2098,7 @@ export class CheckoutPage {
     // Real Order Reference & Payment Reference for client transaction
     const orderReference = order.orderNumber || order.orderReference || order.id || 'SLM-202609-0001';
     const paymentReference = payment?.providerReference || payment?.reference || payment?.id || order.paymentReference || (order.id ? `PAY-${order.id.replace(/\D/g, '').slice(-8)}` : 'PAY-202609-8841');
-    const formattedAmount = `${formatNaira(order.pricing.productPaymentTotal)}.00`;
+    const formattedAmount = formatNaira(order.pricing.productPaymentTotal);
     const last4 = payment?.last4 || '4567';
     const expiry = payment?.expiry || '10/27';
 

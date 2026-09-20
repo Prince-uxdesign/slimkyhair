@@ -1,180 +1,186 @@
 /**
  * Admin Authentication & Security Service - Slimky Hair
  * Milestones C21 - C26: Backoffice Authorization Barrier
- * 
- * Guarantees:
- * - Admin credentials and sessions are strictly separated from customer sessions.
- * - Customer accounts and public visitors CANNOT access admin order data or customer PII.
- * - Enforces session verification for all admin backoffice actions.
- * - Default seeded admin: admin@slimkyhair.com / BotanicalAdmin2026
+ * Phase 2 (Backend Integration): Real Admin Identity
+ *
+ * Admin identity is real Supabase Auth, exactly like customer identity
+ * (js/auth/customer-service.js). Admin PRIVILEGE is a separate question,
+ * answered only by the database: the `current_admin()` RPC (SECURITY INVOKER,
+ * defined in supabase/migrations/20260920043100_admin_authorization.sql)
+ * returns the caller's own profile row ONLY if role IN ('admin','staff') AND
+ * is_active. There is no local credential store, no hardcoded password, and
+ * no way to become an admin by editing anything that ships to the browser —
+ * role is granted exclusively via service_role/SQL (see that migration's
+ * `prevent_client_role_change` trigger).
+ *
+ * IMPORTANT — what Phase 2 does and does not cover:
+ * The identity/role check below is real and server-verified. The DATA this
+ * dashboard reads (orders, customers, inventory, settings) still comes from
+ * the same localStorage stores the rest of the site uses pre-backend-
+ * integration — that migrates in later phases. Until then, the admin RLS
+ * policies on those tables are correctly written but not yet the thing
+ * actually gating this dashboard's reads; getCurrentAdmin()/isAdminAuthorized()
+ * are the real gate today.
  */
 
 import { OrderStore } from '../payment/order-store.js';
 import { customerService } from './customer-service.js';
 import { SETTING_DEFS, getAllSettings, saveSettings } from '../admin/settings-service.js';
-
-const ADMIN_CREDENTIALS_KEY = 'slimky_admin_credentials';
-const ADMIN_ACTIVE_SESSION_KEY = 'slimky_admin_session';
-const ADMIN_SESSIONS_REGISTRY_KEY = 'slimky_admin_sessions';
-
-/**
- * Safely read JSON from localStorage
- */
-function readStorage(key, fallback = null) {
-  if (typeof localStorage === 'undefined') return fallback;
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
-  } catch (err) {
-    console.warn(`[AdminService] Storage read error for ${key}:`, err);
-    return fallback;
-  }
-}
-
-/**
- * Safely write JSON to localStorage
- */
-function writeStorage(key, value) {
-  if (typeof localStorage === 'undefined') return false;
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-    return true;
-  } catch (err) {
-    console.warn(`[AdminService] Storage write error for ${key}:`, err);
-    return false;
-  }
-}
+import { getSupabaseClient } from '../supabase-client.js';
 
 export class AdminService {
   constructor() {
-    this.initDefaultAdmin();
+    // In-memory only — never persisted. Populated exclusively by a
+    // server-verified current_admin() RPC call (login or restoreSession),
+    // so it can't be forged by writing to localStorage/sessionStorage.
+    this._verifiedAdmin = null;
   }
 
   /**
-   * Seed baseline authorized administrator.
+   * Map a current_admin() RPC row + the live Supabase session onto the shape
+   * the rest of this file / admin-page.js already expects.
+   * @private
    */
-  initDefaultAdmin() {
-    const existing = readStorage(ADMIN_CREDENTIALS_KEY, null);
-    if (!existing) {
-      const defaultAdmin = {
-        id: 'admin_master_01',
-        email: 'admin@slimkyhair.com',
-        fullName: 'Slimky Hair Operations Lead',
-        role: 'admin',
-        // In real backend this would be bcrypt hash; in client-side prototype we compare securely
-        passwordHash: 'BotanicalAdmin2026',
-        createdAt: new Date().toISOString()
-      };
-      writeStorage(ADMIN_CREDENTIALS_KEY, defaultAdmin);
+  _cacheVerifiedAdmin(row, session) {
+    this._verifiedAdmin = {
+      id: row.id,
+      email: row.email,
+      fullName: row.full_name || row.email,
+      role: row.role,
+      // Kept for API compatibility with existing call sites that pass
+      // admin.token around; authorization no longer depends on it, but it's
+      // still the real Supabase access token, useful for logging/debugging.
+      token: session?.access_token || null
+    };
+    return this._verifiedAdmin;
+  }
+
+  /**
+   * Call the server to find out whether the current Supabase session belongs
+   * to an active admin/staff user, and cache the result. Must be awaited
+   * once at admin dashboard bootstrap (see admin-page.js init()) before any
+   * admin view renders — this is what makes a hard refresh, a revoked
+   * account, or a role downgrade take effect immediately rather than
+   * trusting stale local state.
+   * @returns {Promise<Object|null>} the verified admin, or null
+   */
+  async restoreSession() {
+    this._verifiedAdmin = null;
+    try {
+      const supabase = getSupabaseClient();
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData?.session) return null;
+
+      const { data, error } = await supabase.rpc('current_admin');
+      if (error) {
+        console.warn('[AdminService] current_admin() check failed:', error.message);
+        return null;
+      }
+      const row = Array.isArray(data) ? data[0] : data;
+      if (!row) return null;
+
+      return this._cacheVerifiedAdmin(row, sessionData.session);
+    } catch (err) {
+      console.warn('[AdminService] Session verification unavailable:', err.message);
+      return null;
     }
   }
 
   /**
-   * Authenticate admin user.
-   * @param {string} email 
-   * @param {string} password 
-   * @returns {{ success: boolean, sessionToken?: string, admin?: Object, error?: string }}
+   * Authenticate an admin user via real Supabase Auth, then verify
+   * admin/staff privilege server-side. A valid Supabase account that is NOT
+   * an admin/staff (e.g. an ordinary customer) is signed back out immediately
+   * — this form grants no privilege by itself, only the database can.
+   * @param {string} email
+   * @param {string} password
+   * @returns {Promise<{ success: boolean, admin?: Object, error?: string }>}
    */
-  loginAdmin(email, password) {
+  async loginAdmin(email, password) {
     if (!email || !password) {
       return { success: false, error: 'Email and password are required.' };
     }
 
-    const normEmail = String(email).trim().toLowerCase();
-    const adminUser = readStorage(ADMIN_CREDENTIALS_KEY, null);
+    let supabase;
+    try {
+      supabase = getSupabaseClient();
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
 
-    if (!adminUser || adminUser.email.toLowerCase() !== normEmail) {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: String(email).trim().toLowerCase(),
+      password
+    });
+
+    if (error) {
       return { success: false, error: 'Invalid admin credentials.' };
     }
 
-    if (password !== adminUser.passwordHash) {
-      return { success: false, error: 'Invalid admin credentials.' };
+    const { data: adminRows, error: rpcError } = await supabase.rpc('current_admin');
+    if (rpcError) {
+      await supabase.auth.signOut();
+      return { success: false, error: 'Unable to verify backoffice access right now. Please try again.' };
     }
 
-    // Generate secure admin session token
-    const token = `adm_sess_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
-    const session = {
-      token,
-      adminId: adminUser.id,
-      email: adminUser.email,
-      fullName: adminUser.fullName,
-      role: 'admin',
-      loginTime: new Date().toISOString()
-    };
+    const row = Array.isArray(adminRows) ? adminRows[0] : adminRows;
+    if (!row) {
+      // Valid Supabase account, but not an admin/staff row (or inactive).
+      // Do not leave this session signed in on the admin origin.
+      await supabase.auth.signOut();
+      return { success: false, error: 'This account does not have backoffice access.' };
+    }
 
-    const registry = readStorage(ADMIN_SESSIONS_REGISTRY_KEY, {});
-    registry[token] = session;
-    writeStorage(ADMIN_SESSIONS_REGISTRY_KEY, registry);
-    writeStorage(ADMIN_ACTIVE_SESSION_KEY, session);
-
-    return {
-      success: true,
-      sessionToken: token,
-      admin: {
-        id: adminUser.id,
-        email: adminUser.email,
-        fullName: adminUser.fullName,
-        role: adminUser.role
-      }
-    };
+    const admin = this._cacheVerifiedAdmin(row, data.session);
+    return { success: true, admin };
   }
 
   /**
-   * Terminate active admin session.
+   * Terminate the active admin session (real Supabase sign-out).
    */
-  logoutAdmin() {
-    if (typeof localStorage !== 'undefined') {
-      const active = readStorage(ADMIN_ACTIVE_SESSION_KEY, null);
-      if (active?.token) {
-        const registry = readStorage(ADMIN_SESSIONS_REGISTRY_KEY, {});
-        delete registry[active.token];
-        writeStorage(ADMIN_SESSIONS_REGISTRY_KEY, registry);
-      }
-      localStorage.removeItem(ADMIN_ACTIVE_SESSION_KEY);
+  async logoutAdmin() {
+    this._verifiedAdmin = null;
+    try {
+      const supabase = getSupabaseClient();
+      const { error } = await supabase.auth.signOut();
+      if (error) console.warn('[AdminService] Sign-out error:', error.message);
+    } catch (err) {
+      console.warn('[AdminService] Sign-out request could not be sent:', err.message);
     }
   }
 
   /**
-   * Get current authenticated admin session or null.
+   * Get the current verified admin session, or null. Synchronous — backed by
+   * the in-memory cache restoreSession()/loginAdmin() populate. Returns null
+   * (never stale "true") before restoreSession() has resolved, so a page
+   * that renders before verification completes shows the login screen, not
+   * admin data — see admin-page.js's async init().
    * @returns {Object|null}
    */
   getCurrentAdmin() {
-    const active = readStorage(ADMIN_ACTIVE_SESSION_KEY, null);
-    if (!active || !active.token) return null;
-
-    const registry = readStorage(ADMIN_SESSIONS_REGISTRY_KEY, {});
-    if (!registry[active.token] || registry[active.token].role !== 'admin') {
-      return null;
-    }
-
-    return active;
+    return this._verifiedAdmin;
   }
 
   /**
-   * Strictly verifies that the caller possesses a valid admin session.
-   * @param {string} [token] 
+   * Strictly verifies that the caller holds a server-verified admin session.
+   * The `token` parameter is accepted for call-site compatibility but no
+   * longer consulted: authorization is the in-memory result of a real
+   * current_admin() RPC call, which cannot be forged client-side.
    * @returns {boolean}
    */
-  isAdminAuthorized(token = null) {
-    const active = readStorage(ADMIN_ACTIVE_SESSION_KEY, null);
-    const registry = readStorage(ADMIN_SESSIONS_REGISTRY_KEY, {});
-    const targetToken = token || active?.token;
-
-    if (!targetToken) return false;
-    const session = registry[targetToken];
-    return !!session && session.role === 'admin';
+  isAdminAuthorized() {
+    return !!this._verifiedAdmin;
   }
 
   /**
    * Retrieve all orders for admin review.
    * SECURITY ENFORCEMENT:
    * Throws authorization error if caller lacks a verified admin session.
-   * @param {string} [token]
+   * @param {*} [_token] Unused — kept for call-site compatibility.
    * @param {Object} [filters]
    * @returns {Array} Orders
    */
-  getAdminOrders(token = null, filters = {}) {
-    if (!this.isAdminAuthorized(token)) {
+  getAdminOrders(_token = null, filters = {}) {
+    if (!this.isAdminAuthorized()) {
       throw new Error('Unauthorized: Admin credentials required to access order management data.');
     }
 
@@ -233,11 +239,11 @@ export class AdminService {
    *   password-reset tokens and the Supabase `authUserId` linkage live in
    *   separate stores that this path never reads.
    *
-   * @param {string} [token]
+   * @param {*} [_token] Unused — kept for call-site compatibility.
    * @returns {Array<Object>} Sanitized customer records
    */
-  getAdminCustomers(token = null) {
-    if (!this.isAdminAuthorized(token)) {
+  getAdminCustomers(_token = null) {
+    if (!this.isAdminAuthorized()) {
       throw new Error('Unauthorized: Admin credentials required to access customer records.');
     }
     return customerService.listAllCustomers();
@@ -250,11 +256,11 @@ export class AdminService {
    * than being read straight from the store by the view.
    *
    * @param {string} customerId
-   * @param {string} [token]
+   * @param {*} [_token] Unused — kept for call-site compatibility.
    * @returns {Array<Object>}
    */
-  getAdminCustomerAddresses(customerId, token = null) {
-    if (!this.isAdminAuthorized(token)) {
+  getAdminCustomerAddresses(customerId, _token = null) {
+    if (!this.isAdminAuthorized()) {
       throw new Error('Unauthorized: Admin credentials required to access customer addresses.');
     }
     if (!customerId) return [];
@@ -262,24 +268,21 @@ export class AdminService {
   }
 
   /**
-   * Reset all admin sessions (for testing).
+   * Reset in-memory admin verification (for testing). Does not sign out of
+   * Supabase Auth — call logoutAdmin() for that.
    */
   clearAll() {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.removeItem(ADMIN_ACTIVE_SESSION_KEY);
-      localStorage.removeItem(ADMIN_SESSIONS_REGISTRY_KEY);
-      this.initDefaultAdmin();
-    }
+    this._verifiedAdmin = null;
   }
 
   /**
    * Read backoffice settings for the settings screen (Phase A9).
    * Throws unless the caller holds a verified admin session.
-   * @param {string} [token]
+   * @param {*} [_token] Unused — kept for call-site compatibility.
    * @returns {{definitions: Array, values: Object}}
    */
-  getAdminSettings(token = null) {
-    if (!this.isAdminAuthorized(token)) {
+  getAdminSettings(_token = null) {
+    if (!this.isAdminAuthorized()) {
       throw new Error('Unauthorized: Admin credentials required to access store settings.');
     }
     return { definitions: SETTING_DEFS, values: getAllSettings() };
@@ -290,11 +293,11 @@ export class AdminService {
    * invalid values are refused by the settings service; nothing is written
    * unless every entry passes.
    * @param {Object} patch
-   * @param {string} [token]
+   * @param {*} [_token] Unused — kept for call-site compatibility.
    * @returns {{success: boolean, errors?: Object, saved?: Object}}
    */
-  updateAdminSettings(patch = {}, token = null) {
-    if (!this.isAdminAuthorized(token)) {
+  updateAdminSettings(patch = {}, _token = null) {
+    if (!this.isAdminAuthorized()) {
       throw new Error('Unauthorized: Admin credentials required to change store settings.');
     }
     const admin = this.getCurrentAdmin();
@@ -302,20 +305,21 @@ export class AdminService {
   }
 
   /**
-   * Update the signed-in admin's own display profile (Phase A9).
+   * Update the signed-in admin's own display name, persisted to Supabase
+   * Auth user metadata (and mirrored into public.profiles.full_name, which
+   * profiles_self_update RLS permits the row's own owner to change).
    *
    * Only `fullName` is writable. `role`, `email`, `id` and credential
    * material are explicitly ignored even if submitted, so authorization can
-   * never be escalated through this form. Password rotation is intentionally
-   * out of scope here: this prototype stores a shared seed credential, and
-   * real rotation belongs to Supabase Auth, not a localStorage form.
+   * never be escalated through this form. Password rotation is out of scope
+   * here — use Supabase Auth's own password-change/reset flow.
    *
    * @param {Object} profile {fullName}
-   * @param {string} [token]
-   * @returns {{success: boolean, admin?: Object, error?: string}}
+   * @param {*} [_token] Unused — kept for call-site compatibility.
+   * @returns {Promise<{success: boolean, admin?: Object, error?: string}>}
    */
-  updateAdminProfile(profile = {}, token = null) {
-    if (!this.isAdminAuthorized(token)) {
+  async updateAdminProfile(profile = {}, _token = null) {
+    if (!this.isAdminAuthorized()) {
       throw new Error('Unauthorized: Admin credentials required to update admin profile.');
     }
     const fullName = String(profile.fullName || '').trim();
@@ -323,22 +327,20 @@ export class AdminService {
       return { success: false, error: 'Display name must be 2–80 characters.' };
     }
 
-    const credentials = readStorage(ADMIN_CREDENTIALS_KEY, null);
-    if (credentials) {
-      credentials.fullName = fullName; // role/email/passwordHash untouched by construction
-      writeStorage(ADMIN_CREDENTIALS_KEY, credentials);
+    const supabase = getSupabaseClient();
+    const { data, error } = await supabase.auth.updateUser({ data: { full_name: fullName } });
+    if (error) {
+      return { success: false, error: error.message || 'Unable to update admin profile.' };
     }
 
-    const active = readStorage(ADMIN_ACTIVE_SESSION_KEY, null);
-    const registry = readStorage(ADMIN_SESSIONS_REGISTRY_KEY, {});
-    if (active?.token && registry[active.token]) {
-      registry[active.token].fullName = fullName;
-      active.fullName = fullName;
-      writeStorage(ADMIN_SESSIONS_REGISTRY_KEY, registry);
-      writeStorage(ADMIN_ACTIVE_SESSION_KEY, active);
+    try {
+      await supabase.from('profiles').update({ full_name: fullName }).eq('id', this._verifiedAdmin.id);
+    } catch (err) {
+      console.warn('[AdminService] profiles mirror update notice:', err.message);
     }
 
-    return { success: true, admin: this.getCurrentAdmin() };
+    this._verifiedAdmin.fullName = fullName;
+    return { success: true, admin: this._verifiedAdmin };
   }
 }
 

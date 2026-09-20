@@ -7,6 +7,7 @@ import { customerService, CUSTOMER_STATUSES } from './auth/customer-service.js';
 import { initNavigation } from './navigation.js';
 import { initDrawers } from './drawers.js';
 import { syncWishlistUI } from './wishlist-store.js';
+import { escapeHtml } from './utils/html-format.js';
 
 export function getAccountRoutes(root = '') {
   return [
@@ -83,7 +84,10 @@ export function initAccountShell(options = {}) {
 
   const statusLabel = (customer.status || 'active').replace(/_/g, ' ');
   const statusClass = `status-${customer.status || 'active'}`;
-  const initialLetter = customer.fullName ? customer.fullName.charAt(0).toUpperCase() : 'C';
+  // Escape user-controlled profile fields before innerHTML interpolation (stored-XSS guard).
+  const safeName = escapeHtml(customer.fullName || 'Valued Client');
+  const safeEmail = escapeHtml(customer.email || '');
+  const initialLetter = (customer.fullName ? customer.fullName.charAt(0).toUpperCase() : 'C').replace(/[<>&"']/g, 'C');
 
   // Render Sidebar in #account-sidebar-mount if present
   const sidebarMount = document.querySelector('#account-sidebar-mount');
@@ -94,8 +98,8 @@ export function initAccountShell(options = {}) {
           <div class="account-sidebar-avatar" aria-hidden="true">${initialLetter}</div>
           <div class="account-sidebar-info">
             <span class="account-sidebar-eyebrow">Client Portal</span>
-            <div class="account-sidebar-name">${customer.fullName}</div>
-            <div class="account-sidebar-email" title="${customer.email}">${customer.email}</div>
+            <div class="account-sidebar-name">${safeName}</div>
+            <div class="account-sidebar-email" title="${safeEmail}">${safeEmail}</div>
             <span class="account-status-badge ${statusClass}">● ${statusLabel}</span>
           </div>
         </div>
@@ -135,7 +139,7 @@ export function initAccountShell(options = {}) {
         <div class="account-mobile-identity-left">
           <div class="account-mobile-avatar" aria-hidden="true">${initialLetter}</div>
           <div class="account-mobile-info">
-            <div class="account-mobile-name">${customer.fullName}</div>
+            <div class="account-mobile-name">${safeName}</div>
             <span class="account-status-badge ${statusClass}">● ${statusLabel}</span>
           </div>
         </div>
@@ -162,9 +166,9 @@ export function initAccountShell(options = {}) {
 
   // Bind signout
   document.querySelectorAll('#shell-signout-btn, #account-logout-btn, .account-signout-btn, .account-mobile-signout-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
+    btn.addEventListener('click', async (e) => {
       e.preventDefault();
-      customerService.logoutCustomer();
+      await customerService.logoutCustomer();
       window.location.href = `${root}account/login/`;
     });
   });
