@@ -157,11 +157,8 @@ export class AdminPage {
    * @returns {boolean} true when the viewport is a mobile phone width.
    */
   isMobileViewport() {
-    if (typeof window === 'undefined') return false;
-    if (window.matchMedia) {
-      return window.matchMedia('(max-width: 767px)').matches;
-    }
-    return window.innerWidth < 768;
+    // Admin backoffice is fully responsive and enabled on all screen sizes (mobile, tablet, desktop)
+    return false;
   }
 
   /**
@@ -187,8 +184,6 @@ export class AdminPage {
     const admin = adminService.getCurrentAdmin();
     if (!admin) {
       this.renderLogin();
-    } else if (this.isMobileViewport()) {
-      this.renderMobileRestriction();
     } else if (this.currentView === 'inventory') {
       this.renderInventoryView(admin);
     } else if (this.currentView === 'order-detail') {
@@ -260,19 +255,19 @@ export class AdminPage {
       <!-- Phase A6 §10: the sidebar hides at ≤900px, so small screens get this
            compact nav instead. Plain hrefs (real routes) — no JS required. -->
       <nav class="admin-mobile-nav-inline" aria-label="Admin sections">
-        <a href="${this.adminRoot()}" class="${this.currentView === 'overview' ? 'is-active' : ''}">Overview</a>
-        <a href="${this.adminRoot()}orders/" class="${this.currentView === 'orders' || this.currentView === 'order-detail' ? 'is-active' : ''}">Orders</a>
-        <a href="${this.adminRoot()}inventory/" class="${this.currentView === 'inventory' ? 'is-active' : ''}">Inventory</a>
-        <a href="${this.adminRoot()}customers/" class="${this.currentView === 'customers' || this.currentView === 'customer-detail' ? 'is-active' : ''}">Customers</a>
-        <a href="${this.adminRoot()}reviews/" class="${this.currentView === 'reviews' ? 'is-active' : ''}">Reviews</a>
-        <a href="${this.adminRoot()}settings/" class="${this.currentView === 'settings' ? 'is-active' : ''}">Settings</a>
-        <a href="${this.adminRoot()}analytics/" class="${this.currentView === 'analytics' ? 'is-active' : ''}">Analytics</a>
+        <a href="${this.adminRoot()}" data-view="overview" class="${this.currentView === 'overview' ? 'is-active' : ''}">Overview</a>
+        <a href="${this.adminRoot()}orders/" data-view="orders" class="${this.currentView === 'orders' || this.currentView === 'order-detail' ? 'is-active' : ''}">Orders</a>
+        <a href="${this.adminRoot()}inventory/" data-view="inventory" class="${this.currentView === 'inventory' ? 'is-active' : ''}">Inventory</a>
+        <a href="${this.adminRoot()}customers/" data-view="customers" class="${this.currentView === 'customers' || this.currentView === 'customer-detail' ? 'is-active' : ''}">Customers</a>
+        <a href="${this.adminRoot()}reviews/" data-view="reviews" class="${this.currentView === 'reviews' ? 'is-active' : ''}">Reviews</a>
+        <a href="${this.adminRoot()}settings/" data-view="settings" class="${this.currentView === 'settings' ? 'is-active' : ''}">Settings</a>
+        <a href="${this.adminRoot()}analytics/" data-view="analytics" class="${this.currentView === 'analytics' ? 'is-active' : ''}">Analytics</a>
       </nav>
     `;
   }
 
   /**
-   * Wire the sidebar nav links that are shared across every admin view.
+   * Wire the sidebar and mobile nav links that are shared across every admin view.
    */
   bindSidebarNavEvents() {
     document.querySelector('#nav-overview-link')?.addEventListener('click', (e) => {
@@ -318,6 +313,18 @@ export class AdminPage {
       this.currentView = 'analytics';
       this.syncUrlToView('analytics');
       this.render();
+    });
+
+    document.querySelectorAll('.admin-mobile-nav-inline a[data-view]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const view = link.getAttribute('data-view');
+        this.currentView = view;
+        if (view === 'orders') this.detailOrderId = null;
+        if (view === 'customers') this.detailCustomerId = null;
+        this.syncUrlToView(view);
+        this.render();
+      });
     });
   }
 
