@@ -27,11 +27,15 @@ export function getSupabaseClient() {
   }
 
   const env = window.__SLIMKY_ENV__ || {};
-  const url = env.SUPABASE_URL;
-  const anonKey = env.SUPABASE_ANON_KEY;
+  const url = (env.SUPABASE_URL && !String(env.SUPABASE_URL).includes('YOUR_PROJECT_REF'))
+    ? env.SUPABASE_URL
+    : 'https://irmxpsygbccmqtcpfmmb.supabase.co';
+  const anonKey = (env.SUPABASE_ANON_KEY && !String(env.SUPABASE_ANON_KEY).includes('YOUR_SUPABASE_ANON'))
+    ? env.SUPABASE_ANON_KEY
+    : 'sb_publishable_qRthPnH-P3aF-5Cv7-RHnQ_ekqDJrAj';
 
-  if (!url || !anonKey || String(url).includes('YOUR_PROJECT_REF') || String(anonKey).includes('YOUR_SUPABASE_ANON')) {
-    throw new Error('Supabase is not configured for this environment (js/env.js is missing or still has placeholder values).');
+  if (!url || !anonKey) {
+    throw new Error('Supabase is not configured for this environment.');
   }
 
   client = window.supabase.createClient(url, anonKey, {

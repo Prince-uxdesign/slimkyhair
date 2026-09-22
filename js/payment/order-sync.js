@@ -19,7 +19,17 @@ import { customerService } from '../auth/customer-service.js';
 const SYNC_LOG_KEY = 'slimky_order_sync_log';
 
 function readEnv() {
-  return (typeof window !== 'undefined' && window.__SLIMKY_ENV__) || {};
+  const env = (typeof window !== 'undefined' && window.__SLIMKY_ENV__) || {};
+  return {
+    SUPABASE_URL: (env.SUPABASE_URL && !String(env.SUPABASE_URL).includes('YOUR_PROJECT_REF'))
+      ? env.SUPABASE_URL
+      : 'https://irmxpsygbccmqtcpfmmb.supabase.co',
+    SUPABASE_ANON_KEY: (env.SUPABASE_ANON_KEY && !String(env.SUPABASE_ANON_KEY).includes('YOUR_SUPABASE_ANON'))
+      ? env.SUPABASE_ANON_KEY
+      : 'sb_publishable_qRthPnH-P3aF-5Cv7-RHnQ_ekqDJrAj',
+    APP_URL: env.APP_URL || 'https://slimkyhair.com/',
+    ...env,
+  };
 }
 
 function isConfigured(env) {
