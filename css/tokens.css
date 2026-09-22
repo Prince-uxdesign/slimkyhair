@@ -177,5 +177,6 @@
   /* Transitions */
   --transition-fast: 150ms cubic-bezier(0.2, 0, 0, 1);
   --transition-base: 250ms cubic-bezier(0.2, 0, 0, 1);
+  --transition-normal: 250ms cubic-bezier(0.2, 0, 0, 1);
   --transition-smooth: 400ms cubic-bezier(0.16, 1, 0.3, 1);
 }

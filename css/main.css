@@ -46,3 +46,7 @@
 @import url('./components/shipping-quote.css');
 @import url('./components/consent.css');
 @import url('./components/track-order.css');
+@import url('./components/shop.css');
+@import url('./components/product.css');
+@import url('./components/search.css');
+@import url('./components/admin.css');
