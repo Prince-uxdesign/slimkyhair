@@ -21,3 +21,8 @@ verify_jwt = false
 [functions.retry-failed-emails]
 # Invoked by a scheduler with a shared `x-cron-secret` header instead of a JWT.
 verify_jwt = false
+
+[functions.paystack-webhook]
+# Invoked by Paystack with an HMAC SHA512 signature header instead of a user JWT.
+verify_jwt = false
+

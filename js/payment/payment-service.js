@@ -27,6 +27,7 @@ import {
 } from './payment-model.js';
 import { validatePaymentRequest } from './payment-validator.js';
 import { DemoPaymentProvider, SlimkyDemoPaymentProvider } from './demo-payment-provider.js';
+import { PaystackPaymentProvider } from './paystack-provider.js';
 import { OrderStore } from './order-store.js';
 import { inventoryService } from '../inventory/inventory-service.js';
 import { emailService } from '../email/email-service.js';
@@ -44,6 +45,10 @@ export class PaymentService {
     // Register Default Local Demo Provider
     const demoProvider = new DemoPaymentProvider();
     this.registerProvider(PAYMENT_PROVIDERS.DEMO, demoProvider);
+
+    // Register Live Paystack Provider
+    const paystackProvider = new PaystackPaymentProvider();
+    this.registerProvider(PAYMENT_PROVIDERS.PAYSTACK, paystackProvider);
 
     // Auto-recover any stale processing sessions on service boot
     OrderStore.recoverStaleProcessing();
