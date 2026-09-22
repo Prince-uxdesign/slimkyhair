@@ -17,4 +17,5 @@ window.__SLIMKY_ENV__ = {
   SUPABASE_URL: 'https://YOUR_PROJECT_REF.supabase.co',
   SUPABASE_ANON_KEY: 'sb_publishable_YOUR_PUBLISHABLE_KEY',
   APP_URL: 'https://YOUR_PRODUCTION_DOMAIN.example/',
+  PAYSTACK_PUBLIC_KEY: 'pk_live_YOUR_PAYSTACK_PUBLIC_KEY', // or pk_test_... for sandbox testing
 };
