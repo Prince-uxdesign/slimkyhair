@@ -27,12 +27,7 @@
 }
 
 /* Text Input & Textarea */
-input[type="text"],
-input[type="search"],
-input[type="email"],
-input[type="tel"],
-input[type="password"],
-input[type="number"],
+:where(input[type="text"], input[type="search"], input[type="email"], input[type="tel"], input[type="password"], input[type="number"]),
 .form-input,
 .form-select,
 .form-textarea {
