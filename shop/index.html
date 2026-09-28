@@ -59,7 +59,8 @@
       <!-- Desktop Navigation -->
       <nav class="nav-desktop" aria-label="Primary Navigation">
         <a href="/" class="nav-link">Home</a>
-        <a href="/" class="nav-link active">Shop</a>
+        <a href="/shop/" class="nav-link active">Shop</a>
+        <a href="/category/hair-tools/" class="nav-link">Hair Tools</a>
         <a href="/about/" class="nav-link">About</a>
         <a href="/faq/" class="nav-link">FAQ</a>
         <a href="/contact/" class="nav-link">Contact</a>
@@ -146,8 +147,12 @@
           <span>Home</span>
           <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m9 18 6-6-6-6"/></svg>
         </a>
-        <a href="/" class="mobile-nav-link active">
+        <a href="/shop/" class="mobile-nav-link active">
           <span>Shop All</span>
+          <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+        <a href="/category/hair-tools/" class="mobile-nav-link">
+          <span>Hair Tools &amp; Accessories</span>
           <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m9 18 6-6-6-6"/></svg>
         </a>
         <a href="/wishlist/" class="mobile-nav-link">
@@ -287,6 +292,22 @@
             <input type="checkbox" class="filter-checkbox" data-filter-type="category" value="styling-products">
             <span>Styling Products</span>
           </label>
+          <label class="filter-checkbox-label">
+            <input type="checkbox" class="filter-checkbox" data-filter-type="category" value="hair-tools">
+            <span>Hair Tools &amp; Accessories</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <button type="button" class="filter-group-header" aria-expanded="true">
+          <span>Shop For</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="filter-group-body">
+          <label class="filter-checkbox-label"><input type="checkbox" class="filter-checkbox" data-filter-type="ageGroups" value="Kids"><span>Kids <small class="filter-age-hint">3–12</small></span></label>
+          <label class="filter-checkbox-label"><input type="checkbox" class="filter-checkbox" data-filter-type="ageGroups" value="Teens"><span>Teens <small class="filter-age-hint">13–17</small></span></label>
+          <label class="filter-checkbox-label"><input type="checkbox" class="filter-checkbox" data-filter-type="ageGroups" value="Adults"><span>Adults <small class="filter-age-hint">18+</small></span></label>
         </div>
       </div>
 
@@ -497,6 +518,22 @@
                   <input type="checkbox" class="filter-checkbox" data-filter-type="category" value="styling-products">
                   <span>Styling Products</span>
                 </label>
+                <label class="filter-checkbox-label">
+                  <input type="checkbox" class="filter-checkbox" data-filter-type="category" value="hair-tools">
+                  <span>Hair Tools &amp; Accessories</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <button type="button" class="filter-group-header" aria-expanded="true">
+                <span>Shop For</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <div class="filter-group-body">
+                <label class="filter-checkbox-label"><input type="checkbox" class="filter-checkbox" data-filter-type="ageGroups" value="Kids"><span>Kids <small class="filter-age-hint">3–12</small></span></label>
+                <label class="filter-checkbox-label"><input type="checkbox" class="filter-checkbox" data-filter-type="ageGroups" value="Teens"><span>Teens <small class="filter-age-hint">13–17</small></span></label>
+                <label class="filter-checkbox-label"><input type="checkbox" class="filter-checkbox" data-filter-type="ageGroups" value="Adults"><span>Adults <small class="filter-age-hint">18+</small></span></label>
               </div>
             </div>
 
@@ -637,12 +674,13 @@
         <div class="footer-col">
           <h3 class="footer-heading">Shop</h3>
           <ul class="footer-links">
-            <li><a href="/" class="footer-link">Shop All</a></li>
+            <li><a href="/shop/" class="footer-link">Shop All</a></li>
             <li><a href="/category/?c=hair-oils" class="footer-link">Hair Oils</a></li>
             <li><a href="/category/?c=shampoo" class="footer-link">Shampoo</a></li>
             <li><a href="/category/?c=conditioners" class="footer-link">Conditioners</a></li>
             <li><a href="/category/?c=hair-masks" class="footer-link">Treatments</a></li>
             <li><a href="/category/?c=styling-products" class="footer-link">Styling</a></li>
+            <li><a href="/category/hair-tools/" class="footer-link">Hair Tools</a></li>
           </ul>
         </div>
 

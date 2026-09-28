@@ -5,7 +5,7 @@
  * cart integration, accordions, reviews, and related products.
  */
 
-import { PRODUCTS, getProductBySlug, getCategoryBySlug, getRelatedProducts } from './catalog-data.js';
+import { PRODUCTS, getProductBySlug, getCategoryBySlug, getRelatedProducts, getProductAgeGroups } from './catalog-data.js';
 import { renderStarsHTML, createCatalogCardHTML, initCardInteractions, getRootPath } from './catalog-renderer.js';
 import { isInWishlist, toggleWishlist, syncWishlistUI } from './wishlist-store.js';
 import { addToCart, openCartDrawer } from './cart-store.js';
@@ -14,6 +14,21 @@ import { submitReview, getPublicReviews, getPublicAggregate } from './reviews/re
 import { applyProductSEO } from './seo.js';
 import { getApproximateForeignCurrencies } from './utils/currency-converter.js';
 import { escapeHtml } from './utils/html-format.js';
+
+/** Physical tools (bonnets, combs...) rather than cosmetic formulations. */
+function isAccessory(product) {
+  return product?.kind === 'accessory';
+}
+
+/**
+ * Split a sizeGuide entry ("Ages 3–12 · fits heads up to 52cm · ...") into
+ * the short age range shown on the pill and the fit detail shown below.
+ */
+function splitFitNote(note) {
+  if (!note) return { range: '', detail: '' };
+  const [range, ...rest] = String(note).split(' · ');
+  return { range, detail: rest.join(' · ') };
+}
 
 function formatReviewDate(value) {
   if (!value) return '';
@@ -58,7 +73,13 @@ export class ProductController {
       return;
     }
 
-    this.selectedVariant = this.product.variants[0] || null;
+    // ?age=Kids (set by the age filter on shop/category pages) preselects
+    // that age group; otherwise start on the first variant.
+    const ageParam = new URLSearchParams(window.location.search).get('age');
+    const ageVariant = ageParam
+      ? this.product.variants.find(v => v.size.toLowerCase() === ageParam.toLowerCase() && this.getVariantStock(v) > 0)
+      : null;
+    this.selectedVariant = ageVariant || this.product.variants[0] || null;
     this.setupImagesList();
     this.updatePageMeta();
     this.renderProductDetails();
@@ -69,6 +90,14 @@ export class ProductController {
 
   setupImagesList() {
     const p = this.product;
+    if (isAccessory(p)) {
+      // Tools have no ingredient label, so the gallery is product + in-use.
+      this.imagesList = [
+        { type: 'Product', src: `${this.rootPrefix}${p.images.packaging}`, alt: `${p.name}` },
+        { type: 'In Use', src: `${this.rootPrefix}${p.images.texture}`, alt: `${p.name} in use` }
+      ];
+      return;
+    }
     this.imagesList = [
       { type: 'Packaging Packshot', src: `${this.rootPrefix}${p.images.packaging}`, alt: `${p.name} - Front View Packaging` },
       { type: 'Ingredient View', src: `${this.rootPrefix}${p.images.ingredients}`, alt: `${p.name} - Botanical Ingredient Profile` },
@@ -224,6 +253,8 @@ export class ProductController {
     const safetyBoxEl = document.querySelector('#pdp-safety-content');
     if (safetyBoxEl) safetyBoxEl.textContent = p.safetyInformation;
 
+    if (isAccessory(p)) this.applyAccessoryLayout();
+
     // Wishlist Button Sync
     const wishBtn = document.querySelector('#pdp-btn-wishlist');
     if (wishBtn && p) {
@@ -233,6 +264,40 @@ export class ProductController {
 
     // 10. Reviews Breakdown & List
     this.renderReviews();
+  }
+
+  /**
+   * The static PDP shell is written for cosmetics (INCI, shelf life, scalp
+   * profile). For physical tools, swap those sections for materials and a
+   * per-age size guide so every product page can share one template.
+   */
+  applyAccessoryLayout() {
+    const p = this.product;
+
+    const galleryBadge = document.querySelector('.pdp-gallery-badge');
+    if (galleryBadge) galleryBadge.textContent = 'Hair Tools';
+
+    const accordionTitles = ["Why You'll Love It", 'Materials', 'Size Guide & Specifications', 'How to Use', 'Safety Information'];
+    document.querySelectorAll('#pdp-accordions .pdp-accordion-trigger > span').forEach((span, idx) => {
+      if (accordionTitles[idx]) span.textContent = accordionTitles[idx];
+    });
+
+    const inciBoxEl = document.querySelector('#pdp-inci-content');
+    const inciIntro = inciBoxEl?.previousElementSibling;
+    if (inciIntro && inciIntro.tagName === 'P') inciIntro.textContent = "What it's made of:";
+
+    const specsGrid = document.querySelector('.pdp-specs-grid');
+    if (specsGrid) {
+      const guide = p.sizeGuide || {};
+      const sizeCells = getProductAgeGroups(p).map(age => ({ label: `${age} size`, value: guide[age] || '' }));
+      const cells = [...sizeCells, ...(Array.isArray(p.specs) ? p.specs : [])];
+      specsGrid.innerHTML = cells.map(cell => `
+        <div class="pdp-spec-cell">
+          <div class="pdp-spec-label">${escapeHtml(cell.label)}</div>
+          <div class="pdp-spec-val">${escapeHtml(cell.value)}</div>
+        </div>
+      `).join('');
+    }
   }
 
   /**
@@ -317,20 +382,44 @@ export class ProductController {
     const selectedNameEl = document.querySelector('#pdp-selected-variant-name');
     if (selectedNameEl) selectedNameEl.textContent = v.size;
 
+    // Tools are chosen by who they're for (Kids / Teens / Adults), not by volume.
+    const ageMode = isAccessory(p) && getProductAgeGroups(p).length > 0;
+    const guide = p.sizeGuide || {};
+    if (ageMode) {
+      const labelEl = document.querySelector('.pdp-variant-label');
+      if (labelEl && selectedNameEl && labelEl.firstChild?.nodeType === Node.TEXT_NODE) {
+        labelEl.firstChild.textContent = 'Shopping for: ';
+      }
+      this.renderFitNote(splitFitNote(guide[v.size]));
+    }
+
     // Variant Pills
     const variantContainer = document.querySelector('#pdp-variant-options');
     if (variantContainer) {
-      variantContainer.innerHTML = p.variants.map((varItem) => `
+      variantContainer.classList.toggle('pdp-variant-options--age', ageMode);
+      variantContainer.setAttribute('aria-label', ageMode ? 'Who is this for?' : 'Product size options');
+      variantContainer.innerHTML = p.variants.map((varItem) => {
+        const selected = varItem.sku === v.sku;
+        const soldOut = this.getVariantStock(varItem) <= 0;
+        const inner = ageMode
+          ? `<span class="pdp-age-name">${escapeHtml(varItem.size)}</span>
+             <span class="pdp-age-range">${escapeHtml(splitFitNote(guide[varItem.size]).range)}</span>
+             <small class="pdp-age-price">${soldOut ? 'Sold out' : varItem.priceFormatted}</small>`
+          : `<span>${varItem.size}</span>
+             <small>(${varItem.priceFormatted})</small>`;
+        return `
         <button
           type="button"
-          class="pdp-variant-pill ${varItem.sku === v.sku ? 'is-selected' : ''}"
+          role="radio"
+          aria-checked="${selected}"
+          class="pdp-variant-pill ${ageMode ? 'pdp-age-pill' : ''} ${selected ? 'is-selected' : ''}"
           data-sku="${varItem.sku}"
-          ${this.getVariantStock(varItem) <= 0 ? 'disabled' : ''}
+          ${soldOut ? 'disabled' : ''}
         >
-          <span>${varItem.size}</span>
-          <small>(${varItem.priceFormatted})</small>
+          ${inner}
         </button>
-      `).join('');
+      `;
+      }).join('');
 
       // Bind variant pills click
       variantContainer.querySelectorAll('.pdp-variant-pill').forEach(btn => {
@@ -351,6 +440,22 @@ export class ProductController {
         });
       });
     }
+  }
+
+  /** Fit detail for the selected age group, shown under the age picker. */
+  renderFitNote({ detail }) {
+    let noteEl = document.querySelector('#pdp-fit-note');
+    if (!noteEl) {
+      const options = document.querySelector('#pdp-variant-options');
+      if (!options) return;
+      noteEl = document.createElement('p');
+      noteEl.id = 'pdp-fit-note';
+      noteEl.className = 'pdp-fit-note';
+      noteEl.setAttribute('aria-live', 'polite');
+      options.insertAdjacentElement('afterend', noteEl);
+    }
+    noteEl.textContent = detail ? `Fit: ${detail}` : '';
+    noteEl.hidden = !detail;
   }
 
   updateQuantityDisplay() {

@@ -28,11 +28,27 @@ function initMain() {
   // Section 3: Dynamic Featured Products Showcase
   const featuredGrid = document.querySelector('#featured-products-grid');
   if (featuredGrid) {
-    const featuredProducts = PRODUCTS.filter(p => p.featured);
+    // Hair tools have their own homepage section below.
+    const featuredProducts = PRODUCTS.filter(p => p.featured && p.kind !== 'accessory');
     if (featuredProducts.length > 0) {
       featuredGrid.innerHTML = featuredProducts
         .map(p => createCatalogCardHTML(p, { rootPrefix: '' }))
         .join('');
+    }
+  }
+
+  // Section 3b: Hair Tools & Accessories (bestsellers first)
+  const toolsGrid = document.querySelector('#tools-products-grid');
+  if (toolsGrid) {
+    const tools = PRODUCTS
+      .filter(p => p.kind === 'accessory')
+      .sort((a, b) => (b.bestseller ? 1 : 0) - (a.bestseller ? 1 : 0))
+      .slice(0, 4);
+    if (tools.length > 0) {
+      // Wishlist / quick-add are bound page-wide by initCardInteractions(document) below.
+      toolsGrid.innerHTML = tools.map(p => createCatalogCardHTML(p, { rootPrefix: '' })).join('');
+    } else {
+      toolsGrid.closest('.tools-section')?.remove();
     }
   }
 

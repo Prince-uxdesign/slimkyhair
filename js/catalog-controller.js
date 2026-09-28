@@ -5,7 +5,7 @@
  * across both the Shop page and Dynamic Category pages.
  */
 
-import { PRODUCTS, CATEGORIES, getCategoryBySlug } from './catalog-data.js';
+import { PRODUCTS, CATEGORIES, getCategoryBySlug, getProductAgeGroups, AGE_GROUPS } from './catalog-data.js';
 import { createCatalogCardHTML, createSkeletonCardsHTML, initCardInteractions, getRootPath } from './catalog-renderer.js';
 import { inventoryService } from './inventory/inventory-service.js';
 
@@ -23,6 +23,7 @@ export class CatalogController {
       hairTypes: [],
       scalpTypes: [],
       productTypes: [],
+      ageGroups: [],
       availability: [],
       minPrice: null,
       maxPrice: null
@@ -56,6 +57,15 @@ export class CatalogController {
 
   init() {
     this.bindEvents();
+
+    // Deep links such as /category/hair-tools/?age=Kids open pre-filtered.
+    const ageParam = new URLSearchParams(window.location.search).get('age');
+    const age = AGE_GROUPS.find(a => a.toLowerCase() === (ageParam || '').toLowerCase());
+    if (age) {
+      this.filters.ageGroups = [age];
+      document.querySelectorAll(`.filter-checkbox[data-filter-type="ageGroups"][value="${age}"]`).forEach(cb => { cb.checked = true; });
+    }
+
     this.renderInitial();
   }
 
@@ -140,6 +150,15 @@ export class CatalogController {
       this.clearAllFilters();
     });
 
+    // Age quick-chips (All / Kids / Teens / Adults): single-select shortcut
+    // for the ageGroups filter, kept in step with the age checkboxes.
+    document.querySelectorAll('.age-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const age = chip.getAttribute('data-age');
+        this.setAgeFilter(age ? [age] : []);
+      });
+    });
+
     // Load More Button
     this.loadMoreBtnEl?.addEventListener('click', () => {
       this.currentPage++;
@@ -178,6 +197,27 @@ export class CatalogController {
     this.render();
   }
 
+  setAgeFilter(ages) {
+    this.filters.ageGroups = ages;
+    document.querySelectorAll('.filter-checkbox[data-filter-type="ageGroups"]').forEach(cb => {
+      cb.checked = ages.includes(cb.value);
+    });
+    this.currentPage = 1;
+    this.render();
+  }
+
+  /** Reflect the ageGroups filter on the quick-chips (only "All" or one age lights up). */
+  syncAgeChips() {
+    const active = this.filters.ageGroups.length === 1 ? this.filters.ageGroups[0] : '';
+    document.querySelectorAll('.age-chip').forEach(chip => {
+      const isActive = this.filters.ageGroups.length > 1
+        ? false
+        : chip.getAttribute('data-age') === active;
+      chip.classList.toggle('is-active', isActive);
+      chip.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+  }
+
   clearAllFilters() {
     this.filters.search = '';
     if (!this.categorySlug) {
@@ -186,6 +226,7 @@ export class CatalogController {
     this.filters.hairTypes = [];
     this.filters.scalpTypes = [];
     this.filters.productTypes = [];
+    this.filters.ageGroups = [];
     this.filters.availability = [];
     this.filters.minPrice = null;
     this.filters.maxPrice = null;
@@ -263,6 +304,11 @@ export class CatalogController {
       result = result.filter(p => this.filters.productTypes.includes(p.productType));
     }
 
+    // 5b. Age Groups (hair tools are sold as Kids / Teens / Adults variants)
+    if (this.filters.ageGroups.length > 0) {
+      result = result.filter(p => getProductAgeGroups(p).some(age => this.filters.ageGroups.includes(age)));
+    }
+
     // 6. Availability — Milestone C20.12: check live inventory, not the static catalog literal.
     if (this.filters.availability.length > 0) {
       result = result.filter(p => {
@@ -334,6 +380,7 @@ export class CatalogController {
 
     this.updateActiveChips();
     this.updateMobileBadge();
+    this.syncAgeChips();
 
     // Render Product Grid or Empty State
     if (!this.gridEl) return;
@@ -360,7 +407,9 @@ export class CatalogController {
     }
 
     // Generate Cards
-    const cardsHTML = paginatedProducts.map(p => createCatalogCardHTML(p, { rootPrefix: this.rootPrefix })).join('');
+    // With exactly one age selected, cards price, quick-add and link that age.
+    const age = this.filters.ageGroups.length === 1 ? this.filters.ageGroups[0] : null;
+    const cardsHTML = paginatedProducts.map(p => createCatalogCardHTML(p, { rootPrefix: this.rootPrefix, age })).join('');
     this.gridEl.innerHTML = cardsHTML;
     initCardInteractions(this.gridEl);
 
@@ -400,6 +449,7 @@ export class CatalogController {
     this.filters.hairTypes.forEach(h => chips.push({ label: h, type: 'hairTypes', value: h }));
     this.filters.scalpTypes.forEach(s => chips.push({ label: s, type: 'scalpTypes', value: s }));
     this.filters.productTypes.forEach(pt => chips.push({ label: pt, type: 'productTypes', value: pt }));
+    this.filters.ageGroups.forEach(a => chips.push({ label: `For ${a}`, type: 'ageGroups', value: a }));
     this.filters.availability.forEach(a => chips.push({ label: a, type: 'availability', value: a }));
 
     if (this.filters.minPrice !== null || this.filters.maxPrice !== null) {
@@ -461,6 +511,7 @@ export class CatalogController {
     count += this.filters.hairTypes.length;
     count += this.filters.scalpTypes.length;
     count += this.filters.productTypes.length;
+    count += this.filters.ageGroups.length;
     count += this.filters.availability.length;
     if (this.filters.minPrice !== null || this.filters.maxPrice !== null) count += 1;
 

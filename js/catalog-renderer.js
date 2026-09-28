@@ -32,6 +32,7 @@ import { isInWishlist, toggleWishlist, syncWishlistUI } from './wishlist-store.j
 import { addItem, openCartDrawer } from './cart-store.js';
 import { inventoryService, getAvailabilityLabel } from './inventory/inventory-service.js';
 import { getApprovedByProduct, getPublicAggregate } from './reviews/review-service.js';
+import { getProductAgeGroups } from './catalog-data.js';
 
 /**
  * Determine root path prefix based on window location depth
@@ -90,12 +91,26 @@ export function responsivePictureHTML({ root, src, alt, imgClass, sizes, eager =
  */
 export function createCatalogCardHTML(product, options = {}) {
   const root = options.rootPrefix !== undefined ? options.rootPrefix : getRootPath();
-  const productUrl = `${root}product/${product.slug}/`;
-  const defaultVariant = product.variants && product.variants.length > 0 ? product.variants[0] : null;
-  const priceDisplay = defaultVariant ? defaultVariant.priceFormatted : (product.price || "₦0");
-  const variantText = product.variants && product.variants.length > 1
-    ? `${product.variants.length} Sizes Available`
-    : (defaultVariant ? defaultVariant.size : (product.size || "Standard"));
+  const variants = Array.isArray(product.variants) ? product.variants : [];
+
+  // Hair tools are sold per age group (Kids / Teens / Adults). options.age is
+  // the shopper's active age filter: it picks that variant for price and
+  // Quick Add, and carries through to the PDP so it opens preselected.
+  const ageGroups = product.kind === 'accessory' ? getProductAgeGroups(product) : [];
+  const ageVariant = options.age ? variants.find(v => v.size === options.age) : null;
+  const needsAgeChoice = ageGroups.length > 1 && !ageVariant;
+  const productUrl = `${root}product/${product.slug}/${ageVariant ? `?age=${encodeURIComponent(ageVariant.size)}` : ''}`;
+
+  const defaultVariant = ageVariant || (variants.length > 0 ? variants[0] : null);
+  const lowestPrice = variants.reduce((min, v) => (v.priceValue < min.priceValue ? v : min), defaultVariant || {});
+  const priceDisplay = needsAgeChoice && lowestPrice.priceFormatted
+    ? `From ${lowestPrice.priceFormatted}`
+    : (defaultVariant ? defaultVariant.priceFormatted : (product.price || "₦0"));
+  const variantText = ageGroups.length > 0
+    ? (ageVariant ? `For ${ageVariant.size}` : ageGroups.join(' · '))
+    : (variants.length > 1
+      ? `${variants.length} Sizes Available`
+      : (defaultVariant ? defaultVariant.size : (product.size || "Standard")));
 
   // Check wishlist state
   const isSaved = isInWishlist(product.id);
@@ -103,9 +118,10 @@ export function createCatalogCardHTML(product, options = {}) {
 
   // Milestone C20.12: Live availability badge, sourced through inventoryService
   // (never a stale catalog literal) so it stays synchronized with checkout deductions.
-  const liveStock = defaultVariant
-    ? inventoryService.getEffectiveStock(defaultVariant.sku, defaultVariant.stock)
-    : null;
+  // Before an age is chosen, the card is in stock if any age group is.
+  const liveStock = needsAgeChoice
+    ? Math.max(...variants.map(v => inventoryService.getEffectiveStock(v.sku, v.stock)))
+    : (defaultVariant ? inventoryService.getEffectiveStock(defaultVariant.sku, defaultVariant.stock) : null);
   const availability = liveStock !== null ? getAvailabilityLabel(liveStock) : null;
   const isSoldOut = availability ? availability.className === 'out-of-stock' : false;
 
@@ -157,10 +173,11 @@ export function createCatalogCardHTML(product, options = {}) {
           <span class="product-card-review-count">${publicAggregate.rating.toFixed(1)} (${publicAggregate.reviewCount})</span>
         </div>
 
+        ${product.kind === 'accessory' ? '' : `
         <div class="product-card-actives">
           <svg class="product-card-actives-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 22c0-6-4-9-8-10M12 22c0-6 4-9 8-10M12 22V10M12 10C12 6 9 3 6 2M12 10c0-4 3-7 6-8"/></svg>
           <span>Natural Actives</span>
-        </div>
+        </div>`}
 
         ${availability ? `
           <div class="product-card-availability ${availability.className}">
@@ -174,6 +191,10 @@ export function createCatalogCardHTML(product, options = {}) {
         </div>
 
         <div class="product-card-quickadd">
+          ${needsAgeChoice ? `
+          <a href="${productUrl}" class="btn btn-primary btn-full btn-choose-age" aria-label="Choose ${ageGroups.join(', ')} for ${product.name}">
+            Choose Age
+          </a>` : `
           <button
             type="button"
             class="btn btn-primary btn-full btn-quick-add"
@@ -186,7 +207,7 @@ export function createCatalogCardHTML(product, options = {}) {
             ${isSoldOut ? 'disabled' : ''}
           >
             ${isSoldOut ? 'Out of Stock' : `Quick Add · ${priceDisplay}`}
-          </button>
+          </button>`}
         </div>
       </div>
     </article>

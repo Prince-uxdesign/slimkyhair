@@ -80,8 +80,30 @@ export const CATEGORIES = [
     productCount: 2,
     metaTitle: "Botanical Styling Products & Edge Control | Slimky Hair",
     metaDescription: "Shape, sculpt, and set your favorite styles with flexible-hold botanical gels and edge definition balms."
+  },
+  {
+    slug: "hair-tools",
+    name: "Hair Tools & Accessories",
+    headline: "Tools & Accessories for Every Age",
+    description: "Satin bonnets, gentle combs, detangling brushes and more, each sized for kids, teens or adults so everyone in the family gets the right fit.",
+    productCount: 9,
+    metaTitle: "Hair Tools & Accessories for Kids, Teens & Adults | Slimky Hair",
+    metaDescription: "Shop satin bonnets, detangling combs and brushes, hot combs and satin accessories sized for kids, teens and adults. Delivered across Nigeria."
   }
 ];
+
+/**
+ * Age groups used by physical hair tools. On tool products each variant's
+ * `size` is one of these, so the cart, stock and checkout treat an age group
+ * exactly like a size.
+ */
+export const AGE_GROUPS = ["Kids", "Teens", "Adults"];
+
+/** Age groups a product is sold in, derived from its variants. */
+export function getProductAgeGroups(product) {
+  if (!product || !Array.isArray(product.variants)) return [];
+  return AGE_GROUPS.filter(age => product.variants.some(v => v.size === age));
+}
 
 export const PRODUCTS = [
   // 1. Hair Oils
@@ -880,6 +902,588 @@ export const PRODUCTS = [
       { author: "Omotola A.", date: "August 2026", rating: 5, verified: true, title: "Lasts through Lagos heat!", text: "Hands down the best edge control for 4C hair. Does not turn white or melt in humidity." }
     ],
     createdAt: "2026-03-01"
+  },
+
+  // 9. Hair Tools & Accessories
+  // Physical products. Each variant's `size` is an age group (see AGE_GROUPS),
+  // and `sizeGuide` holds the fit notes shown for the selected age group.
+  // `specs` replaces the cosmetic spec grid on the PDP. The cosmetic fields
+  // (ingredientsINCI, netWeight, shelfLife) carry materials / dimensions so
+  // the admin product form still validates these records.
+  {
+    id: "prod-17",
+    slug: "satin-sleep-bonnet",
+    name: "Satin-Lined Sleep Bonnet",
+    category: "Hair Tools & Accessories",
+    categorySlug: "hair-tools",
+    productType: "Bonnet",
+    kind: "accessory",
+    descriptor: "Double-layer satin bonnet with a soft, adjustable band that keeps moisture in and friction out while you sleep.",
+    badge: { text: "Top Pick", class: "badge-dark" },
+    featured: true,
+    bestseller: true,
+    rating: 4.9,
+    reviewCount: 64,
+    hairTypes: ["Curly", "Coily", "Wavy", "Straight", "Chemically Treated", "Color Treated"],
+    scalpTypes: ["Normal", "Dry", "Oily", "Sensitive"],
+    concerns: ["Breakage", "Dryness", "Frizz", "Protective Styles"],
+    ingredientsShort: "Double-layer satin, elastic-free adjustable band",
+    ingredientsINCI: "Outer and inner layer: 100% polyester satin. Band: soft-touch covered elastic with adjustable toggle.",
+    benefits: [
+      "Smooth satin lining reduces friction that causes breakage and frizz overnight",
+      "Helps hair hold on to moisture from your leave-in and oils",
+      "Adjustable band stays on through the night without pressing on edges",
+      "Roomy crown fits puffs, twists, braids and locs"
+    ],
+    suitableFor: "Everyone in the family. Pick Kids, Teens or Adults for the right head size and room for the style.",
+    netWeight: "Kids 52cm · Teens 56cm · Adults 62cm (max band)",
+    shelfLife: "Not applicable (non-cosmetic)",
+    fragrance: "Not applicable",
+    sulfates: "Not applicable",
+    parabens: "Not applicable",
+    essentialOils: "Not applicable",
+    specs: [
+      { label: "Material", value: "Double-layer polyester satin" },
+      { label: "Band", value: "Covered, adjustable toggle" },
+      { label: "Care", value: "Hand wash cold, air dry" },
+      { label: "Reversible", value: "Yes, two colourways" }
+    ],
+    sizeGuide: {
+      Kids: "Ages 3–12 · fits heads up to 52cm · room for puffs and short twists",
+      Teens: "Ages 13–17 · fits heads up to 56cm · room for braids and buns",
+      Adults: "Ages 18+ · fits heads up to 62cm · extra room for long braids and locs"
+    },
+    usageInstructions: [
+      { step: "01", title: "Style", text: "Moisturise and seal your hair, then gather it into a loose pineapple, twists or braids." },
+      { step: "02", title: "Cover", text: "Place the bonnet over your hair from the nape forward so the band sits just past your hairline." },
+      { step: "03", title: "Adjust", text: "Slide the toggle until it feels snug but not tight. It should never leave a mark on the forehead." }
+    ],
+    safetyInformation: "Children's sizes should be worn under adult supervision. Not suitable for babies under 3 years. Keep the toggle away from young children's mouths.",
+    images: {
+      packaging: "assets/placeholders/tools/satin-bonnet.jpg",
+      ingredients: "assets/placeholders/tools/satin-bonnet.jpg",
+      texture: "assets/placeholders/lifestyle/textured-hair-portrait.jpg"
+    },
+    variants: [
+      { size: "Kids", priceFormatted: "₦6,500", priceValue: 6500, sku: "SLM-BON-KID", stock: 30, availability: "In Stock" },
+      { size: "Teens", priceFormatted: "₦8,000", priceValue: 8000, sku: "SLM-BON-TEN", stock: 26, availability: "In Stock" },
+      { size: "Adults", priceFormatted: "₦9,500", priceValue: 9500, sku: "SLM-BON-ADL", stock: 40, availability: "In Stock" }
+    ],
+    reviews: [
+      { author: "Adaeze N.", date: "September 2026", rating: 5, verified: true, title: "Finally stays on my daughter's head", text: "The kids size actually fits a 6 year old. Her puff is still soft in the morning." },
+      { author: "Bisi K.", date: "August 2026", rating: 5, verified: true, title: "Big enough for my braids", text: "Adult size holds my waist-length knotless braids with room to spare." }
+    ],
+    createdAt: "2026-09-20"
+  },
+  {
+    id: "prod-18",
+    slug: "wide-tooth-detangling-comb",
+    name: "Wide-Tooth Detangling Comb",
+    category: "Hair Tools & Accessories",
+    categorySlug: "hair-tools",
+    productType: "Comb",
+    kind: "accessory",
+    descriptor: "Seamless wide-tooth comb with smooth, rounded teeth that glide through wet or conditioned coils without snagging.",
+    badge: { text: "Essential", class: "badge-sage" },
+    featured: true,
+    bestseller: true,
+    rating: 4.8,
+    reviewCount: 52,
+    hairTypes: ["Curly", "Coily", "Wavy", "Straight", "Chemically Treated", "Color Treated"],
+    scalpTypes: ["Normal", "Dry", "Oily", "Sensitive"],
+    concerns: ["Tangles", "Breakage", "Knots"],
+    ingredientsShort: "Seamless cellulose acetate, hand-polished teeth",
+    ingredientsINCI: "Seamless cellulose acetate (plant-based), hand-polished, no moulding seams.",
+    benefits: [
+      "Seamless teeth have no sharp moulding lines to catch or split strands",
+      "Wide spacing works through knots with less pulling",
+      "Anti-static material helps reduce frizz while detangling",
+      "Kids size has shorter, extra-rounded teeth for tender heads"
+    ],
+    suitableFor: "Wash-day detangling on damp, conditioned hair for all ages.",
+    netWeight: "Kids 15cm · Teens 19cm · Adults 23cm",
+    shelfLife: "Not applicable (non-cosmetic)",
+    fragrance: "Not applicable",
+    sulfates: "Not applicable",
+    parabens: "Not applicable",
+    essentialOils: "Not applicable",
+    specs: [
+      { label: "Material", value: "Seamless cellulose acetate" },
+      { label: "Tooth spacing", value: "6mm wide-set" },
+      { label: "Care", value: "Rinse in warm water, dry flat" },
+      { label: "Heat safe", value: "No, keep away from heat tools" }
+    ],
+    sizeGuide: {
+      Kids: "Ages 3–12 · 15cm long · short, extra-rounded teeth for tender scalps",
+      Teens: "Ages 13–17 · 19cm long · easy grip for self-styling",
+      Adults: "Ages 18+ · 23cm long · long teeth for thick, full-length hair"
+    },
+    usageInstructions: [
+      { step: "01", title: "Prep", text: "Saturate hair with conditioner or a detangling leave-in and work in small sections." },
+      { step: "02", title: "Ends first", text: "Start combing at the ends and work up towards the roots, holding the section above to reduce tension." },
+      { step: "03", title: "Clean", text: "Rinse the comb after each use and let it dry flat." }
+    ],
+    safetyInformation: "Detangle children's hair gently and in small sections. Stop if a knot resists and loosen it with your fingers first.",
+    images: {
+      packaging: "assets/placeholders/tools/wide-tooth-comb.jpg",
+      ingredients: "assets/placeholders/tools/wide-tooth-comb.jpg",
+      texture: "assets/placeholders/lifestyle/category-coily.jpg"
+    },
+    variants: [
+      { size: "Kids", priceFormatted: "₦3,000", priceValue: 3000, sku: "SLM-CMB-KID", stock: 45, availability: "In Stock" },
+      { size: "Teens", priceFormatted: "₦3,500", priceValue: 3500, sku: "SLM-CMB-TEN", stock: 38, availability: "In Stock" },
+      { size: "Adults", priceFormatted: "₦4,000", priceValue: 4000, sku: "SLM-CMB-ADL", stock: 50, availability: "In Stock" }
+    ],
+    reviews: [
+      { author: "Temi O.", date: "September 2026", rating: 5, verified: true, title: "No more tears on wash day", text: "My son used to cry at every comb. The kids one is small and smooth and he lets me do his hair now." }
+    ],
+    createdAt: "2026-09-20"
+  },
+  {
+    id: "prod-19",
+    slug: "flexible-detangling-brush",
+    name: "Flexible Detangling Brush",
+    category: "Hair Tools & Accessories",
+    categorySlug: "hair-tools",
+    productType: "Brush",
+    kind: "accessory",
+    descriptor: "Flexible-vent detangling brush with ball-tipped bristles that bend around knots instead of breaking through them.",
+    badge: null,
+    featured: false,
+    bestseller: true,
+    rating: 4.8,
+    reviewCount: 41,
+    hairTypes: ["Curly", "Coily", "Wavy", "Straight", "Chemically Treated", "Color Treated"],
+    scalpTypes: ["Normal", "Dry", "Oily", "Sensitive"],
+    concerns: ["Tangles", "Breakage", "Shedding"],
+    ingredientsShort: "Flexible vented base, ball-tipped nylon bristles",
+    ingredientsINCI: "Body: recycled ABS with flexible TPR vent panel. Bristles: nylon with ball tips. Handle: soft-touch rubber grip.",
+    benefits: [
+      "Bristles flex around tight coils to reduce pulling and breakage",
+      "Ball tips massage the scalp without scratching",
+      "Vented base lets water drain so it works in the shower",
+      "Non-slip handle stays in control with wet, conditioned hands"
+    ],
+    suitableFor: "Detangling and smoothing damp hair, and defining curls in sections.",
+    netWeight: "Kids 17cm · Teens 21cm · Adults 24cm",
+    shelfLife: "Not applicable (non-cosmetic)",
+    fragrance: "Not applicable",
+    sulfates: "Not applicable",
+    parabens: "Not applicable",
+    essentialOils: "Not applicable",
+    specs: [
+      { label: "Bristles", value: "Ball-tipped flexible nylon" },
+      { label: "Base", value: "Vented, shower-safe" },
+      { label: "Care", value: "Remove shed hair, rinse weekly" },
+      { label: "Heat safe", value: "Low heat only (under 120°C)" }
+    ],
+    sizeGuide: {
+      Kids: "Ages 3–12 · 17cm mini brush · extra-soft bristles for tender heads",
+      Teens: "Ages 13–17 · 21cm · medium bristles for daily detangling",
+      Adults: "Ages 18+ · 24cm · full-size head for thick and long hair"
+    },
+    usageInstructions: [
+      { step: "01", title: "Section", text: "Divide damp, conditioned hair into four to eight sections." },
+      { step: "02", title: "Brush", text: "Brush from the ends upwards in short strokes, moving higher only once the ends are smooth." },
+      { step: "03", title: "Rinse", text: "Pull shed hair from the bristles and rinse the brush under warm water." }
+    ],
+    safetyInformation: "Supervise children when brushing. Do not use near heat above 120°C.",
+    images: {
+      packaging: "assets/placeholders/tools/detangling-brush.jpg",
+      ingredients: "assets/placeholders/tools/detangling-brush.jpg",
+      texture: "assets/placeholders/lifestyle/category-curly.jpg"
+    },
+    variants: [
+      { size: "Kids", priceFormatted: "₦7,000", priceValue: 7000, sku: "SLM-BRS-KID", stock: 22, availability: "In Stock" },
+      { size: "Teens", priceFormatted: "₦8,500", priceValue: 8500, sku: "SLM-BRS-TEN", stock: 20, availability: "In Stock" },
+      { size: "Adults", priceFormatted: "₦9,500", priceValue: 9500, sku: "SLM-BRS-ADL", stock: 28, availability: "In Stock" }
+    ],
+    reviews: [
+      { author: "Kemi A.", date: "August 2026", rating: 5, verified: true, title: "Cut my wash day in half", text: "Works through my 4C hair with conditioner in minutes. Barely any breakage in the sink." }
+    ],
+    createdAt: "2026-09-20"
+  },
+  {
+    id: "prod-20",
+    slug: "ceramic-electric-hot-comb",
+    name: "Ceramic Electric Hot Comb",
+    category: "Hair Tools & Accessories",
+    categorySlug: "hair-tools",
+    productType: "Hot Comb",
+    kind: "accessory",
+    descriptor: "Ceramic-coated electric pressing comb with adjustable heat for smooth blowouts, silk presses and stretched edges.",
+    badge: { text: "Ages 13+", class: "badge-sage" },
+    featured: false,
+    bestseller: false,
+    rating: 4.7,
+    reviewCount: 29,
+    hairTypes: ["Curly", "Coily", "Wavy", "Chemically Treated"],
+    scalpTypes: ["Normal", "Dry", "Oily"],
+    concerns: ["Stretching", "Smoothing", "Edges"],
+    ingredientsShort: "Ceramic-coated teeth, heat-resistant handle",
+    ingredientsINCI: "Teeth: aluminium core with ceramic coating. Handle: heat-resistant PBT. Cord: 2m 360° swivel. Plug: UK 3-pin (Nigeria standard), 220–240V.",
+    benefits: [
+      "Ceramic coating spreads heat evenly for fewer passes on each section",
+      "Adjustable temperature so finer hair can use lower heat",
+      "Fine-tooth edge smooths roots and hairlines precisely",
+      "Auto shut-off after 60 minutes for peace of mind"
+    ],
+    suitableFor: "Teens and adults who straighten or stretch natural hair at home. Not sold for children under 13.",
+    netWeight: "Teens 23cm compact · Adults 26cm",
+    shelfLife: "Not applicable (electrical appliance)",
+    fragrance: "Not applicable",
+    sulfates: "Not applicable",
+    parabens: "Not applicable",
+    essentialOils: "Not applicable",
+    specs: [
+      { label: "Heat range", value: "Teens 120–180°C · Adults 120–230°C" },
+      { label: "Power", value: "220–240V, UK 3-pin plug" },
+      { label: "Safety", value: "60-min auto shut-off, cool tip" },
+      { label: "Warranty", value: "6 months" }
+    ],
+    sizeGuide: {
+      Teens: "Ages 13–17 · compact 23cm · 2 heat settings, capped at 180°C",
+      Adults: "Ages 18+ · 26cm · 5 heat settings up to 230°C"
+    },
+    usageInstructions: [
+      { step: "01", title: "Protect", text: "Start on clean, fully dry hair and apply a heat protectant to every section." },
+      { step: "02", title: "Set heat", text: "Begin at the lowest setting. Only raise it if the hair does not smooth after two passes." },
+      { step: "03", title: "Press", text: "Work in small sections, combing from root to end. Keep the comb moving and never hold it in one place." }
+    ],
+    safetyInformation: "Heat tool: can cause burns. Not for use by children under 13. Teens should use it with an adult present. Always use heat protectant, keep away from water, unplug after use and let it cool on the stand.",
+    images: {
+      packaging: "assets/placeholders/tools/hot-comb.jpg",
+      ingredients: "assets/placeholders/tools/hot-comb.jpg",
+      texture: "assets/placeholders/lifestyle/category-straight.jpg"
+    },
+    variants: [
+      { size: "Teens", priceFormatted: "₦28,000", priceValue: 28000, sku: "SLM-HOT-TEN", stock: 12, availability: "In Stock" },
+      { size: "Adults", priceFormatted: "₦35,000", priceValue: 35000, sku: "SLM-HOT-ADL", stock: 15, availability: "In Stock" }
+    ],
+    reviews: [
+      { author: "Funmi D.", date: "September 2026", rating: 5, verified: true, title: "Salon-smooth edges", text: "Heats up in about a minute and the low setting is enough for my edges. Love the auto shut-off." }
+    ],
+    createdAt: "2026-09-21"
+  },
+  {
+    id: "prod-21",
+    slug: "rat-tail-parting-comb",
+    name: "Rat-Tail Parting Comb (Set of 2)",
+    category: "Hair Tools & Accessories",
+    categorySlug: "hair-tools",
+    productType: "Comb",
+    kind: "accessory",
+    descriptor: "Fine-tooth parting combs with a slim tail for clean, straight parts when braiding, twisting or sectioning.",
+    badge: null,
+    featured: false,
+    bestseller: false,
+    rating: 4.7,
+    reviewCount: 33,
+    hairTypes: ["Curly", "Coily", "Wavy", "Straight", "Chemically Treated", "Color Treated"],
+    scalpTypes: ["Normal", "Dry", "Oily", "Sensitive"],
+    concerns: ["Parting", "Braiding", "Sectioning"],
+    ingredientsShort: "Carbon-fibre composite, anti-static",
+    ingredientsINCI: "Carbon-fibre reinforced nylon composite, anti-static. Kids size: rounded silicone-capped tail.",
+    benefits: [
+      "Slim tail draws neat, straight parts for braids and twists",
+      "Anti-static material keeps small sections from frizzing",
+      "Heat-resistant so it can be used alongside a blow dryer",
+      "Kids set has a capped, rounded tail that is gentler on the scalp"
+    ],
+    suitableFor: "Braiding, twisting, cornrows and sectioning for wash day.",
+    netWeight: "Kids 18cm · Teens 21cm · Adults 22cm (2 combs)",
+    shelfLife: "Not applicable (non-cosmetic)",
+    fragrance: "Not applicable",
+    sulfates: "Not applicable",
+    parabens: "Not applicable",
+    essentialOils: "Not applicable",
+    specs: [
+      { label: "Material", value: "Carbon-fibre composite" },
+      { label: "In the pack", value: "2 combs" },
+      { label: "Care", value: "Wash in warm soapy water" },
+      { label: "Heat safe", value: "Up to 180°C" }
+    ],
+    sizeGuide: {
+      Kids: "Ages 3–12 · 18cm · rounded, capped tail for tender scalps",
+      Teens: "Ages 13–17 · 21cm · standard tail for learning to part",
+      Adults: "Ages 18+ · 22cm · fine metal-free tail for precise parts"
+    },
+    usageInstructions: [
+      { step: "01", title: "Draw", text: "Rest the tail lightly on the scalp and draw it along the line you want to part." },
+      { step: "02", title: "Separate", text: "Use the teeth to comb each side away from the part." },
+      { step: "03", title: "Secure", text: "Clip or band each section before moving on." }
+    ],
+    safetyInformation: "Keep the tail away from eyes. Supervise children using the comb.",
+    images: {
+      packaging: "assets/placeholders/tools/parting-comb.jpg",
+      ingredients: "assets/placeholders/tools/parting-comb.jpg",
+      texture: "assets/placeholders/lifestyle/category-coily.jpg"
+    },
+    variants: [
+      { size: "Kids", priceFormatted: "₦2,000", priceValue: 2000, sku: "SLM-PRT-KID", stock: 40, availability: "In Stock" },
+      { size: "Teens", priceFormatted: "₦2,500", priceValue: 2500, sku: "SLM-PRT-TEN", stock: 35, availability: "In Stock" },
+      { size: "Adults", priceFormatted: "₦2,500", priceValue: 2500, sku: "SLM-PRT-ADL", stock: 48, availability: "In Stock" }
+    ],
+    reviews: [
+      { author: "Ngozi U.", date: "August 2026", rating: 5, verified: true, title: "Perfect parts every time", text: "I braid my daughters' hair every weekend and these give me clean lines. The kids tail doesn't scratch." }
+    ],
+    createdAt: "2026-09-21"
+  },
+  {
+    id: "prod-22",
+    slug: "edge-styling-brush",
+    name: "Dual-Sided Edge Brush",
+    category: "Hair Tools & Accessories",
+    categorySlug: "hair-tools",
+    productType: "Brush",
+    kind: "accessory",
+    descriptor: "Two-in-one edge tool with a soft boar-style brush on one side and a fine comb on the other for laying and styling edges.",
+    badge: null,
+    featured: false,
+    bestseller: false,
+    rating: 4.8,
+    reviewCount: 27,
+    hairTypes: ["Curly", "Coily", "Wavy", "Chemically Treated"],
+    scalpTypes: ["Normal", "Dry", "Oily", "Sensitive"],
+    concerns: ["Edges", "Baby Hair", "Sleek Styles"],
+    ingredientsShort: "Soft nylon bristles, fine-tooth comb end",
+    ingredientsINCI: "Handle: ABS. Brush: soft nylon bristles. Comb: fine-tooth polypropylene.",
+    benefits: [
+      "Soft bristles smooth edges without scratching the hairline",
+      "Fine comb end shapes swoops and baby hair",
+      "Small, precise head for control around the hairline",
+      "Kids size uses extra-soft bristles for delicate edges"
+    ],
+    suitableFor: "Laying edges and baby hair with gel or edge control.",
+    netWeight: "Kids 14cm · Teens 17cm · Adults 18cm",
+    shelfLife: "Not applicable (non-cosmetic)",
+    fragrance: "Not applicable",
+    sulfates: "Not applicable",
+    parabens: "Not applicable",
+    essentialOils: "Not applicable",
+    specs: [
+      { label: "Brush side", value: "Soft nylon bristles" },
+      { label: "Comb side", value: "Fine-tooth, 1mm spacing" },
+      { label: "Care", value: "Rinse off product after each use" },
+      { label: "Heat safe", value: "No" }
+    ],
+    sizeGuide: {
+      Kids: "Ages 3–12 · 14cm · extra-soft bristles for delicate edges",
+      Teens: "Ages 13–17 · 17cm · soft bristles, slim grip",
+      Adults: "Ages 18+ · 18cm · firmer bristles for defined swoops"
+    },
+    usageInstructions: [
+      { step: "01", title: "Apply", text: "Apply a small amount of edge control along the hairline." },
+      { step: "02", title: "Brush", text: "Use the bristle side to smooth hairs in the direction you want them to lie." },
+      { step: "03", title: "Shape", text: "Flip to the comb side to create swoops, then tie a satin scarf for five minutes to set." }
+    ],
+    safetyInformation: "Use gentle pressure along the hairline. Frequent tight styling can stress edges, so give them rest days.",
+    images: {
+      packaging: "assets/placeholders/tools/edge-brush.jpg",
+      ingredients: "assets/placeholders/tools/edge-brush.jpg",
+      texture: "assets/placeholders/products/cream-jar.jpg"
+    },
+    variants: [
+      { size: "Kids", priceFormatted: "₦2,500", priceValue: 2500, sku: "SLM-EBR-KID", stock: 34, availability: "In Stock" },
+      { size: "Teens", priceFormatted: "₦3,000", priceValue: 3000, sku: "SLM-EBR-TEN", stock: 30, availability: "In Stock" },
+      { size: "Adults", priceFormatted: "₦3,500", priceValue: 3500, sku: "SLM-EBR-ADL", stock: 42, availability: "In Stock" }
+    ],
+    reviews: [
+      { author: "Halima B.", date: "September 2026", rating: 5, verified: true, title: "Soft but does the job", text: "Pairs perfectly with the edge control balm. Doesn't scratch my hairline like cheap ones." }
+    ],
+    createdAt: "2026-09-22"
+  },
+  {
+    id: "prod-23",
+    slug: "microfiber-hair-towel-wrap",
+    name: "Microfibre Hair Towel Wrap",
+    category: "Hair Tools & Accessories",
+    categorySlug: "hair-tools",
+    productType: "Towel Wrap",
+    kind: "accessory",
+    descriptor: "Ultra-soft microfibre wrap that absorbs water fast without the rough friction of a regular towel.",
+    badge: null,
+    featured: false,
+    bestseller: false,
+    rating: 4.8,
+    reviewCount: 36,
+    hairTypes: ["Curly", "Coily", "Wavy", "Straight", "Chemically Treated", "Color Treated"],
+    scalpTypes: ["Normal", "Dry", "Oily", "Sensitive"],
+    concerns: ["Frizz", "Breakage", "Drying Time"],
+    ingredientsShort: "Fine-weave microfibre, button loop closure",
+    ingredientsINCI: "80% polyester, 20% polyamide fine-weave microfibre. Elastic loop and button closure.",
+    benefits: [
+      "Absorbs water quickly to cut air-drying time",
+      "Smooth weave reduces frizz and snagging compared with terry towels",
+      "Button loop keeps the wrap in place while you get ready",
+      "Lightweight, so it doesn't pull on the neck or edges"
+    ],
+    suitableFor: "Gently drying hair after wash day for every age and length.",
+    netWeight: "Kids 50×20cm · Teens 60×24cm · Adults 65×26cm",
+    shelfLife: "Not applicable (non-cosmetic)",
+    fragrance: "Not applicable",
+    sulfates: "Not applicable",
+    parabens: "Not applicable",
+    essentialOils: "Not applicable",
+    specs: [
+      { label: "Material", value: "Polyester–polyamide microfibre" },
+      { label: "Closure", value: "Elastic loop and button" },
+      { label: "Care", value: "Machine wash 30°C, no fabric softener" },
+      { label: "Drying", value: "Up to 50% faster than cotton" }
+    ],
+    sizeGuide: {
+      Kids: "Ages 3–12 · 50×20cm · light enough for little necks",
+      Teens: "Ages 13–17 · 60×24cm · fits shoulder-length hair",
+      Adults: "Ages 18+ · 65×26cm · holds long hair, braids and locs"
+    },
+    usageInstructions: [
+      { step: "01", title: "Squeeze", text: "Gently squeeze excess water out of your hair with your hands. Don't rub." },
+      { step: "02", title: "Wrap", text: "Flip your head forward, place the wrap at the nape and twist it over your hair." },
+      { step: "03", title: "Secure", text: "Hook the loop over the button and leave on for 10 to 20 minutes." }
+    ],
+    safetyInformation: "Do not leave young children to sleep in the wrap. Wash before first use.",
+    images: {
+      packaging: "assets/placeholders/tools/towel-wrap.jpg",
+      ingredients: "assets/placeholders/tools/towel-wrap.jpg",
+      texture: "assets/placeholders/lifestyle/category-wavy.jpg"
+    },
+    variants: [
+      { size: "Kids", priceFormatted: "₦6,000", priceValue: 6000, sku: "SLM-TWL-KID", stock: 25, availability: "In Stock" },
+      { size: "Teens", priceFormatted: "₦8,000", priceValue: 8000, sku: "SLM-TWL-TEN", stock: 22, availability: "In Stock" },
+      { size: "Adults", priceFormatted: "₦9,500", priceValue: 9500, sku: "SLM-TWL-ADL", stock: 30, availability: "In Stock" }
+    ],
+    reviews: [
+      { author: "Oluchi E.", date: "August 2026", rating: 5, verified: true, title: "Less frizz after wash day", text: "My curls clump so much better since I stopped using a bath towel." }
+    ],
+    createdAt: "2026-09-22"
+  },
+  {
+    id: "prod-24",
+    slug: "satin-scrunchies-set",
+    name: "Satin Scrunchies (Set of 6)",
+    category: "Hair Tools & Accessories",
+    categorySlug: "hair-tools",
+    productType: "Hair Ties",
+    kind: "accessory",
+    descriptor: "Snag-free satin scrunchies that hold puffs and ponytails without the pulling and breakage of rubber bands.",
+    badge: null,
+    featured: false,
+    bestseller: false,
+    rating: 4.9,
+    reviewCount: 45,
+    hairTypes: ["Curly", "Coily", "Wavy", "Straight", "Chemically Treated", "Color Treated"],
+    scalpTypes: ["Normal", "Dry", "Oily", "Sensitive"],
+    concerns: ["Breakage", "Edges", "Tension"],
+    ingredientsShort: "Satin-covered soft elastic",
+    ingredientsINCI: "Cover: polyester satin. Core: soft covered elastic, no metal joins.",
+    benefits: [
+      "Satin cover glides over hair so it doesn't snag or break strands",
+      "No metal joins to catch or cut hair",
+      "Gentle hold that is kinder to edges than tight elastic bands",
+      "Six colours per set so there's one for every outfit"
+    ],
+    suitableFor: "Puffs, ponytails, buns and pineappling at night.",
+    netWeight: "Kids 7cm · Teens 9cm · Adults 11cm (diameter)",
+    shelfLife: "Not applicable (non-cosmetic)",
+    fragrance: "Not applicable",
+    sulfates: "Not applicable",
+    parabens: "Not applicable",
+    essentialOils: "Not applicable",
+    specs: [
+      { label: "Material", value: "Polyester satin, covered elastic" },
+      { label: "In the pack", value: "6 scrunchies, assorted colours" },
+      { label: "Care", value: "Hand wash cold" },
+      { label: "Metal-free", value: "Yes" }
+    ],
+    sizeGuide: {
+      Kids: "Ages 3–12 · 7cm mini · sized for small puffs and pigtails",
+      Teens: "Ages 13–17 · 9cm · medium hold for ponytails",
+      Adults: "Ages 18+ · 11cm · large, holds thick hair and braids"
+    },
+    usageInstructions: [
+      { step: "01", title: "Gather", text: "Gather hair loosely where you want the puff or ponytail." },
+      { step: "02", title: "Loop", text: "Wrap the scrunchie around two or three times until it feels secure but not tight." },
+      { step: "03", title: "Rotate", text: "Change the position day to day so tension doesn't build up on one spot." }
+    ],
+    safetyInformation: "Small parts: Kids size is not suitable for children under 3. Do not wear tightly for long periods.",
+    images: {
+      packaging: "assets/placeholders/tools/satin-scrunchies.jpg",
+      ingredients: "assets/placeholders/tools/satin-scrunchies.jpg",
+      texture: "assets/placeholders/lifestyle/textured-hair-portrait.jpg"
+    },
+    variants: [
+      { size: "Kids", priceFormatted: "₦4,500", priceValue: 4500, sku: "SLM-SCR-KID", stock: 36, availability: "In Stock" },
+      { size: "Teens", priceFormatted: "₦5,500", priceValue: 5500, sku: "SLM-SCR-TEN", stock: 32, availability: "In Stock" },
+      { size: "Adults", priceFormatted: "₦6,500", priceValue: 6500, sku: "SLM-SCR-ADL", stock: 40, availability: "In Stock" }
+    ],
+    reviews: [
+      { author: "Amaka C.", date: "September 2026", rating: 5, verified: true, title: "My girls love the colours", text: "Bought the kids set for my twins. No more broken ends from rubber bands." }
+    ],
+    createdAt: "2026-09-23"
+  },
+  {
+    id: "prod-25",
+    slug: "satin-pillowcase",
+    name: "Satin Pillowcase",
+    category: "Hair Tools & Accessories",
+    categorySlug: "hair-tools",
+    productType: "Pillowcase",
+    kind: "accessory",
+    descriptor: "Smooth satin pillowcase that protects hair even when the bonnet slips off in the night.",
+    badge: null,
+    featured: false,
+    bestseller: false,
+    rating: 4.8,
+    reviewCount: 38,
+    hairTypes: ["Curly", "Coily", "Wavy", "Straight", "Chemically Treated", "Color Treated"],
+    scalpTypes: ["Normal", "Dry", "Oily", "Sensitive"],
+    concerns: ["Breakage", "Frizz", "Dryness"],
+    ingredientsShort: "Charmeuse-weave satin, hidden zip",
+    ingredientsINCI: "100% polyester charmeuse-weave satin. Hidden zip closure.",
+    benefits: [
+      "Low-friction surface cuts down on frizz and breakage overnight",
+      "Doesn't soak up the moisture from your hair the way cotton does",
+      "A back-up for when bonnets slip off, which happens a lot with kids",
+      "Hidden zip keeps the pillow in place"
+    ],
+    suitableFor: "Every bed in the house, from toddler pillows to queen size.",
+    netWeight: "Kids 35×50cm · Teens 50×75cm · Adults 50×90cm",
+    shelfLife: "Not applicable (non-cosmetic)",
+    fragrance: "Not applicable",
+    sulfates: "Not applicable",
+    parabens: "Not applicable",
+    essentialOils: "Not applicable",
+    specs: [
+      { label: "Material", value: "Charmeuse-weave polyester satin" },
+      { label: "Closure", value: "Hidden zip" },
+      { label: "Care", value: "Machine wash 30°C, gentle cycle" },
+      { label: "In the pack", value: "1 pillowcase" }
+    ],
+    sizeGuide: {
+      Kids: "Ages 3–12 · 35×50cm toddler / junior pillow",
+      Teens: "Ages 13–17 · 50×75cm standard pillow",
+      Adults: "Ages 18+ · 50×90cm queen pillow"
+    },
+    usageInstructions: [
+      { step: "01", title: "Fit", text: "Slide the pillow in and close the hidden zip." },
+      { step: "02", title: "Sleep", text: "Use on its own or together with a bonnet for the most protection." },
+      { step: "03", title: "Wash", text: "Wash weekly on a gentle cycle and air dry." }
+    ],
+    safetyInformation: "Not suitable for use with babies under 12 months. Keep the zip closed.",
+    images: {
+      packaging: "assets/placeholders/tools/satin-pillowcase.jpg",
+      ingredients: "assets/placeholders/tools/satin-pillowcase.jpg",
+      texture: "assets/placeholders/lifestyle/philosophy-lifestyle.jpg"
+    },
+    variants: [
+      { size: "Kids", priceFormatted: "₦9,000", priceValue: 9000, sku: "SLM-PIL-KID", stock: 18, availability: "In Stock" },
+      { size: "Teens", priceFormatted: "₦13,000", priceValue: 13000, sku: "SLM-PIL-TEN", stock: 16, availability: "In Stock" },
+      { size: "Adults", priceFormatted: "₦15,000", priceValue: 15000, sku: "SLM-PIL-ADL", stock: 24, availability: "In Stock" }
+    ],
+    reviews: [
+      { author: "Zara I.", date: "September 2026", rating: 5, verified: true, title: "Backup for my son's bonnet", text: "His bonnet always comes off by midnight. With this pillowcase his hair is still fine in the morning." }
+    ],
+    createdAt: "2026-09-23"
   }
 ];
 
@@ -892,7 +1496,8 @@ export const SEARCH_SUGGESTIONS = {
     { title: "Hair Butters", slug: "hair-butters", count: 2 },
     { title: "Hair Masks", slug: "hair-masks", count: 2 },
     { title: "Scalp Treatments", slug: "scalp-treatments", count: 1 },
-    { title: "Styling Products", slug: "styling-products", count: 2 }
+    { title: "Styling Products", slug: "styling-products", count: 2 },
+    { title: "Hair Tools & Accessories", slug: "hair-tools", count: 9 }
   ],
   hairConcerns: [
     { label: "Dry & Dehydrated Curls", filter: "Dryness" },
@@ -936,9 +1541,12 @@ export function getCategoryBySlug(slug) {
  */
 export function getRelatedProducts(product, limit = 4) {
   if (!product) return [];
-  return PRODUCTS
-    .filter(p => p.id !== product.id && (p.categorySlug === product.categorySlug || p.hairTypes.some(h => product.hairTypes.includes(h))))
-    .slice(0, limit);
+  const others = PRODUCTS.filter(p => p.id !== product.id);
+  const sameCategory = others.filter(p => p.categorySlug === product.categorySlug);
+  const sharedHairType = others.filter(p =>
+    p.categorySlug !== product.categorySlug && p.hairTypes.some(h => product.hairTypes.includes(h))
+  );
+  return [...sameCategory, ...sharedHairType].slice(0, limit);
 }
 
 // Alias export for consistency

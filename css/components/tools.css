@@ -1,0 +1,204 @@
+/**
+ * Hair Tools & Accessories - Slimky Hair
+ *
+ * Age-group UI for physical products (Kids / Teens / Adults):
+ *  - Homepage age tiles (.tools-age-tiles)
+ *  - Category quick-chips (.age-chips)
+ *  - Filter hint text (.filter-age-hint)
+ * The PDP age picker lives in product.css next to the variant pills.
+ *
+ * Mobile first: every tap target is at least 44px tall.
+ */
+
+/* ==========================================================================
+   1. Homepage section
+   ========================================================================== */
+
+.tools-section {
+  padding-block: clamp(3.5rem, 6vw, 6.5rem);
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.tools-section .featured-products-header {
+  margin-bottom: var(--space-xl);
+}
+
+.tools-age-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: var(--space-xl);
+}
+
+.tools-age-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 88px;
+  padding: 12px 6px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  text-align: center;
+  text-decoration: none;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.tools-age-tile:hover {
+  border-color: var(--color-sage-dark);
+}
+
+.tools-age-tile:focus-visible {
+  outline: 2px solid var(--color-sage-dark);
+  outline-offset: 2px;
+}
+
+.tools-age-name {
+  font-family: var(--font-serif);
+  font-size: 1.375rem;
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.tools-age-range {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-sage-muted);
+}
+
+/* The extra note only fits comfortably from tablet width up. */
+.tools-age-note {
+  display: none;
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+@media (min-width: 768px) {
+  .tools-age-tiles {
+    gap: var(--space-md);
+    margin-bottom: var(--space-2xl);
+  }
+
+  .tools-age-tile {
+    min-height: 128px;
+    padding: var(--space-lg);
+  }
+
+  .tools-age-name {
+    font-size: 1.75rem;
+  }
+
+  .tools-age-note {
+    display: block;
+    margin-top: 4px;
+  }
+}
+
+/* ==========================================================================
+   2. Category quick-chips (Everyone / Kids / Teens / Adults)
+   ========================================================================== */
+
+.age-chips {
+  margin-bottom: var(--space-lg);
+}
+
+.age-chips-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+/* Phones: one row of four equal buttons, no horizontal scrolling. */
+.age-chips-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.age-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 6px 4px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.age-chip small {
+  font-size: 0.6875rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.age-chip:hover {
+  border-color: var(--color-sage-dark);
+}
+
+.age-chip:focus-visible {
+  outline: 2px solid var(--color-sage-dark);
+  outline-offset: 2px;
+}
+
+.age-chip.is-active {
+  background-color: var(--bg-dark);
+  border-color: var(--bg-dark);
+  color: #FFFFFF;
+}
+
+.age-chip.is-active small {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+@media (min-width: 768px) {
+  .age-chips {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .age-chips-label {
+    margin-bottom: 0;
+  }
+
+  .age-chips-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .age-chip {
+    flex-direction: row;
+    gap: 6px;
+    min-height: 44px;
+    padding: 8px 16px;
+  }
+}
+
+/* ==========================================================================
+   3. Filter hint ("Kids 3–12")
+   ========================================================================== */
+
+.filter-age-hint {
+  margin-left: 4px;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
